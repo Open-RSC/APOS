@@ -296,7 +296,7 @@ public final class BotFrame extends Frame {
             public void run() {
                 // do the thing
             	updateWorld(0);
-            }}, 2, TimeUnit.SECONDS);
+            }}, 10, TimeUnit.SECONDS);
 
         while (!countdown.isDone()) {
             try {
