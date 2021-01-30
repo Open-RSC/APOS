@@ -20,7 +20,7 @@
 			</classpath>
 			<compilerarg line="-Xlint:unchecked"/>
         </javac>
-		<jar basedir="${build}" destfile="${jar}">
+		<jar basedir="${build}" destfile="${jar}" manifest="MANIFEST.MF">
 			<manifest>
                 <attribute name="Main-Class" value="ClientInit"/>
             </manifest>
