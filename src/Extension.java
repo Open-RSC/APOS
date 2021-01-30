@@ -9,6 +9,7 @@ import javax.script.Invocable;
 import com.aposbot.BotFrame;
 import com.aposbot._default.IAutoLogin;
 import com.aposbot._default.IClient;
+import com.aposbot._default.IClientInit;
 import com.aposbot._default.IJokerFOCR;
 import com.aposbot._default.IPaintListener;
 import com.aposbot._default.IScript;
@@ -21,9 +22,18 @@ public class Extension extends client
 	private static final long serialVersionUID = 1L;
 	private final BotFrame frame;
 	private boolean disableKeys;
+	private IClientInit init;
 
 	Extension(BotFrame frame) {
 		this.frame = frame;
+	}
+	
+	public void setParentInit(IClientInit init) {
+		this.init = init;
+	}
+	
+	public IClientInit getParentInit() {
+		return this.init;
 	}
 
 	@Override
@@ -918,5 +928,15 @@ public class Extension extends client
 	@Override
 	public int getGameHeight() {
 		return Oi + 12;
+	}
+	
+	@Override
+	public void setServerAddress(String serverAddress) {
+		Dh = serverAddress;
+	}
+	
+	@Override
+	public String getServerAddress() {
+		return Dh;
 	}
 }

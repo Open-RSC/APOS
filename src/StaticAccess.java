@@ -34,6 +34,21 @@ public final class StaticAccess
 	    "Charge"
 	};
 	
+	static final int[] CACHE_SUMS = {
+			0x229aa476,
+			0x1c9fa8c3,
+			0x2fdddb3c,
+			0x5181c9f5,
+			0xaaca2b0d,
+			0x6a1d6b00,
+			0xe997514b,
+			0x3fc5d9e3,
+			0xb03e2a0c,
+			0xe0e19e2c,
+			0xa95e7195,
+			0x7d5437c5
+	};
+	
 	private static final StaticAccess instance = new StaticAccess();
 
 	@Override
@@ -285,6 +300,10 @@ public final class StaticAccess
 				la.g[index] = k.a(128, true, data);
 				return la.g[index];
 			}
+		}
+		
+		if (tb.l[index] == 0) {
+			tb.l[index] = CACHE_SUMS[index];
 		}
 		
 		String filename = (new StringBuilder()).append(ib.z[5])

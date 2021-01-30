@@ -23,6 +23,9 @@ public final class Constants {
 	public static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
 	public static final Random RANDOM = new BobRand();
+	
+	public static final String RSAKEY_URANIUM_MEMB = "7112866275597968156550007489163685737528267584779959617759901583041864787078477876689003422509099353805015177703670715380710894892460637136582066351659813";
+	public static final String RSAEXPONENT_URANIUM_MEMB = "65537";
 
 	public static final int OP_NPC_ATTACK = 190;
 	public static final int OP_NPC_ACTION = 202;

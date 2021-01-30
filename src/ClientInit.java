@@ -1,3 +1,6 @@
+import java.lang.reflect.Field;
+import java.math.BigInteger;
+
 import javax.swing.UIManager;
 
 import com.aposbot.BotFrame;
@@ -34,6 +37,7 @@ public final class ClientInit
     public IClient createClient(BotFrame frame) {
     	client.il[237] = "Welcome to @cya@APOS";
         final Extension ex = new Extension(frame);
+        ex.setParentInit(this);
         ScriptListener.init(ex);
         AutoLogin.init(ex);
         PaintListener.init(ex);
@@ -58,5 +62,15 @@ public final class ClientInit
 	@Override
 	public IPaintListener getPaintListener() {
 		return PaintListener.get();
+	}
+	
+	@Override
+	public void setRSAKey(String key) {
+		ja.K = new BigInteger(key);
+	}
+	
+	@Override
+	public void setRSAExponent(String exponent) {
+		s.c = new BigInteger(exponent);
 	}
 }

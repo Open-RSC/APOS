@@ -8,6 +8,10 @@ import java.awt.event.KeyEvent;
 import javax.script.Invocable;
 
 public interface IClient {
+	
+	public void setParentInit(IClientInit init);
+	
+	public IClientInit getParentInit();
 
 	public Dimension getPreferredSize();
 
@@ -290,4 +294,8 @@ public interface IClient {
 	public int getGameHeight();
 
 	public void onLoggedIn();
+	
+	public void setServerAddress(String serverAddress);
+	
+	public String getServerAddress();
 }

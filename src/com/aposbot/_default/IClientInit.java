@@ -13,4 +13,8 @@ public interface IClientInit {
 	public IScriptListener getScriptListener();
 	
 	public IPaintListener getPaintListener();
+	
+	public void setRSAKey(String key);
+	
+	public void setRSAExponent(String exponent);
 }

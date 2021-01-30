@@ -5,8 +5,21 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
@@ -56,24 +69,13 @@ public final class BotFrame extends Frame {
 			} catch (final Throwable t) {
 			}
 		}
-
+		
 		//final int defaultWorld = Constants.RANDOM.nextBoolean() ? 2 : 3;
 		final int defaultWorld = 2 + Constants.RANDOM.nextInt(4);
 
 		final String str = "http://classic" + defaultWorld + ".runescape.com/";
 
-		final String rsc_page;
-		try {
-			byte[] b = HTTPClient.load(str +
-				"plugin.js?param=o0,a1,s0", str, true);
-			rsc_page = new String(b, Constants.UTF_8);
-		} catch (final Throwable t) {
-				System.out.println("Error fetching RSC page: " + t.toString());
-				dispose();
-				return;
-		}
-
-		Map<String, String> params = HTTPClient.getParameters(rsc_page);
+		Map<String, String> params = getBaseParameters();
 
 		client = init.createClient(this);
 		((Component)client).setBackground(Color.BLACK);
@@ -106,12 +108,7 @@ public final class BotFrame extends Frame {
 		worldChoice.setPreferredSize(buttonSize);
 		worldChoice.setForeground(SystemColor.textText);
 		worldChoice.setBackground(SystemColor.text);
-		worldChoice.add("World # 1");
-		worldChoice.add("World # 2");
-		worldChoice.add("World # 3");
-		worldChoice.add("World # 4");
-		worldChoice.add("World # 5");
-		worldChoice.select(defaultWorld - 1);
+		addModernAllowedWorlds(worldChoice);
 		worldChoice.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent event) {
@@ -282,10 +279,34 @@ public final class BotFrame extends Frame {
 
 		pack();
 		setMinimumSize(getSize());
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 		client.init();
 		stub.setActive(true);
 		client.start();
+		
+		
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+		
+		// original jar doesnt want to load jar if doesn't come from *.runescape.com
+		// so here we set a timeout after it has done that check to change the
+		// world
+		ScheduledFuture<?> countdown = scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                // do the thing
+            	updateWorld(0);
+            }}, 2, TimeUnit.SECONDS);
+
+        while (!countdown.isDone()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        scheduler.shutdown();
+		
 	}
 
 	private void quit() {
@@ -369,17 +390,82 @@ public final class BotFrame extends Frame {
 	public String getCodeBase() {
 		return stub.getCodeBase().toString();
 	}
+	
+	/* Gets parameters for use in RSC Uranium (Membs) */
+	public Map<String, String> getBaseParameters() {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("nodeid", "3235");
+		params.put("modewhere", "1");
+		params.put("modewhat", "0");
+		params.put("servertype", "1");
+		params.put("js", "1");
+		params.put("settings", "wwGlrZHF5gKN6D3mDdihco3oPeYN2KFybL9hUUFqOvk");
+		return params;
+	}
+	
+	/* Gets game parameters from the old classic.runescape.com url */
+	public Map<String, String> getParameters(String classicUrl) {
+		final String rsc_page;
+		try {
+			byte[] b = HTTPClient.load(classicUrl +
+				"plugin.js?param=o0,a1,s0", classicUrl, true);
+			rsc_page = new String(b, Constants.UTF_8);
+		} catch (final Throwable t) {
+				System.out.println("Error fetching RSC page: " + t.toString());
+				dispose();
+				return new HashMap<String, String>();
+		}
+		
+		return HTTPClient.getParameters(rsc_page);
+	}
 
 	public void updateWorld(int i) {
+		String wanted = worldChoice.getItem(i);
+		URL url;
+		String nodeid;
+		String serverType;
 		try {
-			final URL url = new URL("http://classic" + i + ".runescape.com/");
+			if (wanted.contains("RSC Uranium")) {
+				url = new URL("http://game.openrsc.com/");
+				nodeid = "3235";
+				serverType = "1";
+				client.getParentInit().setRSAKey(Constants.RSAKEY_URANIUM_MEMB);
+				client.getParentInit().setRSAExponent(Constants.RSAEXPONENT_URANIUM_MEMB);
+			} else {
+				int j = 2;
+				Pattern pattern = Pattern.compile("\"([0-9]+)\"");
+				Matcher matcher = pattern.matcher(wanted);
+
+		        if (matcher.find()) {
+		        	j = Integer.parseInt(matcher.group());
+		        }
+		        url = new URL("http://classic" + j + ".runescape.com/");
+		        nodeid = String.valueOf(5000 + j);
+		        serverType = j == 1 ? "3" : "1";
+			}
+			
 			stub.setDocumentBase(url);
 			stub.setCodeBase(url);
-		} catch (final Throwable t) {
+			
+			stub.setParameter("nodeid", nodeid);
+			stub.setParameter("servertype", serverType);
+			worldChoice.select(i);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		stub.setParameter("nodeid", String.valueOf(5000 + i));
-		stub.setParameter("servertype", i == 1 ? "3" : "1");
-		worldChoice.select(i - 1);
+	}
+	
+	public void addJagexClassicWorlds(Choice worlds) {
+		worlds.add("World # 1");
+		worlds.add("World # 2");
+		worlds.add("World # 3");
+		worlds.add("World # 4");
+		worlds.add("World # 5");
+	}
+	
+	public void addModernAllowedWorlds(Choice worlds) {
+		worlds.add("RSC Uranium (Membs)");
 	}
 
 	public void setAutoLogin(boolean b) {
