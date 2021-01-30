@@ -1,20 +1,48 @@
-<?xml version="1.0"?>
-<project name="APOS" default="run">
+<project name="APOS" default="compile-and-run" basedir=".">
+	<property name="src" location="src"/>
+	<property name="build" location="build"/>
+	<property name="scripts" location="scripts"/>
+    <property name="lib" location="lib"/>
+    <property name="jar" location="bot.jar"/>
+    <property name="javac.source" value="1.7"/>
+    <property name="javac.target" value="1.7"/>
+
 	<target name="compile">
-		<mkdir dir="bin" />
-		<javac srcdir="src" destdir="bin" debug="true"
-		    source="1.7" target="1.7"
-		    classpath="lib/rsclassic.jar" />
+		<delete file="${jar}"/>
+		<delete dir="${build}"/>
+        <mkdir dir="${build}"/>
+		<javac srcdir="${src}" destdir="${build}" debug="on" includeantruntime="false" target="${javac.target}"
+               source="${javac.source}">
+            <classpath>
+                <pathelement location="${jar}"/>
+                <pathelement path="${java.class.path}/"/>
+				<pathelement location="${lib}/rsclassic.jar"/>
+			</classpath>
+			<compilerarg line="-Xlint:unchecked"/>
+        </javac>
+		<jar basedir="${build}" destfile="${jar}">
+			<manifest>
+                <attribute name="Main-Class" value="ClientInit"/>
+            </manifest>
+        </jar>
+		<!--<javac srcdir="${scripts}" destdir="${scripts}" debug="on" includeantruntime="false" target="${javac.target}"
+               source="${javac.source}">
+			<compilerarg line="-Xlint:unchecked"/>
+        </javac>-->
 	</target>
-	<target name="jar" depends="compile">
-		<jar basedir="bin" destfile="bot.jar"
-		    manifest="MANIFEST.MF" />
-	</target>
-	<target name="run" depends="jar">
-		<java classpath="bot.jar:lib/rsclassic.jar"
-		    fork="true" classname="ClientInit" dir="." />
-	</target>
-	<target name="clean">
-		<delete dir="bin" />
-	</target>
+	
+	<target name="runclient">
+        <java classname="ClientInit" fork="true">
+            <jvmarg line="-Xms312m -Dsun.java2d.opengl=true"/>
+            <classpath>
+                <pathelement path="${jar}:${lib}/rsclassic.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="compile-and-run">
+        <antcall target="compile"/>
+        <antcall target="runclient"/>
+    </target>
+	
 </project>
