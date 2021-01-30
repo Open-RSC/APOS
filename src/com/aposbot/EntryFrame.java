@@ -17,6 +17,8 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import com.aposbot._default.IClientInit;
@@ -170,10 +172,15 @@ public final class EntryFrame extends Frame {
 		try {
 			final File dir = new File("." + File.separator + "Accounts" + File.separator);
 			final String[] account_list = dir.list();
-			accountNames = new String[account_list.length];
+			List<String> accounts = new ArrayList<String>();
 			for (int i = 0; i < account_list.length; ++i) {
+				if (account_list[i].endsWith(".properties")) {
+					accounts.add(account_list[i].replace(".properties", ""));
+				}
 				accountNames[i] = account_list[i].replace(".properties", "");
 			}
+			accountNames = new String[accounts.size()];
+			accountNames = accounts.toArray(accountNames);
 		} catch (final Throwable t) {
 			System.out.println("Error loading accounts: " + t.toString());
 			accountNames = new String[0];
