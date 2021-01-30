@@ -174,10 +174,9 @@ public final class EntryFrame extends Frame {
 			final String[] account_list = dir.list();
 			List<String> accounts = new ArrayList<String>();
 			for (int i = 0; i < account_list.length; ++i) {
-				if (account_list[i].endsWith(".properties")) {
+				if (account_list[i].endsWith("properties")) {
 					accounts.add(account_list[i].replace(".properties", ""));
 				}
-				accountNames[i] = account_list[i].replace(".properties", "");
 			}
 			accountNames = new String[accounts.size()];
 			accountNames = accounts.toArray(accountNames);

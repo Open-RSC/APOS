@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -285,27 +286,17 @@ public final class BotFrame extends Frame {
 		stub.setActive(true);
 		client.start();
 		
-		
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
-		
+				
 		// original jar doesnt want to load jar if doesn't come from *.runescape.com
 		// so here we set a timeout after it has done that check to change the
 		// world
-		ScheduledFuture<?> countdown = scheduler.schedule(new Runnable() {
-            @Override
-            public void run() {
-                // do the thing
-            	updateWorld(0);
-            }}, 10, TimeUnit.SECONDS);
-
-        while (!countdown.isDone()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        scheduler.shutdown();
+		final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
+		executor.schedule(new Runnable() {
+		  @Override
+		  public void run() {
+			  updateWorld(0);
+		  }
+		}, 10, TimeUnit.SECONDS);
 		
 	}
 
