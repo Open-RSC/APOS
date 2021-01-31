@@ -1,14 +1,8 @@
 # APOS property files
 *.properties
 
-# APOS scripts
-Scripts/*.class
-!Scripts/.gitsave
-
 # Compiled class file
-bin/
-*.class
-!Scripts/*.class
+build/
 
 # Cached content files
 Content/*

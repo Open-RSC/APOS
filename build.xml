@@ -25,10 +25,17 @@
                 <attribute name="Main-Class" value="ClientInit"/>
             </manifest>
         </jar>
-		<!--<javac srcdir="${scripts}" destdir="${scripts}" debug="on" includeantruntime="false" target="${javac.target}"
+		<javac srcdir="${scripts}" destdir="${scripts}" debug="on" includeantruntime="false" target="${javac.target}"
                source="${javac.source}">
 			<compilerarg line="-Xlint:unchecked"/>
-        </javac>-->
+			<classpath>
+                <pathelement location="${jar}"/>
+                <pathelement path="${java.class.path}/"/>
+				<pathelement location="${lib}/rsclassic.jar"/>
+				<pathelement location="${jar}"/>
+			</classpath>
+			<compilerarg line="-Xlint:deprecation"/>
+        </javac>
 	</target>
 	
 	<target name="runclient">
