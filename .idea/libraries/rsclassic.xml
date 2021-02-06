@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="rsclassic">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/rsclassic.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
