@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -206,19 +207,9 @@ public final class ScriptFrame extends Frame {
 
         final java.util.List<String> list = new ArrayList<>();
 
-        final int len = files.length;
+        int len = files.length;
         for (int i = 0; i < len; i++) {
-            final String name = files[i];
-            if (new File(name).isDirectory()) {
-                continue;
-            }
-            if (name.endsWith(".java") || 
-                name.indexOf('$') != -1 || 
-                name.startsWith("_") || 
-                name.indexOf('.') == -1) {
-                continue;
-            }
-            list.add(name);
+            process(dir + File.separator + files[i],list);
         }
         Collections.sort(list);
 
@@ -226,6 +217,27 @@ public final class ScriptFrame extends Frame {
         for (final String str : list) {
             displayed_list.add(str);
         }
+    }
+
+    public void process(String filename, List<String> list){
+        File bonusdir = new File((filename));
+        System.out.println(filename);
+        filename = filename.replace(dir.toString() + File.separator,"");
+        if (bonusdir.isDirectory()) {
+            String[] bonusFiles = bonusdir.list();
+            if(bonusFiles != null) {
+                for (int j = 0; j < bonusFiles.length; j++){
+                    process(File.separator + filename + File.separator + bonusFiles[j],list);
+                }
+            }
+        }
+        if (filename.endsWith(".java") ||
+                filename.indexOf('$') != -1 ||
+                filename.startsWith("_") ||
+                filename.indexOf('.') == -1) {
+            return;
+        }
+        list.add(filename);
     }
 
     @Override

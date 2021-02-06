@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 public final class ScriptClassLoader extends ClassLoader {
@@ -41,6 +42,7 @@ public final class ScriptClassLoader extends ClassLoader {
                 }
             }
         }
+        name = name.substring(name.lastIndexOf(File.separator) + 1);
         final Class<?> c = defineClass(name, b, 0, len);
         classes.put(name, c);
         return c;
