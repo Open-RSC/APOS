@@ -62,7 +62,7 @@ public final class BotLoader {
             System.out.println("To launch the bot without the built-in console, use at least one command-line argument.");
 
             final TextArea cTextArea = new TextArea(null, 0, 0, TextArea.SCROLLBARS_VERTICAL_ONLY);
-            BotFrame.setColours(cTextArea, true);
+            BotFrame.setColours(cTextArea);
             cTextArea.setEditable(false);
             this.cTextArea = cTextArea;
 
@@ -72,10 +72,6 @@ public final class BotLoader {
             final Insets in = cFrame.getInsets();
             cFrame.setSize(in.right + in.left + 545, in.top + in.bottom + 320);
             cFrame.setIconImages(Constants.ICONS);
-            /*cFrame.setLocationRelativeTo(null);
-            cFrame.setVisible(true);
-            cFrame.toFront();
-            cFrame.requestFocus();*/
             this.cFrame = cFrame;
 
             final PrintStream ps = new PrintStream(new TextAreaOutputStream(cTextArea));
