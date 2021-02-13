@@ -1,5 +1,9 @@
 package com.aposbot;
 
+import com.aposbot._default.*;
+import com.aposbot.applet.AVStub;
+
+import javax.imageio.ImageIO;
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
@@ -16,19 +20,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
-
-import com.aposbot._default.IAutoLogin;
-import com.aposbot._default.IClient;
-import com.aposbot._default.IClientInit;
-import com.aposbot._default.IJokerFOCR;
-import com.aposbot._default.IPaintListener;
-import com.aposbot._default.IScriptListener;
-import com.aposbot.applet.AVStub;
-
 public final class BotFrame extends Frame {
 
     private static final long serialVersionUID = -2847514806687135697L;
+    private final IClient client;
     private Checkbox loginCheck;
     private Checkbox gfxCheck;
     private Button startButton;
@@ -36,7 +31,6 @@ public final class BotFrame extends Frame {
     private ScriptFrame scriptFrame;
     private Choice worldChoice;
     private AVStub stub;
-    private final IClient client;
 
     BotFrame(IClientInit init, final TextArea cTextArea, String account) {
         super("APOS (" + account + ")");
@@ -251,6 +245,18 @@ public final class BotFrame extends Frame {
 
     }
 
+    static void setColours(Component c) {
+        c.setFont(Constants.UI_FONT);
+        c.setBackground(Color.BLACK);
+        c.setForeground(Color.WHITE);
+    }
+
+    private static void setButtonColours(Button b) {
+        b.setFont(Constants.UI_FONT);
+        b.setForeground(SystemColor.controlText);
+        b.setBackground(SystemColor.control);
+    }
+
     private void quit() {
         client.getScriptListener().setScriptRunning(false);
         if (stub != null) {
@@ -273,18 +279,6 @@ public final class BotFrame extends Frame {
             requestFocus();
         }
         super.setVisible(visible);
-    }
-
-    static void setColours(Component c) {
-        c.setFont(Constants.UI_FONT);
-        c.setBackground(Color.BLACK);
-        c.setForeground(Color.WHITE);
-    }
-
-    private static void setButtonColours(Button b) {
-        b.setFont(Constants.UI_FONT);
-        b.setForeground(SystemColor.controlText);
-        b.setBackground(SystemColor.control);
     }
 
     void startScript() {

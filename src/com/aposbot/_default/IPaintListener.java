@@ -2,19 +2,19 @@ package com.aposbot._default;
 
 public interface IPaintListener {
 
-	public void onPaint();
+    void onPaint();
 
-	public void resetDisplayedXp();
+    void resetDisplayedXp();
 
-	public boolean isPaintingEnabled();
+    boolean isPaintingEnabled();
 
-	public void setPaintingEnabled(boolean b);
+    void setPaintingEnabled(boolean b);
 
-	public void setBanned(boolean b);
+    void setBanned(boolean b);
 
-	public void doResize(int w, int h);
+    void doResize(int w, int h);
 
-	public void setRenderTextures(boolean b);
+    void setRenderTextures(boolean b);
 
-	public void setRenderSolid(boolean b);
+    void setRenderSolid(boolean b);
 }

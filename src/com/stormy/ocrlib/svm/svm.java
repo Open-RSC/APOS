@@ -1,11 +1,6 @@
 package com.stormy.ocrlib.svm;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -17,17 +12,9 @@ import java.util.StringTokenizer;
 //
 class Cache {
     private final int l;
-    private long size;
-
-    private final class head_t {
-        head_t prev, next; // a cicular list
-        float[] data;
-        int len; // data[0,len) is cached in this entry
-    }
-
     private final head_t[] head;
     private final head_t lru_head;
-
+    private long size;
     Cache(int l_, long size_) {
         l = l_;
         size = size_;
@@ -144,6 +131,12 @@ class Cache {
             }
         }
     }
+
+    private final class head_t {
+        head_t prev, next; // a cicular list
+        float[] data;
+        int len; // data[0,len) is cached in this entry
+    }
 }
 
 //
@@ -159,7 +152,7 @@ abstract class QMatrix {
     abstract double[] get_QD();
 
     abstract void swap_index(int i, int j);
-};
+}
 
 abstract class Kernel extends QMatrix {
     private final svm_node[][] x;
@@ -170,55 +163,6 @@ abstract class Kernel extends QMatrix {
     private final int degree;
     private final double gamma;
     private final double coef0;
-
-    @Override
-    abstract float[] get_Q(int column, int len);
-
-    @Override
-    abstract double[] get_QD();
-
-    @Override
-    void swap_index(int i, int j) {
-        {
-            final svm_node[] x = this.x[i];
-            this.x[i] = this.x[j];
-            this.x[j] = x;
-        }
-        if (x_square != null) {
-            final double v = x_square[i];
-            x_square[i] = x_square[j];
-            x_square[j] = v;
-        }
-    }
-
-    private static double powi(double base, int times) {
-        double tmp = base, ret = 1.0;
-
-        for (int t = times; t > 0; t /= 2) {
-            if (t % 2 == 1) {
-                ret *= tmp;
-            }
-            tmp = tmp * tmp;
-        }
-        return ret;
-    }
-
-    double kernel_function(int i, int j) {
-        switch (kernel_type) {
-            case svm_parameter.LINEAR:
-                return dot(x[i], x[j]);
-            case svm_parameter.POLY:
-                return powi(gamma * dot(x[i], x[j]) + coef0, degree);
-            case svm_parameter.RBF:
-                return Math.exp(-gamma * (x_square[i] + x_square[j] - 2 * dot(x[i], x[j])));
-            case svm_parameter.SIGMOID:
-                return Math.tanh(gamma * dot(x[i], x[j]) + coef0);
-            case svm_parameter.PRECOMPUTED:
-                return x[i][(int) (x[j][0].value)].value;
-            default:
-                return 0; // java
-        }
-    }
 
     Kernel(int l, svm_node[][] x_, svm_parameter param) {
         kernel_type = param.kernel_type;
@@ -236,6 +180,18 @@ abstract class Kernel extends QMatrix {
         } else {
             x_square = null;
         }
+    }
+
+    private static double powi(double base, int times) {
+        double tmp = base, ret = 1.0;
+
+        for (int t = times; t > 0; t /= 2) {
+            if (t % 2 == 1) {
+                ret *= tmp;
+            }
+            tmp = tmp * tmp;
+        }
+        return ret;
     }
 
     static double dot(svm_node[] x, svm_node[] y) {
@@ -303,6 +259,43 @@ abstract class Kernel extends QMatrix {
                 return 0; // java
         }
     }
+
+    @Override
+    abstract float[] get_Q(int column, int len);
+
+    @Override
+    abstract double[] get_QD();
+
+    @Override
+    void swap_index(int i, int j) {
+        {
+            final svm_node[] x = this.x[i];
+            this.x[i] = this.x[j];
+            this.x[j] = x;
+        }
+        if (x_square != null) {
+            final double v = x_square[i];
+            x_square[i] = x_square[j];
+            x_square[j] = v;
+        }
+    }
+
+    double kernel_function(int i, int j) {
+        switch (kernel_type) {
+            case svm_parameter.LINEAR:
+                return dot(x[i], x[j]);
+            case svm_parameter.POLY:
+                return powi(gamma * dot(x[i], x[j]) + coef0, degree);
+            case svm_parameter.RBF:
+                return Math.exp(-gamma * (x_square[i] + x_square[j] - 2 * dot(x[i], x[j])));
+            case svm_parameter.SIGMOID:
+                return Math.tanh(gamma * dot(x[i], x[j]) + coef0);
+            case svm_parameter.PRECOMPUTED:
+                return x[i][(int) (x[j][0].value)].value;
+            default:
+                return 0; // java
+        }
+    }
 }
 
 // An SMO algorithm in Fan et al., JMLR 6(2005), p. 1889--1918
@@ -324,12 +317,13 @@ abstract class Kernel extends QMatrix {
 // solution will be put in \alpha, objective value will be put in obj
 //
 class Solver {
-    int active_size;
-    byte[] y;
-    double[] G; // gradient of objective function
     static final byte LOWER_BOUND = 0;
     static final byte UPPER_BOUND = 1;
     static final byte FREE = 2;
+    static final double INF = java.lang.Double.POSITIVE_INFINITY;
+    int active_size;
+    byte[] y;
+    double[] G; // gradient of objective function
     byte[] alpha_status; // LOWER_BOUND, UPPER_BOUND, FREE
     double[] alpha;
     QMatrix Q;
@@ -341,8 +335,6 @@ class Solver {
     double[] G_bar; // gradient, if we treat free variables as 0
     int l;
     boolean unshrink; // XXX
-
-    static final double INF = java.lang.Double.POSITIVE_INFINITY;
 
     double get_C(int i) {
         return (y[i] > 0) ? Cp : Cn;
@@ -368,16 +360,6 @@ class Solver {
 
     boolean is_free(int i) {
         return alpha_status[i] == FREE;
-    }
-
-    // java: information about solution except alpha,
-    // because we cannot return multiple values otherwise...
-    static class SolutionInfo {
-        double obj;
-        double rho;
-        double upper_bound_p;
-        double upper_bound_n;
-        double r; // for Solver_NU
     }
 
     void swap_index(int i, int j) {
@@ -913,6 +895,16 @@ class Solver {
         return r;
     }
 
+    // java: information about solution except alpha,
+    // because we cannot return multiple values otherwise...
+    static class SolutionInfo {
+        double obj;
+        double rho;
+        double upper_bound_p;
+        double upper_bound_n;
+        double r; // for Solver_NU
+    }
+
 }
 
 //
@@ -1254,9 +1246,9 @@ class SVR_Q extends Kernel {
     private final Cache cache;
     private final byte[] sign;
     private final int[] index;
-    private int next_buffer;
     private final float[][] buffer;
     private final double[] QD;
+    private int next_buffer;
 
     SVR_Q(svm_problem prob, svm_parameter param) {
         super(prob.l, prob.x, param);
@@ -1327,6 +1319,12 @@ public class svm {
     //
     public static final int LIBSVM_VERSION = 317;
     public static final Random rand = new Random();
+    static final String[] svm_type_table = {
+            "c_svc", "nu_svc", "one_class", "epsilon_svr", "nu_svr",
+    };
+    static final String[] kernel_type_table = {
+            "linear", "polynomial", "rbf", "sigmoid", "precomputed"
+    };
 
     static void info(String s) {
         System.out.print(s);
@@ -1506,16 +1504,6 @@ public class svm {
             alpha[i] = alpha2[i] - alpha2[i + l];
         }
     }
-
-    //
-    // decision_function
-    //
-    static class decision_function {
-        double[] alpha;
-        double rho;
-    }
-
-    ;
 
     static decision_function svm_train_one(svm_problem prob,
                                            svm_parameter param, double Cp, double Cn) {
@@ -2467,14 +2455,6 @@ public class svm {
         }
     }
 
-    static final String svm_type_table[] = {
-            "c_svc", "nu_svc", "one_class", "epsilon_svr", "nu_svr",
-    };
-
-    static final String kernel_type_table[] = {
-            "linear", "polynomial", "rbf", "sigmoid", "precomputed"
-    };
-
     public static void svm_save_model(String model_file_name, svm_model model) throws IOException {
         final DataOutputStream fp = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(model_file_name)));
 
@@ -2816,5 +2796,13 @@ public class svm {
         } else {
             return 0;
         }
+    }
+
+    //
+    // decision_function
+    //
+    static class decision_function {
+        double[] alpha;
+        double rho;
     }
 }

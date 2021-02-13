@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 final class BobRand extends Random {
-    
+
     // http://burtleburtle.net/bob/rand/smallprng.html
     // Public domain.
 
@@ -13,15 +13,19 @@ final class BobRand extends Random {
     private int b = 0;
     private int c = 0;
     private int d = 0;
-    
+
     public BobRand() {
         setSeed(new SecureRandom().nextInt());
     }
-    
+
     public BobRand(int seed) {
         setSeed(seed);
     }
-    
+
+    private static int rot(int x, int k) {
+        return ((x << k) | (x >>> (32 - k)));
+    }
+
     public void setSeed(int seed) {
         a = 0xf1ea5eed;
         b = c = d = seed;
@@ -29,14 +33,10 @@ final class BobRand extends Random {
             next(32);
         }
     }
-    
+
     @Override
     public void setSeed(long seed) {
         setSeed((int) seed);
-    }
-    
-    private static int rot(int x, int k) {
-        return ((x << k) | (x >>> (32 - k)));
     }
 
     @Override

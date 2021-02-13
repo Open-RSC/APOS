@@ -1,301 +1,299 @@
 package com.aposbot._default;
 
+import javax.script.Invocable;
 import java.applet.AppletStub;
-import java.awt.Dimension;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 
-import javax.script.Invocable;
-
 public interface IClient {
-	
-	public void setParentInit(IClientInit init);
-	
-	public IClientInit getParentInit();
 
-	public Dimension getPreferredSize();
+    IClientInit getParentInit();
 
-	public void keyPressed(KeyEvent event);
+    void setParentInit(IClientInit init);
 
-	public void setRendering(boolean enabled);
+    Dimension getPreferredSize();
 
-	public boolean isRendering();
+    void keyPressed(KeyEvent event);
 
-	public void setAutoLogin(boolean b);
+    boolean isRendering();
 
-	public void setKeysDisabled(boolean b);
+    void setRendering(boolean enabled);
 
-	public void stopScript();
+    void setKeysDisabled(boolean b);
 
-	public void takeScreenshot(String fileName);
+    void stopScript();
 
-	public void setServer(int id);
+    void takeScreenshot(String fileName);
 
-	public int getServer();
+    int getServer();
 
-	public int getCameraNSOffset();
+    void setServer(int id);
 
-	public void setCameraNSOffset(int i);
+    int getCameraNSOffset();
 
-	public int getCameraEWOffset();
+    void setCameraNSOffset(int i);
 
-	public void setCameraEWOffset(int i);
+    int getCameraEWOffset();
 
-	public int getCameraHeight();
+    void setCameraEWOffset(int i);
 
-	public void setCameraHeight(int i);
+    int getCameraHeight();
 
-	public void setActionInd(int i);
+    void setCameraHeight(int i);
 
-	public void closeWelcomeBox();
+    void setActionInd(int i);
 
-	public int getLocalX();
+    void closeWelcomeBox();
 
-	public int getLocalY();
+    int getLocalX();
 
-	public void setLogoutTimer(int i);
+    int getLocalY();
 
-	public int getAreaX();
+    void setLogoutTimer(int i);
 
-	public int getAreaY();
+    int getAreaX();
 
-	public int getBaseLevel(int skill);
+    int getAreaY();
 
-	public int getCurrentLevel(int skill);
+    int getBaseLevel(int skill);
 
-	public double getExperience(int skill);
+    int getCurrentLevel(int skill);
 
-	public int getCombatStyle();
+    double getExperience(int skill);
 
-	public void setCombatStyle(int i);
-	
-	public String[] getDialogOptions();
+    int getCombatStyle();
 
-	public int getDialogOptionCount();
+    void setCombatStyle(int i);
 
-	public boolean isDialogVisible();
+    String[] getDialogOptions();
 
-	public void setDialogVisible(boolean b);
+    int getDialogOptionCount();
 
-	public boolean isSleeping();
+    boolean isDialogVisible();
 
-	public int getInventorySize();
+    void setDialogVisible(boolean b);
 
-	public int getInventoryId(int i);
+    boolean isSleeping();
 
-	public int getInventoryStack(int i);
+    int getInventorySize();
 
-	public boolean isBankVisible();
+    int getInventoryId(int i);
 
-	public void setBankVisible(boolean b);
+    int getInventoryStack(int i);
 
-	public int getBankSize();
+    boolean isBankVisible();
 
-	public int getBankId(int i);
+    void setBankVisible(boolean b);
 
-	public int getBankStack(int i);
+    int getBankSize();
 
-	public int getGroundItemCount();
+    int getBankId(int i);
 
-	public int getGroundItemLocalX(int i);
+    int getBankStack(int i);
 
-	public int getGroundItemLocalY(int i);
+    int getGroundItemCount();
 
-	public int getGroundItemId(int i);
+    int getGroundItemLocalX(int i);
 
-	public int getObjectCount();
+    int getGroundItemLocalY(int i);
 
-	public int getObjectLocalX(int i);
+    int getGroundItemId(int i);
 
-	public int getObjectLocalY(int i);
+    int getObjectCount();
 
-	public int getObjectId(int i);
+    int getObjectLocalX(int i);
 
-	public int getObjectDir(int i);
+    int getObjectLocalY(int i);
 
-	public int getBoundCount();
+    int getObjectId(int i);
 
-	public int getBoundLocalX(int i);
+    int getObjectDir(int i);
 
-	public int getBoundLocalY(int i);
+    int getBoundCount();
 
-	public int getBoundDir(int i);
+    int getBoundLocalX(int i);
 
-	public int getBoundId(int i);
+    int getBoundLocalY(int i);
 
-	public void typeChar(char key_char, int key_code);
+    int getBoundDir(int i);
 
-	public boolean isShopVisible();
+    int getBoundId(int i);
 
-	public void setShopVisible(boolean b);
+    void typeChar(char key_char, int key_code);
 
-	public int getShopSize();
+    boolean isShopVisible();
 
-	public int getShopId(int i);
+    void setShopVisible(boolean b);
 
-	public int getShopStack(int i);
+    int getShopSize();
 
-	public boolean isEquipped(int slot);
+    int getShopId(int i);
 
-	public boolean isPrayerEnabled(int id);
+    int getShopStack(int i);
 
-	public void setPrayerEnabled(int i, boolean flag);
+    boolean isEquipped(int slot);
 
-	public boolean isInTradeOffer();
+    boolean isPrayerEnabled(int id);
 
-	public void setInTradeOffer(boolean b);
+    void setPrayerEnabled(int i, boolean flag);
 
-	public boolean isInTradeConfirm();
+    boolean isInTradeOffer();
 
-	public void setInTradeConfirm(boolean b);
+    void setInTradeOffer(boolean b);
 
-	public boolean hasLocalAcceptedTrade();
+    boolean isInTradeConfirm();
 
-	public boolean hasLocalConfirmedTrade();
+    void setInTradeConfirm(boolean b);
 
-	public boolean hasRemoteAcceptedTrade();
+    boolean hasLocalAcceptedTrade();
 
-	public int getLocalTradeItemCount();
+    boolean hasLocalConfirmedTrade();
 
-	public int getLocalTradeItemId(int i);
+    boolean hasRemoteAcceptedTrade();
 
-	public int getLocalTradeItemStack(int i);
+    int getLocalTradeItemCount();
 
-	public int getRemoteTradeItemCount();
+    int getLocalTradeItemId(int i);
 
-	public int getRemoteTradeItemId(int i);
+    int getLocalTradeItemStack(int i);
 
-	public int getRemoteTradeItemStack(int i);
+    int getRemoteTradeItemCount();
 
-	public int[] getPixels();
+    int getRemoteTradeItemId(int i);
 
-	public int[][] getAdjacency();
+    int getRemoteTradeItemStack(int i);
 
-	public void drawString(String str, int x, int y, int size, int colour);
+    int[] getPixels();
 
-	public void displayMessage(String str);
+    int[][] getAdjacency();
 
-	public void offerItemTrade(int slot, int amount);
+    void drawString(String str, int x, int y, int size, int colour);
 
-	public void login(String username, String password);
+    void displayMessage(String str);
 
-	public void walkDirectly(int destLX, int destLY, boolean action);
+    void offerItemTrade(int slot, int amount);
 
-	public void walkAround(int destLX, int destLY);
+    void login(String username, String password);
 
-	public void walkToBound(int destLX, int destLY, int dir);
+    void walkDirectly(int destLX, int destLY, boolean action);
 
-	public void walkToObject(int destLX, int destLY, int dir, int id);
+    void walkAround(int destLX, int destLY);
 
-	public void createPacket(int opcode);
+    void walkToBound(int destLX, int destLY, int dir);
 
-	public void put1(int val);
+    void walkToObject(int destLX, int destLY, int dir, int id);
 
-	public void put2(int val);
+    void createPacket(int opcode);
 
-	public void put4(int val);
+    void put1(int val);
 
-	public void finishPacket();
+    void put2(int val);
 
-	public void sendCAPTCHA(String str);
+    void put4(int val);
 
-	public boolean isSkipLines();
+    void finishPacket();
 
-	public void setSkipLines(boolean flag);
+    void sendCAPTCHA(String str);
 
-	public void sendPrivateMessage(String msg, String name);
+    boolean isSkipLines();
 
-	public void addFriend(String str);
+    void setSkipLines(boolean flag);
 
-	public void addIgnore(String str);
+    void sendPrivateMessage(String msg, String name);
 
-	public void removeIgnore(String str);
+    void addFriend(String str);
 
-	public void removeFriend(String str);
+    void addIgnore(String str);
 
-	public boolean isLoggedIn();
+    void removeIgnore(String str);
 
-	public int getQuestCount();
+    void removeFriend(String str);
 
-	public String getQuestName(int i);
+    boolean isLoggedIn();
 
-	public boolean isQuestComplete(int i);
+    int getQuestCount();
 
-	public Image getImage();
+    String getQuestName(int i);
 
-	public double getFatigue();
+    boolean isQuestComplete(int i);
 
-	public double getSleepingFatigue();
+    Image getImage();
 
-	public int getPlayerCount();
+    double getFatigue();
 
-	public Object getPlayer();
+    double getSleepingFatigue();
 
-	public Object getPlayer(int index);
+    int getPlayerCount();
 
-	public String getPlayerName(Object mob);
+    Object getPlayer();
 
-	public int getPlayerCombatLevel(Object mob);
+    Object getPlayer(int index);
 
-	public int getNpcCount();
+    String getPlayerName(Object mob);
 
-	public Object getNpc(int index);
+    int getPlayerCombatLevel(Object mob);
 
-	public int getNpcId(Object mob);
+    int getNpcCount();
 
-	public boolean isMobWalking(Object mob);
+    Object getNpc(int index);
 
-	public boolean isMobTalking(Object mob);
+    int getNpcId(Object mob);
 
-	public boolean isHeadIconVisible(Object mob);
+    boolean isMobWalking(Object mob);
 
-	public boolean isHpBarVisible(Object mob);
+    boolean isMobTalking(Object mob);
 
-	public int getMobBaseHitpoints(Object mob);
+    boolean isHeadIconVisible(Object mob);
 
-	public int getMobServerIndex(Object mob);
+    boolean isHpBarVisible(Object mob);
 
-	public int getMobLocalX(Object mob);
+    int getMobBaseHitpoints(Object mob);
 
-	public int getMobLocalY(Object mob);
+    int getMobServerIndex(Object mob);
 
-	public int getMobDirection(Object mob);
+    int getMobLocalX(Object mob);
 
-	public boolean isMobInCombat(Object mob);
+    int getMobLocalY(Object mob);
 
-	public IStaticAccess getStatic();
+    int getMobDirection(Object mob);
 
-	public IScriptListener getScriptListener();
+    boolean isMobInCombat(Object mob);
 
-	public IAutoLogin getAutoLogin();
+    IStaticAccess getStatic();
 
-	public IPaintListener getPaintListener();
+    IScriptListener getScriptListener();
 
-	public IJokerFOCR getJoker();
-	
-	public IScript createInvocableScript(Invocable inv, String name);
+    IAutoLogin getAutoLogin();
 
-	public void stop();
+    void setAutoLogin(boolean b);
 
-	public void init();
+    IPaintListener getPaintListener();
 
-	public void start();
+    IJokerFOCR getJoker();
 
-	public void setStub(AppletStub stub);
+    IScript createInvocableScript(Invocable inv, String name);
 
-	public void setFont(String name);
+    void stop();
 
-	public int getCombatTimer();
+    void init();
 
-	public void resizeGame(int width, int height);
+    void start();
 
-	public int getGameWidth();
+    void setStub(AppletStub stub);
 
-	public int getGameHeight();
+    void setFont(String name);
 
-	public void onLoggedIn();
-	
-	public void setServerAddress(String serverAddress);
-	
-	public String getServerAddress();
+    int getCombatTimer();
+
+    void resizeGame(int width, int height);
+
+    int getGameWidth();
+
+    int getGameHeight();
+
+    void onLoggedIn();
+
+    String getServerAddress();
+
+    void setServerAddress(String serverAddress);
 }

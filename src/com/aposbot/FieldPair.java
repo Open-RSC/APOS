@@ -1,14 +1,11 @@
 package com.aposbot;
 
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.TextField;
+import java.awt.*;
 
 public final class FieldPair extends Panel {
 
-	private static final long serialVersionUID = -7845847154396333166L;
-	private final TextField field;
+    private static final long serialVersionUID = -7845847154396333166L;
+    private final TextField field;
 
     public FieldPair(String text, String value, boolean enabled) {
         final GridLayout layout = new GridLayout(1, 2);

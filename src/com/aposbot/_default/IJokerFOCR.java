@@ -3,16 +3,16 @@ package com.aposbot._default;
 import java.io.Closeable;
 
 public interface IJokerFOCR
-    extends Closeable {
+        extends Closeable {
 
     @Override
-    public void close();
+    void close();
 
-    public void setFilePaths(String file_model, String file_dict);
+    void setFilePaths(String file_model, String file_dict);
 
-    public String getGuess();
+    String getGuess();
 
-    public boolean loadNativeLibrary();
+    boolean loadNativeLibrary();
 
-    public boolean isLibraryLoaded();
+    boolean isLibraryLoaded();
 }

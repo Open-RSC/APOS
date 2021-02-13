@@ -1,48 +1,34 @@
 package com.aposbot;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.ScrollPane;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
 import com.aposbot._default.IClient;
 import com.aposbot._default.IScript;
 import com.aposbot._default.IScriptListener;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public final class ScriptFrame extends Frame {
 
-	private static final long serialVersionUID = -7439187170235715096L;
-	private static final String PROCESSING_ERROR = "Error processing script. Send this output to the script's author:";
     static final File dir = new File("." + File.separator + "Scripts" + File.separator);
-
-    private ScriptEngineManager manager;
+    private static final long serialVersionUID = -7439187170235715096L;
+    private static final String PROCESSING_ERROR = "Error processing script. Send this output to the script's author:";
     private final java.awt.List displayed_list;
     private final TextField field;
     private final IClient client;
+    private ScriptEngineManager manager;
 
     public ScriptFrame(IClient client) {
         super("Scripts");
         setFont(Constants.UI_FONT);
-        
+
         this.client = client;
 
         setIconImages(Constants.ICONS);
@@ -100,7 +86,7 @@ public final class ScriptFrame extends Frame {
 
         setSize(in.right + in.left + 310, in.top + in.bottom + 240);
     }
-    
+
     private void initScript() {
         final IScriptListener listener = client.getScriptListener();
         if (listener.isScriptRunning()) {
@@ -131,7 +117,7 @@ public final class ScriptFrame extends Frame {
         System.out.println("Press the \"Start script\" button to start it.");
         setVisible(false);
     }
-    
+
     private IScript initJSEScript(String name) {
         if (manager == null) {
             manager = new ScriptEngineManager();
@@ -153,10 +139,10 @@ public final class ScriptFrame extends Frame {
         BufferedReader r = null;
         try {
             r = new BufferedReader(
-                new InputStreamReader(
-                    new FileInputStream(new File(dir, name))
-                    , Constants.UTF_8
-                )
+                    new InputStreamReader(
+                            new FileInputStream(new File(dir, name))
+                            , Constants.UTF_8
+                    )
             );
             engine.eval(r);
         } catch (Throwable t) {
@@ -173,12 +159,12 @@ public final class ScriptFrame extends Frame {
         }
         return client.createInvocableScript((Invocable) engine, name);
     }
-    
+
     private IScript initJavaScript(String name) {
         Class<?> c;
         try {
             c = new ScriptClassLoader().loadClass(
-                name.substring(0, name.length() - 6)
+                    name.substring(0, name.length() - 6)
             );
         } catch (final ClassNotFoundException t) {
             System.out.println("Error loading script:");
@@ -190,7 +176,7 @@ public final class ScriptFrame extends Frame {
             System.out.println("Error: " + name + " is not a valid Java script.");
             return null;
         }
-        
+
         try {
             return (IScript) c.getConstructor(Class.forName("Extension")).newInstance(client);
         } catch (final Throwable t) {
@@ -209,7 +195,7 @@ public final class ScriptFrame extends Frame {
 
         int len = files.length;
         for (int i = 0; i < len; i++) {
-            process(dir + File.separator + files[i],list);
+            process(dir + File.separator + files[i], list);
         }
         Collections.sort(list);
 
@@ -219,15 +205,15 @@ public final class ScriptFrame extends Frame {
         }
     }
 
-    public void process(String filename, List<String> list){
+    public void process(String filename, List<String> list) {
         File bonusdir = new File((filename));
         System.out.println(filename);
-        filename = filename.replace(dir.toString() + File.separator,"");
+        filename = filename.replace(dir.toString() + File.separator, "");
         if (bonusdir.isDirectory()) {
             String[] bonusFiles = bonusdir.list();
-            if(bonusFiles != null) {
-                for (int j = 0; j < bonusFiles.length; j++){
-                    process(File.separator + filename + File.separator + bonusFiles[j],list);
+            if (bonusFiles != null) {
+                for (int j = 0; j < bonusFiles.length; j++) {
+                    process(File.separator + filename + File.separator + bonusFiles[j], list);
                 }
             }
         }

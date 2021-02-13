@@ -2,9 +2,9 @@ package com.stormy.ocrlib;
 
 public class OCRException extends Exception {
 
-	private static final long serialVersionUID = -3043287754156453842L;
+    private static final long serialVersionUID = -3043287754156453842L;
 
-	public OCRException() {
+    public OCRException() {
         super();
     }
 

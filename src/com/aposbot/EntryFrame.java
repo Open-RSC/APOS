@@ -1,15 +1,9 @@
 package com.aposbot;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.CheckboxGroup;
-import java.awt.Choice;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
+import com.aposbot._default.IClientInit;
+import com.aposbot._default.ISleepListener;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -20,9 +14,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import com.aposbot._default.IClientInit;
-import com.aposbot._default.ISleepListener;
 
 public final class EntryFrame extends Frame {
 
@@ -145,6 +136,21 @@ public final class EntryFrame extends Frame {
         pack();
     }
 
+    private static void loadUsername(IClientInit init, String name) {
+        if (name == null) {
+            System.out.println("You didn't enter an account to use with autologin.");
+            System.out.println("You can still use APOS, but it won't be able to log you back in if you disconnect.");
+            return;
+        }
+        final Properties p = new Properties();
+        try (FileInputStream stream = new FileInputStream("." + File.separator + "Accounts" + File.separator + name + ".properties")) {
+            p.load(stream);
+            init.getAutoLogin().setAccount(p.getProperty("username"), p.getProperty("password"));
+        } catch (final Throwable t) {
+            System.out.println("Error loading account " + name + ": " + t.toString());
+        }
+    }
+
     @Override
     public void setVisible(boolean visible) {
         if (visible) {
@@ -172,21 +178,6 @@ public final class EntryFrame extends Frame {
         } catch (final Throwable t) {
             System.out.println("Error loading accounts: " + t.toString());
             accountNames = new String[0];
-        }
-    }
-
-    private static void loadUsername(IClientInit init, String name) {
-        if (name == null) {
-            System.out.println("You didn't enter an account to use with autologin.");
-            System.out.println("You can still use APOS, but it won't be able to log you back in if you disconnect.");
-            return;
-        }
-        final Properties p = new Properties();
-        try (FileInputStream stream = new FileInputStream("." + File.separator + "Accounts" + File.separator + name + ".properties")) {
-            p.load(stream);
-            init.getAutoLogin().setAccount(p.getProperty("username"), p.getProperty("password"));
-        } catch (final Throwable t) {
-            System.out.println("Error loading account " + name + ": " + t.toString());
         }
     }
 }

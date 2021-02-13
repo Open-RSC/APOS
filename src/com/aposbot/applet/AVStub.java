@@ -7,12 +7,12 @@ import java.net.URL;
 import java.util.Map;
 
 public class AVStub
-    implements AppletStub {
+        implements AppletStub {
 
     private final Applet applet;
+    private final Map<String, String> params;
     private URL docBase;
     private URL codeBase;
-    private final Map<String, String> params;
     private AVContext context;
     private boolean active;
 

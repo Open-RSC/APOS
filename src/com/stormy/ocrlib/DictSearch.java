@@ -21,7 +21,7 @@ public final class DictSearch {
         }
     }
 
-    String getMatch(int len, double strProb[][]) {
+    String getMatch(int len, double[][] strProb) {
         final int listSize = words.size();
         int result = -1;
         double best = -1;

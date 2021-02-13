@@ -13,8 +13,8 @@ public final class LocalRouteCalc {
     }
 
     public int calculate(int[][] adjacency, int start_x, int start_y,
-        int min_x, int min_y, int max_x, int max_y, boolean approximate) {
-        final int route_dir[][] = this.route_dir;
+                         int min_x, int min_y, int max_x, int max_y, boolean approximate) {
+        final int[][] route_dir = this.route_dir;
         for (int k1 = 0; k1 < 96; k1++) {
             for (int l1 = 0; l1 < 96; l1++) {
                 route_dir[k1][l1] = 0;

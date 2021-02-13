@@ -1,11 +1,3 @@
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
-
 import com.aposbot.BotLoader;
 import com.aposbot.EntryFrame;
 import com.aposbot._default.ISleepListener;
@@ -13,28 +5,26 @@ import com.stormy.ocrlib.DictSearch;
 import com.stormy.ocrlib.OCR;
 import com.stormy.ocrlib.SimpleImageIO;
 
+import java.io.*;
+
 public final class SleepListener
-    implements ISleepListener {
+        implements ISleepListener {
 
     private static final SleepListener instance = new SleepListener();
     private static final int OCR_NUM3 = 0;
     private static final int OCR_JOKER = 1;
     private static final int OCR_EXTERNAL = 2;
     private static final int OCR_MANUAL = 3;
+    private static final String hc_bmp = "." + File.separator + "HC.BMP";
+    private static final String slword_txt = "." + File.separator + "slword.txt";
+    private static final String dict_txt = "." + File.separator + "lib" + File.separator + "Dictionary.txt";
+    private static final String model_txt = "." + File.separator + "lib" + File.separator + "Model.txt";
     private OCR stormy;
     private File hc;
     private File slword;
     private long mod;
     private String sleepWord;
     private int ocrType;
-
-    private static final String hc_bmp = "." + File.separator + "HC.BMP";
-
-    private static final String slword_txt = "." + File.separator + "slword.txt";
-
-    private static final String dict_txt = "." + File.separator + "lib" + File.separator + "Dictionary.txt";
-
-    private static final String model_txt = "." + File.separator + "lib" + File.separator + "Model.txt";
 
     private SleepListener() {
     }
@@ -186,6 +176,10 @@ public final class SleepListener
         }
     }
 
+    static final SleepListener get() {
+        return instance;
+    }
+
     @Override
     public void setSolver(BotLoader bl, String type) {
         if (type.equals(EntryFrame.LABEL_NUM3)) {
@@ -284,9 +278,5 @@ public final class SleepListener
             return null;
         }
         return sleepWord;
-    }
-
-    static final SleepListener get() {
-        return instance;
     }
 }

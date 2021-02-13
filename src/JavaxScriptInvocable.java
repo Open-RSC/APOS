@@ -1,118 +1,24 @@
+import javax.script.Invocable;
+import javax.script.ScriptException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import javax.script.Invocable;
-import javax.script.ScriptException;
-
 public final class JavaxScriptInvocable extends Script {
-    
+
     private final Invocable inv;
     private final String name;
-    
+
     public JavaxScriptInvocable(Extension ex, Invocable inv, String name) {
         super(ex);
         this.inv = inv;
         this.name = name;
     }
-    
-    @Override
-    public void init(String params) {
-        try {
-            inv.invokeFunction("init", params);
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-    }
 
-    @Override
-    public int main() {
-        try {
-            return looseToInt(inv.invokeFunction("main", this));
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-        return 1000;
-    }
-
-    @Override
-    public void paint() {
-        try {
-            inv.invokeFunction("paint", this);
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onServerMessage(String str) {
-        try {
-            inv.invokeFunction("onServerMessage", str);
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onTradeRequest(String name) {
-        try {
-            inv.invokeFunction("onTradeRequest", name);
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onChatMessage(String msg, String name, boolean mod,
-        boolean admin) {
-
-        try {
-            inv.invokeFunction("onChatMessage", msg, name, mod, admin);
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onPrivateMessage(String msg, String name, boolean mod,
-        boolean admin) {
-
-        try {
-            inv.invokeFunction("onPrivateMessage", msg, name, mod, admin);
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onKeyPress(int keycode) {
-        try {
-            inv.invokeFunction("onKeyPress", keycode);
-        } catch (NoSuchMethodException ex) {
-        } catch (ScriptException ex) {
-            System.out.println(ScriptListener.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
-    }
-    
-    private static final int looseToInt(Object object) {
+    private static int looseToInt(Object object) {
         // needlessly excessive?
         Class<?> c = object.getClass();
         if (Integer.class.equals(c)) {
-            return ((Integer) object).intValue();
+            return (Integer) object;
         } else if (Long.class.equals(c)) {
             return ((Long) object).intValue();
         } else if (Short.class.equals(c)) {
@@ -131,6 +37,99 @@ public final class JavaxScriptInvocable extends Script {
             return ((BigDecimal) object).intValue();
         } else {
             return 0;
+        }
+    }
+
+    @Override
+    public void init(String params) {
+        try {
+            inv.invokeFunction("init", params);
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public int main() {
+        try {
+            return looseToInt(inv.invokeFunction("main", this));
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+        return 1000;
+    }
+
+    @Override
+    public void paint() {
+        try {
+            inv.invokeFunction("paint", this);
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onServerMessage(String str) {
+        try {
+            inv.invokeFunction("onServerMessage", str);
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onTradeRequest(String name) {
+        try {
+            inv.invokeFunction("onTradeRequest", name);
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onChatMessage(String msg, String name, boolean mod,
+                              boolean admin) {
+
+        try {
+            inv.invokeFunction("onChatMessage", msg, name, mod, admin);
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onPrivateMessage(String msg, String name, boolean mod,
+                                 boolean admin) {
+
+        try {
+            inv.invokeFunction("onPrivateMessage", msg, name, mod, admin);
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onKeyPress(int keycode) {
+        try {
+            inv.invokeFunction("onKeyPress", keycode);
+        } catch (NoSuchMethodException ignored) {
+        } catch (ScriptException ex) {
+            System.out.println(ScriptListener.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 

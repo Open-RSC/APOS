@@ -2,57 +2,57 @@ package com.aposbot._default;
 
 public interface IStaticAccess {
 
-    public String getNpcName(int id);
+    String getNpcName(int id);
 
-    public String getNpcDesc(int id);
+    String getNpcDesc(int id);
 
-    public int getNpcLevel(int id);
+    int getNpcLevel(int id);
 
-    public String getItemName(int id);
+    String getItemName(int id);
 
-    public String getItemDesc(int id);
+    String getItemDesc(int id);
 
-    public String getItemCommand(int id);
+    String getItemCommand(int id);
 
-    public int getItemBasePrice(int id);
+    int getItemBasePrice(int id);
 
-    public boolean isItemStackable(int id);
+    boolean isItemStackable(int id);
 
-    public boolean isItemTradable(int id);
+    boolean isItemTradable(int id);
 
-    public String getObjectName(int id);
+    String getObjectName(int id);
 
-    public String getObjectDesc(int id);
+    String getObjectDesc(int id);
 
-    public String getBoundName(int id);
+    String getBoundName(int id);
 
-    public String getBoundDesc(int id);
+    String getBoundDesc(int id);
 
-    public int getSpellReqLevel(int id);
+    int getSpellReqLevel(int id);
 
-    public int getSpellType(int i);
+    int getSpellType(int i);
 
-    public int getReagentCount(int id);
+    int getReagentCount(int id);
 
-    public int getReagentId(int spell, int i);
+    int getReagentId(int spell, int i);
 
-    public int getReagentAmount(int spell, int i);
+    int getReagentAmount(int spell, int i);
 
-    public int getFriendCount();
+    int getFriendCount();
 
-    public String getFriendName(int i);
+    String getFriendName(int i);
 
-    public int getIgnoredCount();
+    int getIgnoredCount();
 
-    public String getIgnoredName(int i);
+    String getIgnoredName(int i);
 
-    public int getPrayerCount();
+    int getPrayerCount();
 
-    public int getPrayerLevel(int i);
+    int getPrayerLevel(int i);
 
-    public String getPrayerName(int i);
+    String getPrayerName(int i);
 
-    public String[] getSpellNames();
+    String[] getSpellNames();
 
-    public String[] getSkillNames();
+    String[] getSkillNames();
 }

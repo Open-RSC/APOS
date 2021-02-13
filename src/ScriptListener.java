@@ -2,31 +2,52 @@ import com.aposbot._default.IScript;
 import com.aposbot._default.IScriptListener;
 
 public final class ScriptListener
-    implements IScriptListener {
+        implements IScriptListener {
 
     static final String ERROR_MESSAGE = "Error processing script. Send this output to the script's author:";
+    private static final ScriptListener instance = new ScriptListener();
     private Extension ex;
     private long next;
     private boolean running;
     private IScript script;
     private String lastWord;
     private boolean newWord;
-	private volatile boolean banned;
-
-    private static final ScriptListener instance = new ScriptListener();
+    private volatile boolean banned;
 
     private ScriptListener() {
     }
-    
+
     static void init(Extension ex) {
         instance.ex = ex;
     }
 
+    public static boolean isRunning() {
+        return instance.isScriptRunning();
+    }
+
+    public static void setRunning(boolean b) {
+        instance.setScriptRunning(b);
+    }
+
+    public static void runScript() {
+        instance.onGameTick();
+    }
+
+    public static void message(boolean flag, String s1, int i1, String s2, int j1, int k1, String s3,
+                               String s4) {
+
+        instance.onGameMessage(flag, s1, i1, s2, j1, k1, s3, s4);
+    }
+
+    static final IScriptListener get() {
+        return instance;
+    }
+
     @Override
     public void onGameTick() {
-    	if (banned) {
-    		return;
-    	}
+        if (banned) {
+            return;
+        }
         if (running) {
             if (script.isSleeping()) {
                 if (newWord && (script.getFatigue() == 0 || script.isTricking())) {
@@ -64,11 +85,11 @@ public final class ScriptListener
     }
 
     @Override
-    public void onGameMessage(boolean flag, String s1, int i1, String s2, int j1, int k1, String s3, 
-            String s4) {
+    public void onGameMessage(boolean flag, String s1, int i1, String s2, int j1, int k1, String s3,
+                              String s4) {
         if (running) {
             if (s1 != null) {
-            	s1 = s1.replace((char) 160, ' ');
+                s1 = s1.replace((char) 160, ' ');
             }
             try {
                 if (j1 == 1) {
@@ -100,13 +121,13 @@ public final class ScriptListener
     }
 
     @Override
-    public void setScriptRunning(boolean b) {
-        running = b;
+    public boolean isScriptRunning() {
+        return running;
     }
 
     @Override
-    public boolean isScriptRunning() {
-        return running;
+    public void setScriptRunning(boolean b) {
+        running = b;
     }
 
     @Override
@@ -126,31 +147,9 @@ public final class ScriptListener
     public boolean hasScript() {
         return script != null;
     }
-    
+
     @Override
     public void setBanned(boolean b) {
-    	banned = b;
-    }
-
-    public static boolean isRunning() {
-        return instance.isScriptRunning();
-    }
-
-    public static void setRunning(boolean b) {
-        instance.setScriptRunning(b);
-    }
-
-    public static void runScript() {
-        instance.onGameTick();
-    }
-
-    public static void message(boolean flag, String s1, int i1, String s2, int j1, int k1, String s3, 
-            String s4) {
-
-        instance.onGameMessage(flag, s1, i1, s2, j1, k1, s3, s4);
-    }
-
-    static final IScriptListener get() {
-        return instance;
+        banned = b;
     }
 }

@@ -18,6 +18,40 @@ public class SimpleImage {
         copy(image);
     }
 
+    private static double R(double x) {
+        // Auxiliary function for scaling
+
+        double a, b, c, d;
+
+        // Implement Eq 4.3-5 in four parts
+
+        if ((x + 2.0F) <= 0.0F) {
+            a = 0.0F;
+        } else {
+            a = Math.pow((x + 2.0F), 3.0F);
+        }
+
+        if ((x + 1.0F) <= 0.0F) {
+            b = 0.0F;
+        } else {
+            b = Math.pow((x + 1.0F), 3.0F);
+        }
+
+        if (x <= 0) {
+            c = 0.0F;
+        } else {
+            c = Math.pow(x, 3.0F);
+        }
+
+        if ((x - 1.0F) <= 0.0F) {
+            d = 0.0F;
+        } else {
+            d = Math.pow((x - 1.0F), 3.0F);
+        }
+
+        return (1.f / 6.f * (a - (4.0F * b) + (6.0F * c) - (4.0F * d)));
+    }
+
     public int Width() {
         return width;
     }
@@ -45,7 +79,7 @@ public class SimpleImage {
     }
 
     void copy(SimpleImage srcImage, int srcX, int srcY, int srcW, int srcH,
-        int destX, int destY) {
+              int destX, int destY) {
         for (int x = 0; x < srcW; ++x) {
             for (int y = 0; y < srcH; ++y) {
                 setPixel(destX + x, destY + y, srcImage.getPixel((srcX + x) - srcW, srcY + y));
@@ -287,147 +321,113 @@ public class SimpleImage {
         }
     }
 
-    private static double R(double x) {
-        // Auxiliary function for scaling
+    Region extract(int x, int y, boolean eightWay) {
+        SimpleImage tmpImage = new SimpleImage(width, height);
 
-        double a, b, c, d;
-
-        // Implement Eq 4.3-5 in four parts
-
-        if ((x + 2.0F) <= 0.0F) {
-            a = 0.0F;
-        } else {
-            a = Math.pow((x + 2.0F), 3.0F);
+        if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
+            return null;
         }
 
-        if ((x + 1.0F) <= 0.0F) {
-            b = 0.0F;
-        } else {
-            b = Math.pow((x + 1.0F), 3.0F);
+        if (getPixel(x, y) != 255) {
+            return null;
         }
 
-        if (x <= 0) {
-            c = 0.0F;
-        } else {
-            c = Math.pow(x, 3.0F);
+        // if the pixel at (x, y) is white, then we can do a flood fill
+
+        int minX, maxX, minY, maxY;
+
+        ArrayDeque<Point> floodStack = new ArrayDeque<>();
+
+        Point p = new Point(x, y);
+
+        minX = p.x;
+        maxX = p.x;
+        minY = p.y;
+        maxY = p.y;
+
+        tmpImage.setPixel(p.x, p.y, 255);
+
+        floodStack.push(p);
+
+        do {
+            p = floodStack.getLast();
+            floodStack.pop();
+
+            // now push all unvisited neighbours on stack
+            int i, j;
+            for (i = -1; i <= 1; i++) {
+                for (j = -1; j <= 1; j++) {
+                    if (((p.x + i) < 0) || ((p.y + j) < 0)
+                            || ((p.x + i) >= width) || ((p.y + j) >= height)) {
+                        continue;
+                    }
+
+                    if (!eightWay) {
+                        if ((i != 0) && (j != 0)) {
+                            continue;
+                        }
+                    }
+
+                    // now add that point
+                    if ((tmpImage.getPixel(p.x + i, p.y + j) != 255)
+                            && (getPixel(p.x + i, p.y + j) == 255)) {
+                        // mark it as visited
+                        tmpImage.setPixel(p.x + i, p.y + j, 255);
+
+                        // and add it
+                        floodStack.push(new Point(p.x + i, p.y + j));
+
+                        // now update the min and max
+
+                        if (p.x + i < minX)
+                            minX = p.x + i;
+                        if (p.x + i > maxX)
+                            maxX = p.x + i;
+
+                        if (p.y + j < minY)
+                            minY = p.y + j;
+                        if (p.y + j > maxY)
+                            maxY = p.y + j;
+                    }
+                }
+            }
+
+        } while (!floodStack.isEmpty());
+
+        // now we know the flood fill is included in the rectable delimited by
+        // minX, maxX, minY, maxY
+
+        // This will be the region that we'll return
+        Region r = new Region(maxX - minX + 1, maxY - minY + 1, minX, minY);
+
+        int i, j;
+        for (j = minY; j <= maxY; j++) {
+            for (i = minX; i <= maxX; i++) {
+                r.setPixel(i - minX, j - minY, tmpImage.getPixel(i, j));
+            }
         }
 
-        if ((x - 1.0F) <= 0.0F) {
-            d = 0.0F;
-        } else {
-            d = Math.pow((x - 1.0F), 3.0F);
-        }
+        return r;
 
-        return (1.f / 6.f * (a - (4.0F * b) + (6.0F * c) - (4.0F * d)));
     }
 
-	Region extract(int x, int y, boolean eightWay) {
-		SimpleImage tmpImage = new SimpleImage(width, height);
+    void remove(Region reg) {
+        int minX, minY, maxX, maxY;
 
-		if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
-			return null;
-		}
+        minX = reg.OffsetX();
+        minY = reg.OffsetY();
 
-		if (getPixel(x, y) != 255) {
-			return null;
-		}
+        maxX = width < minX + reg.Width() ? width : minX + reg.Width();
+        maxY = height < minY + reg.Height() ? height : minY + reg.Height();
 
-		// if the pixel at (x, y) is white, then we can do a flood fill
+        int i, j;
 
-		int minX, maxX, minY, maxY;
-
-		ArrayDeque<Point> floodStack = new ArrayDeque<>();
-
-		Point p = new Point(x, y);
-
-		minX = p.x;
-		maxX = p.x;
-		minY = p.y;
-		maxY = p.y;
-
-		tmpImage.setPixel(p.x, p.y, 255);
-
-		floodStack.push(p);
-
-		do {
-			p = floodStack.getLast();
-			floodStack.pop();
-
-			// now push all unvisited neighbours on stack
-			int i, j;
-			for (i = -1; i <= 1; i++) {
-				for (j = -1; j <= 1; j++) {
-					if (((p.x + i) < 0) || ((p.y + j) < 0)
-						|| ((p.x + i) >= width) || ((p.y + j) >= height)) {
-						continue;
-					}
-
-					if (!eightWay) {
-						if ((i != 0) && (j != 0)) {
-							continue;
-						}
-					}
-
-					// now add that point
-					if ((tmpImage.getPixel(p.x + i, p.y + j) != 255)
-						&& (getPixel(p.x + i, p.y + j) == 255)) {
-						// mark it as visited
-						tmpImage.setPixel(p.x + i, p.y + j, 255);
-
-						// and add it
-						floodStack.push(new Point(p.x + i, p.y + j));
-
-						// now update the min and max
-
-						if (p.x + i < minX)
-							minX = p.x + i;
-						if (p.x + i > maxX)
-							maxX = p.x + i;
-
-						if (p.y + j < minY)
-							minY = p.y + j;
-						if (p.y + j > maxY)
-							maxY = p.y + j;
-					}
-				}
-			}
-
-		} while (!floodStack.isEmpty());
-
-		// now we know the flood fill is included in the rectable delimited by
-		// minX, maxX, minY, maxY
-
-		// This will be the region that we'll return
-		Region r = new Region(maxX - minX + 1, maxY - minY + 1, minX, minY);
-
-		int i, j;
-		for (j = minY; j <= maxY; j++) {
-			for (i = minX; i <= maxX; i++) {
-				r.setPixel(i - minX, j - minY, tmpImage.getPixel(i, j));
-			}
-		}
-
-		return r;
-
-	}
-
-	void remove(Region reg) {
-		int minX, minY, maxX, maxY;
-
-		minX = reg.OffsetX();
-		minY = reg.OffsetY();
-
-		maxX = width < minX + reg.Width() ? width : minX + reg.Width();
-		maxY = height < minY + reg.Height() ? height : minY + reg.Height();
-
-		int i, j;
-
-		for (j = minY; j < maxY; j++) {
-			for (i = minX; i < maxX; i++) {
-				if (reg.getPixel(i - minX, j - minY) == 255) {
-					setPixel(i, j, 0);
-				}
-			}
-		}
-	}
+        for (j = minY; j < maxY; j++) {
+            for (i = minX; i < maxX; i++) {
+                if (reg.getPixel(i - minX, j - minY) == 255) {
+                    setPixel(i, j, 0);
+                }
+            }
+        }
+    }
 }

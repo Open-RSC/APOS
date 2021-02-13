@@ -1,8 +1,6 @@
 package com.aposbot;
 
-import java.awt.Dialog;
-import java.awt.Frame;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 

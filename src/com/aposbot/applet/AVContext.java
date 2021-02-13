@@ -3,23 +3,17 @@ package com.aposbot.applet;
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.applet.AudioClip;
-import java.awt.Desktop;
-import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 public class AVContext
-    implements AppletContext {
+        implements AppletContext {
 
-    private Map<String, InputStream> streamMap;
     private final Applet applet;
+    private Map<String, InputStream> streamMap;
     private Toolkit toolkit;
 
     AVContext(Applet applet) {

@@ -4,13 +4,13 @@ import java.applet.AudioClip;
 import java.net.URL;
 
 public class AVClip
-    implements AudioClip {
+        implements AudioClip {
 
     private static final byte STATE_PLAYING = 0;
     private static final byte STATE_LOOPING = 1;
     private static final byte STATE_STOPPED = 2;
-    private byte state;
     private final URL url;
+    private byte state;
 
     AVClip(URL url) {
         this.url = url;

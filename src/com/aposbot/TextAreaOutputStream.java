@@ -1,6 +1,6 @@
 package com.aposbot;
 
-import java.awt.TextArea;
+import java.awt.*;
 import java.io.OutputStream;
 
 public class TextAreaOutputStream extends OutputStream {
@@ -13,8 +13,8 @@ public class TextAreaOutputStream extends OutputStream {
 
     @Override
     public void write(int b) {
-        area.append(new String(new byte[] {
-            (byte) b
+        area.append(new String(new byte[]{
+                (byte) b
         }).intern());
     }
 

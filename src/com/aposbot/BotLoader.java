@@ -1,57 +1,24 @@
 package com.aposbot;
 
-import java.awt.Frame;
-import java.awt.Insets;
-import java.awt.TextArea;
+import com.aposbot._default.IClientInit;
+
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Properties;
 
-import com.aposbot._default.IClientInit;
-
 public final class BotLoader {
 
     static final String PROPERTIES_FILE = "." + File.separator + "bot.properties";
+    private final IClientInit init;
     private String username;
     private String password;
     private int defaultOCR;
     private TextArea cTextArea;
     private Frame cFrame;
-    private final IClientInit init;
     private String font;
-
-    private final class Authenticator implements Runnable {
-
-        private boolean invalid;
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(60 * 60 * 1000);
-            } catch (InterruptedException ignored) {
-            }
-            try {
-                int sleep;
-                int mins = 60 + (7 & Constants.RANDOM.nextInt());
-                if (invalid) {
-                    System.out.println("Auth valid. Starting.");
-                    init.getScriptListener().setBanned(false);
-                    init.getAutoLogin().setBanned(false);
-                    init.getPaintListener().setBanned(false);
-                    invalid = false;
-                }
-                sleep = mins * 60 * 1000;
-                try {
-                    Thread.sleep(sleep);
-                } catch (InterruptedException ignored) {
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public BotLoader(String[] argv, IClientInit init) {
         this.init = init;
@@ -113,12 +80,12 @@ public final class BotLoader {
         return font;
     }
 
-    public void setDefaultOCR(int i) {
-        defaultOCR = i;
-    }
-
     public int getDefaultOCR() {
         return defaultOCR;
+    }
+
+    public void setDefaultOCR(int i) {
+        defaultOCR = i;
     }
 
     TextArea getConsoleTextArea() {
@@ -133,6 +100,37 @@ public final class BotLoader {
 
     IClientInit getClientInit() {
         return init;
+    }
+
+    private final class Authenticator implements Runnable {
+
+        private boolean invalid;
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(60 * 60 * 1000);
+            } catch (InterruptedException ignored) {
+            }
+            try {
+                int sleep;
+                int mins = 60 + (7 & Constants.RANDOM.nextInt());
+                if (invalid) {
+                    System.out.println("Auth valid. Starting.");
+                    init.getScriptListener().setBanned(false);
+                    init.getAutoLogin().setBanned(false);
+                    init.getPaintListener().setBanned(false);
+                    invalid = false;
+                }
+                sleep = mins * 60 * 1000;
+                try {
+                    Thread.sleep(sleep);
+                } catch (InterruptedException ignored) {
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

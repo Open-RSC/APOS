@@ -1,10 +1,10 @@
 package com.stormy.ocrlib;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.stormy.ocrlib.svm.svm;
 import com.stormy.ocrlib.svm.svm_node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 final class Letter extends Region {
 
@@ -13,10 +13,10 @@ final class Letter extends Region {
     }
 
     Letter(SimpleImage letter) {
-		super(letter);
-	}
+        super(letter);
+    }
 
-	static List<Letter> splitLetters(SimpleImage image) {
+    static List<Letter> splitLetters(SimpleImage image) {
         final ArrayList<Letter> list = new ArrayList<Letter>();
         final int h = image.Height();
         int start = -1;
@@ -51,16 +51,16 @@ final class Letter extends Region {
     }
 
     void guess(OCR ocr, int idxInStr) {
-        final svm_node svmNode[] = toSvmNode();
+        final svm_node[] svmNode = toSvmNode();
 
-        final int labels[] = ocr.labels;
+        final int[] labels = ocr.labels;
 
-        final double charProb[] = ocr.charProb;
+        final double[] charProb = ocr.charProb;
 
         svm.svm_get_labels(ocr.model, labels);
         svm.svm_predict_probability(ocr.model, svmNode, charProb);
 
-        final double probs[] = ocr.strProb[idxInStr];
+        final double[] probs = ocr.strProb[idxInStr];
 
         for (int i = 0; i < probs.length; i++) {
             probs[i] = 0;
@@ -72,7 +72,7 @@ final class Letter extends Region {
 
     char getBestGuess(OCR ocr, int idxInStr) {
         guess(ocr, idxInStr);
-        final double charProb[] = ocr.charProb;
+        final double[] charProb = ocr.charProb;
         int index = 0;
         for (int i = 0; i < charProb.length; i++) {
             if (charProb[i] > charProb[index]) {
@@ -93,7 +93,7 @@ final class Letter extends Region {
                 }
             }
         }
-        final svm_node output[] = new svm_node[pixelCount + 1];
+        final svm_node[] output = new svm_node[pixelCount + 1];
         for (int i = 0; i < output.length; ++i) {
             output[i] = new svm_node();
         }

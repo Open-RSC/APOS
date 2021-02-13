@@ -1,9 +1,9 @@
-import java.io.File;
-
 import com.aposbot._default.IJokerFOCR;
 
+import java.io.File;
+
 public final class Joker
-    implements IJokerFOCR {
+        implements IJokerFOCR {
 
     private static final Joker instance = new Joker();
     private boolean loaded;
@@ -16,6 +16,10 @@ public final class Joker
     private static native void initOCR(String file_model, String file_dict);
 
     private static native void closeOCR();
+
+    static Joker get() {
+        return instance;
+    }
 
     @Override
     public void close() {
@@ -48,9 +52,5 @@ public final class Joker
     @Override
     public boolean isLibraryLoaded() {
         return loaded;
-    }
-
-    static final Joker get() {
-        return instance;
     }
 }

@@ -4,17 +4,17 @@ import com.aposbot.BotFrame;
 
 public interface IClientInit {
 
-    public IClient createClient(BotFrame frame);
+    IClient createClient(BotFrame frame);
 
-    public IAutoLogin getAutoLogin();
+    IAutoLogin getAutoLogin();
 
-    public ISleepListener getSleepListener();
+    ISleepListener getSleepListener();
 
-	public IScriptListener getScriptListener();
-	
-	public IPaintListener getPaintListener();
-	
-	public void setRSAKey(String key);
-	
-	public void setRSAExponent(String exponent);
+    IScriptListener getScriptListener();
+
+    IPaintListener getPaintListener();
+
+    void setRSAKey(String key);
+
+    void setRSAExponent(String exponent);
 }

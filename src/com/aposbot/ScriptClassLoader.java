@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 public final class ScriptClassLoader extends ClassLoader {

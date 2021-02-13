@@ -2,16 +2,16 @@ package com.aposbot._default;
 
 public interface IAutoLogin {
 
-    public void onLoginTick();
+    void onLoginTick();
 
-    public void onWelcomeBoxTick();
+    void onWelcomeBoxTick();
 
-    public boolean isEnabled();
+    boolean isEnabled();
 
-    public void setEnabled(boolean b);
+    void setEnabled(boolean b);
 
-    public void setAccount(String username, String password);
+    void setAccount(String username, String password);
 
-	public void setBanned(boolean b);
+    void setBanned(boolean b);
 
 }

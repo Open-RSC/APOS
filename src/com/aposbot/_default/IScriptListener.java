@@ -2,26 +2,26 @@ package com.aposbot._default;
 
 public interface IScriptListener {
 
-    public void onGameTick();
+    void onGameTick();
 
-    public void onPaintTick();
+    void onPaintTick();
 
-    public void onKeyPress(int code);
+    void onKeyPress(int code);
 
-    public void onGameMessage(boolean flag, String s1, int i1, String s2, int j1, int k1, String s3, 
-            String s4);
+    void onGameMessage(boolean flag, String s1, int i1, String s2, int j1, int k1, String s3,
+                       String s4);
 
-    public void onNewSleepWord();
+    void onNewSleepWord();
 
-    public void setIScript(IScript script);
+    void setIScript(IScript script);
 
-    public void setScriptRunning(boolean b);
+    boolean isScriptRunning();
 
-    public boolean isScriptRunning();
+    void setScriptRunning(boolean b);
 
-    public String getScriptName();
+    String getScriptName();
 
-    public boolean hasScript();
+    boolean hasScript();
 
-	public void setBanned(boolean b);
+    void setBanned(boolean b);
 }

@@ -1,21 +1,17 @@
-import java.lang.reflect.Field;
-import java.math.BigInteger;
-
-import javax.swing.UIManager;
-
 import com.aposbot.BotFrame;
 import com.aposbot.BotLoader;
-import com.aposbot._default.IAutoLogin;
-import com.aposbot._default.IClient;
-import com.aposbot._default.IClientInit;
-import com.aposbot._default.IPaintListener;
-import com.aposbot._default.IScriptListener;
-import com.aposbot._default.ISleepListener;
+import com.aposbot._default.*;
+
+import javax.swing.*;
+import java.math.BigInteger;
 
 public final class ClientInit
         implements IClientInit {
 
     private static BotLoader loader;
+
+    private ClientInit() {
+    }
 
     public static void main(String[] argv) {
         try {
@@ -24,9 +20,6 @@ public final class ClientInit
         } finally {
             loader = new BotLoader(argv, new ClientInit());
         }
-    }
-
-    private ClientInit() {
     }
 
     static BotLoader getBotLoader() {
