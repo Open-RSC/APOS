@@ -38,7 +38,7 @@ class Cache {
         size /= 4;
         size -= l * (16 / 4); // sizeof(head_t) == 16
         size = Math.max(size, 2 * (long) l); // cache must be large enough for
-                                             // two columns
+        // two columns
         lru_head = new head_t();
         lru_head.next = lru_head.prev = lru_head;
     }
@@ -85,11 +85,9 @@ class Cache {
             }
             h.data = new_data;
             size -= more;
-            do {
-                final int _ = h.len;
-                h.len = len;
-                len = _;
-            } while (false);
+            final int i = h.len;
+            h.len = len;
+            len = i;
         }
 
         lru_insert(h);
@@ -108,16 +106,16 @@ class Cache {
         if (head[j].len > 0) {
             lru_delete(head[j]);
         }
-        do {
-            final float[] _ = head[i].data;
+        {
+            final float[] data = head[i].data;
             head[i].data = head[j].data;
-            head[j].data = _;
-        } while (false);
-        do {
-            final int _ = head[i].len;
+            head[j].data = data;
+        }
+        {
+            final int len = head[i].len;
             head[i].len = head[j].len;
-            head[j].len = _;
-        } while (false);
+            head[j].len = len;
+        }
         if (head[i].len > 0) {
             lru_insert(head[i]);
         }
@@ -126,20 +124,16 @@ class Cache {
         }
 
         if (i > j) {
-            do {
-                final int _ = i;
-                i = j;
-                j = _;
-            } while (false);
+            final int i1 = i;
+            i = j;
+            j = i1;
         }
         for (head_t h = lru_head.next; h != lru_head; h = h.next) {
             if (h.len > i) {
                 if (h.len > j) {
-                    do {
-                        final float _ = h.data[i];
-                        h.data[i] = h.data[j];
-                        h.data[j] = _;
-                    } while (false);
+                    final float v = h.data[i];
+                    h.data[i] = h.data[j];
+                    h.data[j] = v;
                 } else {
                     // give up
                     lru_delete(h);
@@ -185,17 +179,15 @@ abstract class Kernel extends QMatrix {
 
     @Override
     void swap_index(int i, int j) {
-        do {
-            final svm_node[] _ = x[i];
-            x[i] = x[j];
-            x[j] = _;
-        } while (false);
+        {
+            final svm_node[] x = this.x[i];
+            this.x[i] = this.x[j];
+            this.x[j] = x;
+        }
         if (x_square != null) {
-            do {
-                final double _ = x_square[i];
-                x_square[i] = x_square[j];
-                x_square[j] = _;
-            } while (false);
+            final double v = x_square[i];
+            x_square[i] = x_square[j];
+            x_square[j] = v;
         }
     }
 
@@ -390,41 +382,39 @@ class Solver {
 
     void swap_index(int i, int j) {
         Q.swap_index(i, j);
-        do {
-            final byte _ = y[i];
+        {
+            final byte b = y[i];
             y[i] = y[j];
-            y[j] = _;
-        } while (false);
-        do {
-            final double _ = G[i];
+            y[j] = b;
+        }
+        {
+            final double v = G[i];
             G[i] = G[j];
-            G[j] = _;
-        } while (false);
-        do {
-            final byte _ = alpha_status[i];
+            G[j] = v;
+        }
+        {
+            final byte b = alpha_status[i];
             alpha_status[i] = alpha_status[j];
-            alpha_status[j] = _;
-        } while (false);
-        do {
-            final double _ = alpha[i];
+            alpha_status[j] = b;
+        }
+        {
+            final double v = alpha[i];
             alpha[i] = alpha[j];
-            alpha[j] = _;
-        } while (false);
-        do {
-            final double _ = p[i];
+            alpha[j] = v;
+        }
+        {
+            final double v = p[i];
             p[i] = p[j];
-            p[j] = _;
-        } while (false);
-        do {
-            final int _ = active_set[i];
+            p[j] = v;
+        }
+        {
+            final int i1 = active_set[i];
             active_set[i] = active_set[j];
-            active_set[j] = _;
-        } while (false);
-        do {
-            final double _ = G_bar[i];
-            G_bar[i] = G_bar[j];
-            G_bar[j] = _;
-        } while (false);
+            active_set[j] = i1;
+        }
+        final double v = G_bar[i];
+        G_bar[i] = G_bar[j];
+        G_bar[j] = v;
     }
 
     void reconstruct_gradient() {
@@ -474,7 +464,7 @@ class Solver {
     }
 
     void Solve(int l, QMatrix Q, double[] p_, byte[] y_, double[] alpha_,
-        double Cp, double Cn, double eps, SolutionInfo si, int shrinking) {
+               double Cp, double Cn, double eps, SolutionInfo si, int shrinking) {
         this.l = l;
         this.Q = Q;
         QD = Q.get_QD();
@@ -935,7 +925,7 @@ final class Solver_NU extends Solver {
 
     @Override
     void Solve(int l, QMatrix Q, double[] p, byte[] y, double[] alpha,
-        double Cp, double Cn, double eps, SolutionInfo si, int shrinking) {
+               double Cp, double Cn, double eps, SolutionInfo si, int shrinking) {
         this.si = si;
         super.Solve(l, Q, p, y, alpha, Cp, Cn, eps, si, shrinking);
     }
@@ -1050,7 +1040,7 @@ final class Solver_NU extends Solver {
     }
 
     private boolean be_shrunk(int i, double Gmax1, double Gmax2, double Gmax3,
-        double Gmax4) {
+                              double Gmax4) {
         if (is_upper_bound(i)) {
             if (y[i] == +1) {
                 return (-G[i] > Gmax1);
@@ -1071,13 +1061,13 @@ final class Solver_NU extends Solver {
     @Override
     void do_shrinking() {
         double Gmax1 = -INF; // max { -y_i * grad(f)_i | y_i = +1, i in
-                             // I_up(\alpha) }
+        // I_up(\alpha) }
         double Gmax2 = -INF; // max { y_i * grad(f)_i | y_i = +1, i in
-                             // I_low(\alpha) }
+        // I_low(\alpha) }
         double Gmax3 = -INF; // max { -y_i * grad(f)_i | y_i = -1, i in
-                             // I_up(\alpha) }
+        // I_up(\alpha) }
         double Gmax4 = -INF; // max { y_i * grad(f)_i | y_i = -1, i in
-                             // I_low(\alpha) }
+        // I_low(\alpha) }
 
         // find maximal violating pair first
         int i;
@@ -1208,16 +1198,14 @@ class SVC_Q extends Kernel {
     void swap_index(int i, int j) {
         cache.swap_index(i, j);
         super.swap_index(i, j);
-        do {
-            final byte _ = y[i];
+        {
+            final byte b = y[i];
             y[i] = y[j];
-            y[j] = _;
-        } while (false);
-        do {
-            final double _ = QD[i];
-            QD[i] = QD[j];
-            QD[j] = _;
-        } while (false);
+            y[j] = b;
+        }
+        final double v = QD[i];
+        QD[i] = QD[j];
+        QD[j] = v;
     }
 }
 
@@ -1255,11 +1243,9 @@ class ONE_CLASS_Q extends Kernel {
     void swap_index(int i, int j) {
         cache.swap_index(i, j);
         super.swap_index(i, j);
-        do {
-            final double _ = QD[i];
-            QD[i] = QD[j];
-            QD[j] = _;
-        } while (false);
+        final double v = QD[i];
+        QD[i] = QD[j];
+        QD[j] = v;
     }
 }
 
@@ -1293,21 +1279,19 @@ class SVR_Q extends Kernel {
 
     @Override
     void swap_index(int i, int j) {
-        do {
-            final byte _ = sign[i];
+        {
+            final byte b = sign[i];
             sign[i] = sign[j];
-            sign[j] = _;
-        } while (false);
-        do {
-            final int _ = index[i];
-            index[i] = index[j];
-            index[j] = _;
-        } while (false);
-        do {
-            final double _ = QD[i];
-            QD[i] = QD[j];
-            QD[j] = _;
-        } while (false);
+            sign[j] = b;
+        }
+        {
+            final int index = this.index[i];
+            this.index[i] = this.index[j];
+            this.index[j] = index;
+        }
+        final double v = QD[i];
+        QD[i] = QD[j];
+        QD[j] = v;
     }
 
     @Override
@@ -1322,7 +1306,7 @@ class SVR_Q extends Kernel {
         }
 
         // reorder and copy
-        final float buf[] = buffer[next_buffer];
+        final float[] buf = buffer[next_buffer];
         next_buffer = 1 - next_buffer;
         final byte si = sign[i];
         for (j = 0; j < len; j++) {
@@ -1350,7 +1334,7 @@ public class svm {
     }
 
     private static void solve_c_svc(svm_problem prob, svm_parameter param,
-        double[] alpha, Solver.SolutionInfo si, double Cp, double Cn) {
+                                    double[] alpha, Solver.SolutionInfo si, double Cp, double Cn) {
         final int l = prob.l;
         final double[] minus_ones = new double[l];
         final byte[] y = new byte[l];
@@ -1385,7 +1369,7 @@ public class svm {
     }
 
     private static void solve_nu_svc(svm_problem prob, svm_parameter param,
-        double[] alpha, Solver.SolutionInfo si) {
+                                     double[] alpha, Solver.SolutionInfo si) {
         int i;
         final int l = prob.l;
         final double nu = param.nu;
@@ -1436,7 +1420,7 @@ public class svm {
     }
 
     private static void solve_one_class(svm_problem prob, svm_parameter param,
-        double[] alpha, Solver.SolutionInfo si) {
+                                        double[] alpha, Solver.SolutionInfo si) {
         final int l = prob.l;
         final double[] zeros = new double[l];
         final byte[] ones = new byte[l];
@@ -1464,7 +1448,7 @@ public class svm {
     }
 
     private static void solve_epsilon_svr(svm_problem prob,
-        svm_parameter param, double[] alpha, Solver.SolutionInfo si) {
+                                          svm_parameter param, double[] alpha, Solver.SolutionInfo si) {
         final int l = prob.l;
         final double[] alpha2 = new double[2 * l];
         final double[] linear_term = new double[2 * l];
@@ -1493,7 +1477,7 @@ public class svm {
     }
 
     private static void solve_nu_svr(svm_problem prob, svm_parameter param,
-        double[] alpha, Solver.SolutionInfo si) {
+                                     double[] alpha, Solver.SolutionInfo si) {
         final int l = prob.l;
         final double C = param.C;
         final double[] alpha2 = new double[2 * l];
@@ -1529,10 +1513,12 @@ public class svm {
     static class decision_function {
         double[] alpha;
         double rho;
-    };
+    }
+
+    ;
 
     static decision_function svm_train_one(svm_problem prob,
-        svm_parameter param, double Cp, double Cn) {
+                                           svm_parameter param, double Cp, double Cn) {
         final double[] alpha = new double[prob.l];
         final Solver.SolutionInfo si = new Solver.SolutionInfo();
         switch (param.svm_type) {
@@ -1584,7 +1570,7 @@ public class svm {
 
     // Platt's binary SVM Probablistic Output: an improvement from Lin et al.
     private static void sigmoid_train(int l, double[] dec_values,
-        double[] labels, double[] probAB) {
+                                      double[] labels, double[] probAB) {
         double A, B;
         double prior1 = 0, prior0 = 0;
         int i;
@@ -1702,7 +1688,7 @@ public class svm {
     }
 
     private static double sigmoid_predict(double decision_value, double A,
-        double B) {
+                                          double B) {
         final double fApB = decision_value * A + B;
         if (fApB >= 0) {
             return Math.exp(-fApB) / (1.0 + Math.exp(-fApB));
@@ -1771,7 +1757,7 @@ public class svm {
 
     // Cross-validation decision values for probability estimates
     private static void svm_binary_svc_probability(svm_problem prob,
-        svm_parameter param, double Cp, double Cn, double[] probAB) {
+                                                   svm_parameter param, double Cp, double Cn, double[] probAB) {
         int i;
         final int nr_fold = 5;
         final int[] perm = new int[prob.l];
@@ -1783,11 +1769,9 @@ public class svm {
         }
         for (i = 0; i < prob.l; i++) {
             final int j = i + rand.nextInt(prob.l - i);
-            do {
-                final int _ = perm[i];
-                perm[i] = perm[j];
-                perm[j] = _;
-            } while (false);
+            final int i1 = perm[i];
+            perm[i] = perm[j];
+            perm[j] = i1;
         }
         for (i = 0; i < nr_fold; i++) {
             final int begin = i * prob.l / nr_fold;
@@ -1857,7 +1841,7 @@ public class svm {
 
     // Return parameter of a Laplace distribution
     private static double svm_svr_probability(svm_problem prob,
-        svm_parameter param) {
+                                              svm_parameter param) {
         int i;
         final int nr_fold = 5;
         final double[] ymv = new double[prob.l];
@@ -1890,7 +1874,7 @@ public class svm {
     // perm: indices to the original data
     // perm, length l, must be allocated before calling this subroutine
     private static void svm_group_classes(svm_problem prob, int[] nr_class_ret,
-        int[][] label_ret, int[][] start_ret, int[][] count_ret, int[] perm) {
+                                          int[][] label_ret, int[][] start_ret, int[][] count_ret, int[] perm) {
         final int l = prob.l;
         int max_nr_class = 16;
         int nr_class = 0;
@@ -1932,16 +1916,14 @@ public class svm {
         // data corresponding to the +1 instances.
         //
         if (nr_class == 2 && label[0] == -1 && label[1] == +1) {
-            do {
-                final int _ = label[0];
+            {
+                final int i1 = label[0];
                 label[0] = label[1];
-                label[1] = _;
-            } while (false);
-            do {
-                final int _ = count[0];
-                count[0] = count[1];
-                count[1] = _;
-            } while (false);
+                label[1] = i1;
+            }
+            final int i1 = count[0];
+            count[0] = count[1];
+            count[1] = i1;
             for (i = 0; i < l; i++) {
                 if (data_label[i] == 0) {
                     data_label[i] = 1;
@@ -2216,7 +2198,7 @@ public class svm {
 
     // Stratified cross validation
     public static void svm_cross_validation(svm_problem prob,
-        svm_parameter param, int nr_fold, double[] target) {
+                                            svm_parameter param, int nr_fold, double[] target) {
         int i;
         final int[] fold_start = new int[nr_fold + 1];
         final int l = prob.l;
@@ -2246,11 +2228,9 @@ public class svm {
             for (c = 0; c < nr_class; c++) {
                 for (i = 0; i < count[c]; i++) {
                     final int j = i + rand.nextInt(count[c] - i);
-                    do {
-                        final int _ = index[start[c] + j];
-                        index[start[c] + j] = index[start[c] + i];
-                        index[start[c] + i] = _;
-                    } while (false);
+                    final int i2 = index[start[c] + j];
+                    index[start[c] + j] = index[start[c] + i];
+                    index[start[c] + i] = i2;
                 }
             }
             for (i = 0; i < nr_fold; i++) {
@@ -2283,11 +2263,9 @@ public class svm {
             }
             for (i = 0; i < l; i++) {
                 final int j = i + rand.nextInt(l - i);
-                do {
-                    final int _ = perm[i];
-                    perm[i] = perm[j];
-                    perm[j] = _;
-                } while (false);
+                final int i1 = perm[i];
+                perm[i] = perm[j];
+                perm[j] = i1;
             }
             for (i = 0; i <= nr_fold; i++) {
                 fold_start[i] = i * l / nr_fold;
@@ -2367,7 +2345,7 @@ public class svm {
     }
 
     public static double svm_predict_values(svm_model model, svm_node[] x,
-        double[] dec_values) {
+                                            double[] dec_values) {
         int i;
         if (model.param.svm_type == svm_parameter.ONE_CLASS || model.param.svm_type == svm_parameter.EPSILON_SVR || model.param.svm_type == svm_parameter.NU_SVR) {
             final double[] sv_coef = model.sv_coef[0];
@@ -2457,7 +2435,7 @@ public class svm {
     }
 
     public static double svm_predict_probability(svm_model model, svm_node[] x,
-        double[] prob_estimates) {
+                                                 double[] prob_estimates) {
         if ((model.param.svm_type == svm_parameter.C_SVC || model.param.svm_type == svm_parameter.NU_SVC) && model.probA != null && model.probB != null) {
             int i;
             final int nr_class = model.nr_class;
@@ -2490,11 +2468,11 @@ public class svm {
     }
 
     static final String svm_type_table[] = {
-        "c_svc", "nu_svc", "one_class", "epsilon_svr", "nu_svr",
+            "c_svc", "nu_svc", "one_class", "epsilon_svr", "nu_svr",
     };
 
     static final String kernel_type_table[] = {
-        "linear", "polynomial", "rbf", "sigmoid", "precomputed"
+            "linear", "polynomial", "rbf", "sigmoid", "precomputed"
     };
 
     public static void svm_save_model(String model_file_name, svm_model model) throws IOException {
@@ -2718,7 +2696,7 @@ public class svm {
     }
 
     public static String svm_check_parameter(svm_problem prob,
-        svm_parameter param) {
+                                             svm_parameter param) {
         // svm_type
 
         final int svm_type = param.svm_type;
