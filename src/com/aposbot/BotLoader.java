@@ -64,15 +64,16 @@ public final class BotLoader {
         if (p == null) {
             p = getProperties();
         }
-        assert p != null;
-        p.put("auth_user", username);
-        p.put("auth_pass", password);
-        p.put("default_ocr", String.valueOf(defaultOCR));
-        p.put("font", font == null ? "" : font);
-        try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE)) {
-            p.store(out, null);
-        } catch (final Throwable t) {
-            System.out.println("Error storing updated properties: " + t.toString());
+        if (p != null) {
+            p.put("auth_user", username);
+            p.put("auth_pass", password);
+            p.put("default_ocr", String.valueOf(defaultOCR));
+            p.put("font", font == null ? "" : font);
+            try (FileOutputStream out = new FileOutputStream(PROPERTIES_FILE)) {
+                p.store(out, null);
+            } catch (final Throwable t) {
+                System.out.println("Error storing updated properties: " + t.toString());
+            }
         }
     }
 
