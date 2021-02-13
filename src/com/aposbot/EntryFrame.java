@@ -131,7 +131,7 @@ public final class EntryFrame extends Frame {
 					sleepy.setSolver(bl, ocrGroup.getSelectedCheckbox().getLabel());
 					dispose();
 					new BotFrame(init, bl.getConsoleTextArea(), account).setVisible(true);
-					bl.setConsoleFrameVisible(false);
+					bl.setConsoleFrameVisible();
 				} catch (final Throwable t) {
 					t.printStackTrace();
 				}

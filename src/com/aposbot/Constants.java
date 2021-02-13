@@ -103,7 +103,7 @@ public final class Constants {
 	        style = _default.getStyle();
 	        size = _default.getSize();
 	    }
-	    Properties p = BotLoader.getProperties(BotLoader.PROPERTIES_FILE);
+	    Properties p = BotLoader.getProperties();
 	    String name = null;
 	    if (p != null) {
 	        name = p.getProperty("font");
