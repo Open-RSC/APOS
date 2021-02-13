@@ -238,12 +238,12 @@ public final class BotFrame extends Frame {
 
         /* The original jar doesnt want to load jar if doesn't come from *.runescape.com
          * so here we set a timeout after it has done that check to change the world.
-         * Changed the delay in the scheduled executor below to 1 (from 10) to force
+         * Changed the delay in the scheduled executor below to 3 (from 10) to force
          * world selection to overwrite the default as soon as possible without crashing
          * the applet.
         */
         final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
-        executor.schedule(() -> updateWorld(0), 1, TimeUnit.SECONDS);
+        executor.schedule(() -> updateWorld(0), 3, TimeUnit.SECONDS);
 
     }
 
