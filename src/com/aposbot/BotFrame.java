@@ -236,12 +236,14 @@ public final class BotFrame extends Frame {
         stub.setActive(true);
         client.start();
 
-
-        // original jar doesnt want to load jar if doesn't come from *.runescape.com
-        // so here we set a timeout after it has done that check to change the
-        // world
+        /* The original jar doesnt want to load jar if doesn't come from *.runescape.com
+         * so here we set a timeout after it has done that check to change the world.
+         * Changed the delay in the scheduled executor below to 1 (from 10) to force
+         * world selection to overwrite the default as soon as possible without crashing
+         * the applet.
+        */
         final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
-        executor.schedule(() -> updateWorld(0), 10, TimeUnit.SECONDS);
+        executor.schedule(() -> updateWorld(0), 1, TimeUnit.SECONDS);
 
     }
 
@@ -333,7 +335,7 @@ public final class BotFrame extends Frame {
     }
 
     /* Gets game parameters from the old classic.runescape.com url */
-    public Map<String, String> getParameters(String classicUrl) {
+    /*public Map<String, String> getParameters(String classicUrl) {
         final String rsc_page;
         try {
             byte[] b = HTTPClient.load(classicUrl +
@@ -346,7 +348,7 @@ public final class BotFrame extends Frame {
         }
 
         return HTTPClient.getParameters(rsc_page);
-    }
+    }*/
 
     public void updateWorld(int i) {
         String wanted = worldChoice.getItem(i);
@@ -360,8 +362,14 @@ public final class BotFrame extends Frame {
                 serverType = "1";
                 client.getParentInit().setRSAKey(Constants.RSAKEY_URANIUM_MEMB);
                 client.getParentInit().setRSAExponent(Constants.RSAEXPONENT_URANIUM_MEMB);
-            } else {
-                int j = 2;
+            } else { // Default only load RSC Uranium
+                url = new URL("http://game.openrsc.com/");
+                nodeid = "3235";
+                serverType = "1";
+                client.getParentInit().setRSAKey(Constants.RSAKEY_URANIUM_MEMB);
+                client.getParentInit().setRSAExponent(Constants.RSAEXPONENT_URANIUM_MEMB);
+
+                /*int j = 2;
                 Pattern pattern = Pattern.compile("\"([0-9]+)\"");
                 Matcher matcher = pattern.matcher(wanted);
 
@@ -370,7 +378,7 @@ public final class BotFrame extends Frame {
                 }
                 url = new URL("http://classic" + j + ".runescape.com/");
                 nodeid = String.valueOf(5000 + j);
-                serverType = j == 1 ? "3" : "1";
+                serverType = j == 1 ? "3" : "1";*/
             }
 
             stub.setDocumentBase(url);
@@ -380,7 +388,6 @@ public final class BotFrame extends Frame {
             stub.setParameter("servertype", serverType);
             worldChoice.select(i);
         } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
