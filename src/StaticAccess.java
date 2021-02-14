@@ -164,9 +164,10 @@ public final class StaticAccess
             }
         }
 
-        if (tb.l[index] == 0) {
-            tb.l[index] = CACHE_SUMS[index];
-        }
+        // since we read now the actual crcs this is not needed
+        // if (tb.l[index] == 0) {
+        //     tb.l[index] = CACHE_SUMS[index];
+        // }
 
         String filename = (new StringBuilder()).append(ib.z[5])
                 .append(index).append("_")

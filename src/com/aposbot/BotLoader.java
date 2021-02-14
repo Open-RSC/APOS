@@ -45,6 +45,23 @@ public final class BotLoader {
             System.setOut(ps);
             System.setErr(ps);
         }
+        Properties p = getProperties();
+		if (p != null) {
+			try {
+				username = p.getProperty("auth_user");
+				password = p.getProperty("auth_pass");
+				font = p.getProperty("font");
+				if (font != null && font.trim().isEmpty()) {
+					font = null;
+				}
+				final String str = p.getProperty("default_ocr");
+				defaultOCR = str == null ? 0 : Integer.parseInt(str);
+			} catch (final Throwable t) {
+				System.out.println("Settings error:");
+				t.printStackTrace();
+			}
+		}
+
     }
 
     static Properties getProperties() {
@@ -60,8 +77,9 @@ public final class BotLoader {
         return null;
     }
 
-    public void storeProperties(Properties p) {
-        if (p == null) {
+    public void storeProperties(final Properties props) {
+        Properties p = props;
+    	if (p == null) {
             p = getProperties();
         }
         if (p != null) {
