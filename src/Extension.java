@@ -853,6 +853,11 @@ public class Extension extends client
         }
         return null;
     }
+    
+    @Override
+    public boolean isDisplayable() {
+    	return true;
+    }
 
     @Override
     public void resizeGame(int width, int height) {
