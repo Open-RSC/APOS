@@ -886,7 +886,7 @@ public class Extension extends client
         ++q;
         this.I = var1.getX() - this.Eb;
         this.xb = var1.getY() - this.K;
-        if(!SwingUtilities.isRightMouseButton(var1)) {
+        if(SwingUtilities.isRightMouseButton(var1)) {
            this.Bb = 2;
            if(!client.vh) {
               return;
