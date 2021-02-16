@@ -2,11 +2,15 @@ import com.aposbot.BotFrame;
 import com.aposbot._default.*;
 
 import javax.script.Invocable;
+import javax.swing.SwingUtilities;
+
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 public class Extension extends client
         implements IClient {
@@ -853,6 +857,44 @@ public class Extension extends client
         }
         return null;
     }
+    
+    @Override
+    public synchronized void mousePressed(MouseEvent var1) {
+        label12: {
+           this.a((InputEvent)var1, (byte)-128);
+           ++Pb;
+           this.I = var1.getX() - this.Eb;
+           this.xb = var1.getY() + -this.K;
+           if(!SwingUtilities.isRightMouseButton(var1)) {
+              this.Bb = 1;
+              if(!client.vh) {
+                 break label12;
+              }
+           }
+
+           this.Bb = 2;
+        }
+
+        this.Qb = this.Bb;
+        this.sb = 0;
+        this.a(this.I, 94, this.Bb, this.xb);
+     }
+    
+    @Override
+    public synchronized void mouseDragged(MouseEvent var1) {
+        this.a((InputEvent)var1, (byte)-128);
+        ++q;
+        this.I = var1.getX() - this.Eb;
+        this.xb = var1.getY() - this.K;
+        if(!SwingUtilities.isRightMouseButton(var1)) {
+           this.Bb = 2;
+           if(!client.vh) {
+              return;
+           }
+        }
+
+        this.Bb = 1;
+     }
     
     @Override
     public boolean isDisplayable() {
