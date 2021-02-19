@@ -43,15 +43,15 @@ public final class AutoLogin
             System.out.println("Looks like APOS is out of date. Wait patiently for an update to be released on the forums.");
             instance.next_attempt = Long.MAX_VALUE;
         } else if (message.contains("member") ||
-                message.contains("stolen") ||
-                message.contains("locked") ||
-                message.contains("banned") ||
-                message.contains("customer support") ||
-                message.contains("new players") ||
-                message.contains("cannot access") ||
-                message.contains("disabled")) {
-            System.out.println("Autologin has been infinitely delayed due to an apparent fatal problem. If you've managed to solve that problem, re-enable it.");
-            instance.next_attempt = Long.MAX_VALUE;
+            message.contains("stolen") ||
+            message.contains("locked") ||
+            message.contains("banned") ||
+            message.contains("customer support") ||
+            message.contains("new players") ||
+            message.contains("cannot access") ||
+            message.contains("disabled")) {
+            System.out.println("Looks like we got banned, waiting a random 5-7 minutes");
+            instance.next_attempt = System.currentTimeMillis() + 300000L + Constants.RANDOM.nextInt(120000);
         } else {
             instance.next_attempt = System.currentTimeMillis() + 4000L + Constants.RANDOM.nextInt(8000);
         }
