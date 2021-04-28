@@ -36,26 +36,26 @@ public final class S_GnomeFlaxPower extends Script {
             // if full inventory + downstairs, go upstairs
             if (getInventoryCount() == MAX_INV_SIZE) {
                 atObject(692, 525);
-                return random(500, 600);
+                return random(400, 500);
             }
             // get flax.
             atObject2(693, 524);
-            return random(500, 600);
+            return random(220, 345);
         } else {
             // if we have bowstring -> drop
             int bowstring = getInventoryIndex(BOW_STRING);
             if (bowstring != -1) {
                 dropItem(bowstring);
-                return random(500, 600);
+                return random(450, 550);
             }
             // if we have flax -> spin
             if (getInventoryIndex(FLAX_ITEM) != -1) {
                 useItemOnObject(FLAX_ITEM, SPINNER);
-                return random(500, 600);
+                return random(200, 250);
             }
             // otherwise go downstairs
             atObject(692, 1469);
-            return random(500, 600);
+            return random(400, 500);
         }
     }
     
