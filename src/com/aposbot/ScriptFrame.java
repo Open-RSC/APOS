@@ -87,7 +87,7 @@ public final class ScriptFrame extends Frame {
         setSize(in.right + in.left + 310, in.top + in.bottom + 240);
     }
 
-    private void initScript() {
+    public void initScript() {
         final IScriptListener listener = client.getScriptListener();
         if (listener.isScriptRunning()) {
             System.out.println("Stop the script you are running first.");
@@ -118,7 +118,7 @@ public final class ScriptFrame extends Frame {
         setVisible(false);
     }
 
-    private IScript initJSEScript(String name) {
+    public IScript initJSEScript(String name) {
         if (manager == null) {
             manager = new ScriptEngineManager();
         }
@@ -160,7 +160,7 @@ public final class ScriptFrame extends Frame {
         return client.createInvocableScript((Invocable) engine, name);
     }
 
-    private IScript initJavaScript(String name) {
+    public IScript initJavaScript(String name) {
         Class<?> c;
         try {
             c = new ScriptClassLoader().loadClass(
