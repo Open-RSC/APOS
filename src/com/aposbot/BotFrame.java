@@ -142,6 +142,53 @@ public final class BotFrame extends Frame {
             debugger.setVisible(true);
         });
 
+        final Button pwbutton = new Button("PathWalker");
+        pwbutton.setPreferredSize(buttonSize);
+        setButtonColours(pwbutton);
+        pwbutton.addActionListener(e -> {
+                        if (scriptFrame == null) {
+                                scriptFrame = new ScriptFrame(client);
+                        }
+                        IScript script = null;
+                        script = scriptFrame.initJavaScript("PathWalker.class");
+                        try {
+                                script.init("");
+                        } catch (Throwable t) {
+                                System.out.println("issue with script.");
+
+                        }
+                        client.getScriptListener().setIScript(script);
+
+                });
+
+        final Button clearLogButton = new Button("Clear Log");
+        clearLogButton.setPreferredSize(buttonSize);
+        setButtonColours(clearLogButton);
+        clearLogButton.addActionListener(e -> cTextArea.setText(""));
+
+        final Button depositButton = new Button("Deposit All");
+        depositButton.setPreferredSize(buttonSize);
+        setButtonColours(depositButton);
+        depositButton.addActionListener(e -> {
+                        if (client.isBankVisible()) {
+                                int invCount = client.getInventorySize();
+                                for (int invItem = 0; invItem < invCount; invItem++) {
+                                        int itemStack = 1;
+                                        int itemID = client.getInventoryId(invItem);
+                                        if (client.getStatic().isItemStackable(itemID)) {
+                                          itemStack = client.getInventoryStack(invItem);
+                                        }
+                                        client.createPacket(Constants.OP_BANK_DEPOSIT);
+                                        client.put2(itemID);
+                                        client.put4(itemStack);
+                                        client.put4(-2023406815);
+                                        client.finishPacket();
+                                }
+                        } else {
+                                System.out.println("Not In Bank");
+                        }
+                });
+
         final Button scrButton = new Button("Screenshot");
         scrButton.setPreferredSize(buttonSize);
         setButtonColours(scrButton);
@@ -156,6 +203,9 @@ public final class BotFrame extends Frame {
         sidePanel.add(chooseButton);
         sidePanel.add(startButton);
         sidePanel.add(debugButton);
+        sidePanel.add(pwbutton);
+        sidePanel.add(clearLogButton);
+        sidePanel.add(depositButton);
         sidePanel.add(scrButton);
         sidePanel.add(exitButton);
 
