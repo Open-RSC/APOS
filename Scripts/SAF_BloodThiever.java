@@ -153,7 +153,7 @@ public class SAF_BloodThiever extends Script
             if(chest[0] == -1 && !looting)
             {
                 print("Hopping cause no loot!");
-                _hop();
+                //_hop();
             }
 
             if(getY() >= 568 && getY() <= 3000)
@@ -242,7 +242,7 @@ public class SAF_BloodThiever extends Script
                 if ((secs % 60L) >= wait_time  && stuck) 
                 {
                     print("Hopping because the damn NPC wont move!");
-                    _hop();
+                    //_hop();
                     stuck_time = System.currentTimeMillis() + 2000L;
                     stuck = false;
                     return false;
@@ -280,16 +280,16 @@ public class SAF_BloodThiever extends Script
     private void _hop() {
         switch (getWorld()) {
             case 1:
-                hop(2);
+                //hop(2);
                 break;
             case 2:
-                hop(3);
+                //hop(3);
                 break;
             case 3:
                 if (veteran)
-                    hop(1);
-                else
-                    hop(2);
+                    //hop(1);
+                //else
+                    //hop(2);
                 break;
         }
     }

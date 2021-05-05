@@ -43,6 +43,7 @@ public final class S_Pickpocket extends Script
 
 	private static final int COINS = 10;
 	private static final int DSQ = 1277;
+	private static final int BONES = 20;
 
 	private static final Map<String, int[]> map_npcs;
 	private static final Map<String, int[]> map_food;
@@ -83,7 +84,7 @@ public final class S_Pickpocket extends Script
 
 	private static final int[] ids_bank = {
 	    COINS, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 41, 42, 46, 619,
-	    152, 142, 612, 619, 161, DSQ
+	    152, 142, 612, 619, 161, DSQ, BONES
 	};
 
 	private int last_combat_x;
@@ -98,6 +99,7 @@ public final class S_Pickpocket extends Script
 	private boolean init_path;
 	private int eat_at;
 	private int withdraw_food;
+	private boolean bury_bones;
 
 	private int[] bank_counts = new int[ids_bank.length];
 	private boolean[] has_banked = new boolean[ids_bank.length];
@@ -107,6 +109,7 @@ public final class S_Pickpocket extends Script
 	private Choice ch_bank;
 	private Choice ch_npc;
 	private Choice ch_food;
+	private Choice ch_bury;
 	private TextField tf_food;
 	private TextField tf_eat;
 	private TextField tf_sleep;
@@ -186,6 +189,11 @@ public final class S_Pickpocket extends Script
 			ch_bank.add("For food");
 			ch_bank.add("For food or full bag");
 
+			ch_bury = new Choice();
+			ch_bury.addItemListener(this);
+			ch_bury.add("False");
+			ch_bury.add("True");
+
 			ch_fm = new Choice();
 			for (String str : FIGHTMODES) {
 				ch_fm.add(str);
@@ -223,6 +231,9 @@ public final class S_Pickpocket extends Script
 			pInput.add(tf_eat = new TextField("10"));
 			pInput.add(new Label("Sleep at fatigue %:"));
 			pInput.add(tf_sleep = new TextField("95"));
+			pInput.add(new Label("Bury Bones:"));
+			pInput.add(ch_bury);
+
 
 			ch_food.setEnabled(false);
 
@@ -303,6 +314,10 @@ public final class S_Pickpocket extends Script
 		if (ball != -1) {
 			dropItem(ball);
 			return random(1000, 1200);
+		}
+		if (getInventoryCount(BONES) > 0 && bury_bones) {
+			useItem(getInventoryIndex(BONES));
+			return 1200;
 		}
 		if (bank_type != BANK_NEVER) {
 			if (!init_path) {
@@ -410,8 +425,17 @@ public final class S_Pickpocket extends Script
 			if (getInventoryCount() < MAX_INV_SIZE ||
 			    (getInventoryIndex(item[0]) != -1 &&
 			    isItemStackableId(item[0]))) {
-				pickupItem(item[0], item[1], item[2]);
-				return random(600, 1000);
+				if (item[0] == BONES) {
+					if (bury_bones) {
+						pickupItem(item[0], item[1], item[2]);
+						return random(600, 1000);
+					}
+				} else {
+					pickupItem(item[0], item[1], item[2]);
+					return random(600, 1000);
+				}
+				//pickupItem(item[0], item[1], item[2]);
+				//return random(600, 1000);
 			}
 			if (item[0] == DSQ) {
 				int slot = getFoodSlot();
@@ -658,6 +682,7 @@ public final class S_Pickpocket extends Script
 			withdraw_food = Integer.parseInt(tf_food.getText());
 			ids_npcs = map_npcs.get(ch_npc.getSelectedItem());
 			ids_food = map_food.get(ch_food.getSelectedItem());
+			bury_bones = Boolean.parseBoolean(ch_bury.getSelectedItem());
 		}
 		frame.setVisible(false);
 	}

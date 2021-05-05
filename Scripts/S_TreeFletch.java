@@ -1013,6 +1013,7 @@ public final class S_TreeFletch extends Script
         int count = getObjectCount();
         int target_x = -1;
         int target_y = -1;
+        int targetDist = 10000;
         for (int i = 0; i < count; ++i) {
             int id = getObjectId(i);
             int x = getObjectX(i);
@@ -1020,10 +1021,10 @@ public final class S_TreeFletch extends Script
             if (doing_grand_tree && x > 738 && x < 745) {
                 continue;
             }
-            if (inArray(tree.ids_trees, id) && distanceTo(x, y) < 30) {
+            if (inArray(tree.ids_trees, id) && distanceTo(x, y) < targetDist) {
                 target_x = x;
                 target_y = y;
-                break;
+                targetDist = distanceTo(x,y);
             }
         }
         if (target_x != -1) {

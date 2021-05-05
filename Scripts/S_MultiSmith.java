@@ -484,6 +484,13 @@ public final class S_MultiSmith extends Script
         	if (getFatigue() > 85) {
         		sleep_time = System.currentTimeMillis() + random(800, 2500);
             }
+        }        if (str.contains("you hammer the metal")) {
+            try {
+                Thread.sleep(700);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+            useItemOnObject(_getBarId(), ANVIL);
         }
     }
 

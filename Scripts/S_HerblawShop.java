@@ -34,9 +34,9 @@ public final class S_HerblawShop extends Script {
     
     private static final Point bank_pos = new Point(328, 552);
     // gate walk position coming from bank
-    private static final Point gate_b_pos = new Point(341, 488);
+    private static final Point gate_b_pos = new Point(341, 487);
     // gate walk position coming from shop
-    private static final Point gate_s_pos = new Point(342, 488);
+    private static final Point gate_s_pos = new Point(342, 487);
     
     // approximate location of shop (not inside building)
     private static final Point shop_pos = new Point(364, 498);
@@ -150,13 +150,13 @@ public final class S_HerblawShop extends Script {
             if (count > 0) {
                 deposit(VIAL, count);
                 banked_vials += count;
-                return random(2000, 3000);
+                return random(2000, 2000);
             }
             count = getInventoryCount(EYE);
             if (count > 0) {
                 deposit(EYE, count);
                 banked_eyes += count;
-                return random(2000, 3000);
+                return random(2000, 2000);
             }
             closeBank();
             pw.setPath(bank_to_gate);
@@ -171,7 +171,7 @@ public final class S_HerblawShop extends Script {
             shop_time = -1L;
             if (getInventoryCount() == MAX_INV_SIZE) {
                 closeShop();
-                return random(1000, 2000);
+                return random(300, 600);
             }
             if (prefer_vials) {
                 if (buy_vials) {
@@ -192,7 +192,7 @@ public final class S_HerblawShop extends Script {
                     if (i != -1) return i;
                 }
             }
-            return random(600, 1000);
+            return random(100, 200);
         } else if (shop_time != -1L) {
             if (System.currentTimeMillis() >= (shop_time + 8000L)) {
                 shop_time = -1L;
