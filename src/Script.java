@@ -1861,6 +1861,32 @@ public abstract class Script
     }
 
     /**
+     * Attempts to deposit all items in the inventory in the client's
+     * bank.
+     *
+     */
+    public void depositAll() {
+	if (client.isBankVisible()) {
+		int invCount = client.getInventorySize();
+		for (int invItem = 0; invItem < invCount; invItem++) {
+			int itemStack = 1;
+			int itemID = client.getInventoryId(invItem);
+			if (client.getStatic().isItemStackable(itemID)) {
+				  itemStack = client.getInventoryStack(invItem);
+			}
+			client.createPacket(Constants.OP_BANK_DEPOSIT);
+			client.put2(itemID);
+			client.put4(itemStack);
+			client.put4(-2023406815);
+			client.finishPacket();
+		}
+	} else {
+		System.out.println("Not In Bank");
+	}
+    }
+
+
+    /**
      * Attempts to withdraw the given amount of the given item from the client's
      * bank.
      *

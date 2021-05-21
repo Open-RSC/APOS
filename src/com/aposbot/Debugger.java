@@ -216,15 +216,34 @@ public final class Debugger extends JFrame {
                 columns = new String[]{
                         "Name", "ID", "Stack"
                 };
+		boolean noShopData = true;
                 count = client.getShopSize();
                 rows = new Object[count][columns.length];
+		int skippedItems = 0;
                 for (i = 0; i < count; i++) {
-                    final Object[] row = rows[i];
                     final int id = client.getShopId(i);
+		    if (id < 0 || (id == 0 && client.getShopStack(i) == 0)){
+			skippedItems++;
+			continue;
+		    }
+                    final Object[] row = rows[i - skippedItems];
+		    if (id != 0){
+			noShopData = false;
+		    } 
                     row[0] = id == -1 ? "null" : statica.getItemName(id);
                     row[1] = id;
                     row[2] = iformat.format(client.getShopStack(i));
                 }
+		if (noShopData){
+		  rows = new Object[0][columns.length];
+		  count = 0;
+		} else if (skippedItems > 0){
+		   Object[][] newRows = new Object[count - skippedItems][columns.length];
+		   for (int r = 0; r < count - skippedItems; r++){
+			newRows[r] = rows[r];
+		   }
+		   rows = newRows;
+		}	
                 break;
             case 9:
                 columns = new String[]{
@@ -281,6 +300,7 @@ public final class Debugger extends JFrame {
                 columns = new String[0];
                 break;
         }
+	table.setAutoCreateRowSorter(true);
         table.setModel(new DefaultTableModel(rows, columns));
     }
 
