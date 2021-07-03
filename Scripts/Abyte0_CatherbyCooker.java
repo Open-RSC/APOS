@@ -1,3 +1,8 @@
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
 /** * This script is used to cook your food in catherby. * 
 * start at catherby bank, change the rawID and cookedID and burntID 
 * varables too cook whatever you want. * * 
@@ -5,7 +10,9 @@
 *   - yomama` edited by XcendroX
 * Edited by Abyte0
  */
-//Version 2.0 Updated to OpenRSC
+//Version 2.0 Updated to OpenRSC 2012-07-02
+//Version 2.1 Integrate Shark 2012-07-02
+//Version 2.3 Integrate Menu 2012-07-03
 public class Abyte0_CatherbyCooker extends Abyte0_Script 
 {   
 	int rawID = 366;   
@@ -14,6 +21,11 @@ public class Abyte0_CatherbyCooker extends Abyte0_Script
 	//enter cooked fishies ID  
 	int burntID = 368; 
 	//enter burnt fishies ID  
+	
+	String tunasParam = "T";
+	String lobstersParam = "L";
+	String swordfishsParam = "S";
+	String sharksParam = "Shark";
 	
 	int[] Tunas = new int[]{366,367,368};  
 	//366: Raw Tuna
@@ -30,6 +42,11 @@ public class Abyte0_CatherbyCooker extends Abyte0_Script
 	//373: Lobster
 	//374: Burnt Lobster
 	 
+	int[] Sharks = new int[]{545,546,547};  
+	//545: Raw Shark
+	//546: Shark
+	//547: Burnt Shark
+	 
 	int[] cookArea = new int[]{435, 485};   
 	int[] bankArea = new int[]{439, 495}; 
 	     
@@ -37,25 +54,50 @@ public class Abyte0_CatherbyCooker extends Abyte0_Script
 	     
 	public void init(String params)
 	{
-		print("Default Tunas, L = Lobs, S = Swordys");
-		if(params.equals("L"))
+		
+		print("Default Selector, for quick setup set parameter: T = Tunas L = Lobs, S = Swordys, Shark = Sharks");
+		if(!params.equals(tunasParam) && !params.equals(lobstersParam) && !params.equals("S") && !params.equals("Shark"))
+		{
+			Frame frame = new Frame("Fish Selection");
+			Object[] fishes = {"Tunas", "Lobsters", "Swordfishs", "Sharks"};
+			String S_FightMode = (String)JOptionPane.showInputDialog(frame,		"Fish selector:\n", "Fish Selection",		JOptionPane.PLAIN_MESSAGE, null, fishes, null);
+			
+			if(S_FightMode=="Tunas") params = tunasParam;
+			if(S_FightMode=="Lobsters") params = lobstersParam;
+			if(S_FightMode=="Swordfishs") params = swordfishsParam;
+			if(S_FightMode=="Sharks") params = sharksParam;
+		}
+		
+		if(params.equals(tunasParam))
+		{
+			rawID = Tunas[0];
+			cookedID = Tunas[1];
+			burntID = Tunas[2];
+			print("Doing Tunas");
+		}
+		else if(params.equals(lobstersParam))
 		{
 			rawID = Lobsters[0];
 			cookedID = Lobsters[1];
 			burntID = Lobsters[2];
 			print("Doing Lobsters");
 		}
-		else if(params.equals("S"))
+		else if(params.equals(swordfishsParam))
 		{
 			rawID = Swordfishs[0];
 			cookedID = Swordfishs[1];
 			burntID = Swordfishs[2];
 			print("Doing Swordfishs");
 		}
-		else
-			print("Doing Default Tunas");
+		else if(params.equals(sharksParam))
+		{
+			rawID = Sharks[0];
+			cookedID = Sharks[1];
+			burntID = Sharks[2];
+			print("Doing Sharks");
+		}
 
-		print("Version 2.0 Udpated to OpenRSC");
+		print("Version 2.2 Open RSC + Integrate Shark + Menu");
 	}
 	   
 	public int main() 
@@ -99,7 +141,7 @@ public class Abyte0_CatherbyCooker extends Abyte0_Script
 		if(getInventoryCount(burntID) > 0) 
 		{               
 			dropItem(getLastInventoryIndex(burntID));               
-			return random(1500, 1600);            
+			return random(2000, 2200);            
 		}                          
 		if(distanceTo(bankArea[0], bankArea[1]) < 10) 
 		{         
