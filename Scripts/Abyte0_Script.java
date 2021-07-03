@@ -256,4 +256,22 @@ public class Abyte0_Script extends Storm_Script
 	public int getExperience(int skill) {
         return (int) client.getExperience(skill);
     }	
+	
+	    /**
+     * Returns the position of the item with the given ID in the client's
+     * inventory.
+     *
+     * @param ids the identifiers of the items to search for.
+     * @return the position of the first item with the given id(s). May range
+     * from 0 to MAX_INV_SIZE.
+     */
+    public int getLastInventoryIndex(int... ids) {
+        for (int i = getInventoryCount()-1; i >=0 ; i--) {
+            if (inArray(ids, client.getInventoryId(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }

@@ -30,7 +30,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 	{		
 		System.out.println("Abyte0_Paladin");
 		System.out.println("Thiever for Paladin Tower in Ardougne");
-		System.out.println("Version 0.9.2");
+		System.out.println("Version 0.9.3");
 		
 		System.out.println("Abyte0_paladin fmode,foodId,foodId,...");
 		
@@ -73,23 +73,23 @@ public class Abyte0_Paladin extends Abyte0_Script
 			if(getInventoryCount(10) > 1) 
 			{				
 				deposit(10,getInventoryCount(10)-1);
-				return random(1500, 1600);			
+				return random(1800, 2100);
 			}
 			else if(getInventoryCount(10) < 1) 
 			{				
 				withdraw(10,1);
-				return random(1500, 1600);			
+				return random(1800, 2100);
 			}
 			//deposit chaos and keep 1 chaos
 			if(getInventoryCount(41) > 1) 
 			{				
 				deposit(41,getInventoryCount(41)-1);
-				return random(1500, 1600);			
+				return random(1800, 2100);
 			}
 			else if(getInventoryCount(41) < 1) 
 			{				
 				withdraw(41,1);
-				return random(1500, 1600);			
+				return random(1800, 2100);
 			}
 			
 			//On Depose Scimitar
@@ -129,12 +129,12 @@ public class Abyte0_Paladin extends Abyte0_Script
 				return random(500, 600);			
 			}
 			withdraw(foodIDs[0], 30 - getInventoryCount());			
-			return random(1500, 1600);		
+			return random(2500, 2600);		
 		}				
 		if(isQuestMenu()) 
 		{			
 			answer(0);			
-			return random(1500, 1600);		
+			return random(2500, 2600);		
 		}
 		//On verifie si on a de la nourriture		
 		if(getInventoryCount(foodIDs) > 0)
@@ -322,7 +322,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 				if(banker[0] != -1)
 				{			
 					talkToNpc(banker[0]);	        
-					return 1000;		
+					return 3000;		
 				}
 			}
 			
