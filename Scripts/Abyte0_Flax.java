@@ -61,7 +61,7 @@ public class Abyte0_Flax extends Abyte0_Script
 		if(isQuestMenu()) 
 		{			
 			answer(0);			
-			return random(500, 600);		
+			return random(3500, 3600);
 		}
 		
 		if(isDroppingNow)
@@ -89,7 +89,7 @@ public class Abyte0_Flax extends Abyte0_Script
 				if(banker[0] != -1)
 				{			
 					talkToNpc(banker[0]);	        
-					return random(400,600);		
+					return random(2400,2600);		
 				}
 				return 500;
 			}

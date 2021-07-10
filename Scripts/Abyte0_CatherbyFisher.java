@@ -2,33 +2,40 @@
 *  Catherby Lobster Fishing *
  *  v1.0 please report bugs if any *
  *   XcendroX` */
-//Edited By Abyte0
+//Version 0 by XcendroX
+//Version 1 by Abyte0
+//2  Ways doors opener
+//Lobs OR Tuna/Swordy
+//2021-07-09 V1.2 Updated to OpenRSC + added Shark
 public class Abyte0_CatherbyFisher extends Abyte0_Script
 {
 	int sleepAt = 80;
 	int FishType = 372;
 	int FishType2 = 369;
+	boolean isDoingShark = false;
 	int cptTry = 0;
 	public Abyte0_CatherbyFisher(Extension e)
 	{      super(e);   }
 	public void init(String params)
 	{
-		print("Started Abyte0 Catherby Fisher");
-		print("Version 1.1");
-		//Version 0 by XcendroX
-		//Version 1 by Abyte0
-		//2  Ways doors opener
-		//Lobs OR Tuna/Swordy
-		print("No param = Lobs , Anything as param = Tunas Swordy...");
-		if(params.equals(""))
+		print("Selected Abyte0 Catherby Fisher");
+		print("Version 1.2");
+		print("Param can be 'Tunas', 'Shark' or default 'Lobs'");
+		if(params.equals("Shark"))
 		{
-			FishType = 372;
-			print("Doing Lobs!");
+			FishType = 545;
+			isDoingShark = true;
+			print("Doing Sharks!");
 		}
-		else
+		else if(params.equals("Tunas"))
 		{
 			FishType = 366;
 			print("Doing Tunas and Swordy!");
+		}
+		else
+		{
+			FishType = 372;
+			print("Doing Lobs!");
 		}
 	}
 	public int main()
@@ -43,7 +50,7 @@ public class Abyte0_CatherbyFisher extends Abyte0_Script
 			if(isQuestMenu())
 			{
 				answer(0);
-				return random(410, 987);
+				return random(1410, 1987);
 			}
 			if(isBanking())
 			{
@@ -99,7 +106,7 @@ public class Abyte0_CatherbyFisher extends Abyte0_Script
 			if(banker[0] != -1)
 			{
 				talkToNpc(banker[0]);
-				return 1000+random(423, 501);
+				return 1000+random(1423, 1501);
 			}
 			return random(400, 500);
 		}
@@ -125,32 +132,63 @@ public class Abyte0_CatherbyFisher extends Abyte0_Script
 				print(".wait.");
 				//NOTHING waitting to be at 439, 498
 			}
-			if(getX() != 409 && getY() != 503)
+			
+			if(isDoingShark)
 			{
-				print("Walk to Fish");
-				//Si on est pas rndu au fishing on Marche
-				walkTo(409,503);
-				return 1000;
-			}
-			if(cptTry++ >= random(80,130))
-			{
-				//Si on a beaucoup dessaie on bouge pas loguer out
-				walkTo(409,502);
-				print("Moving because " + cptTry + " trys...");
-				cptTry = 0;
-				return random(1003,4221);
-			}
-			if(isAtApproxCoords(409,503, 10) && getInventoryCount() != 30)
-			{
-				int[] fish = getObjectById(new int[]{194});
-				if( fish[0] != -1 )
+				if(getX() != 406 && getY() != 504)
 				{
-					if(FishType == 372)
-						atObject2(fish[1], fish[2]);
-					else
-						atObject(fish[1], fish[2]);
-					cptTry++;
-					return random(403,1721);
+					print("Walk to Shark");
+					//Si on est pas rndu au fishing on Marche
+					walkTo(406,504);
+					return 1000;
+				}
+				if(cptTry++ >= random(80,130))
+				{
+					//Si on a beaucoup dessaie on bouge pas loguer out
+					walkTo(406,503);
+					print("Moving because " + cptTry + " trys...");
+					cptTry = 0;
+					return random(1003,4221);
+				}
+				if(isAtApproxCoords(406,504, 10) && getInventoryCount() != 30)
+				{
+					int[] fish = getObjectById(new int[]{261});
+					if( fish[0] != -1 )
+					{
+							atObject2(fish[1], fish[2]);
+						return random(403,1721);
+					}
+				}
+			}
+			else //Tunas && Lobs
+			{
+				if(getX() != 409 && getY() != 503)
+				{
+					print("Walk to Fish");
+					//Si on est pas rndu au fishing on Marche
+					walkTo(409,503);
+					return 1000;
+				}
+				if(cptTry++ >= random(80,130))
+				{
+					//Si on a beaucoup dessaie on bouge pas loguer out
+					walkTo(409,502);
+					print("Moving because " + cptTry + " trys...");
+					cptTry = 0;
+					return random(1003,4221);
+				}
+				if(isAtApproxCoords(409,503, 10) && getInventoryCount() != 30)
+				{
+					int[] fish = getObjectById(new int[]{194});
+					if( fish[0] != -1 )
+					{
+						if(FishType == 372)
+							atObject2(fish[1], fish[2]);
+						else
+							atObject(fish[1], fish[2]);
+						cptTry++;
+						return random(403,1721);
+					}
 				}
 			}
 		}
