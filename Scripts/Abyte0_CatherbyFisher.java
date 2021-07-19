@@ -7,6 +7,7 @@
 //2  Ways doors opener
 //Lobs OR Tuna/Swordy
 //2021-07-09 V1.2 Updated to OpenRSC + added Shark
+//2021-07-14 V1.3 Fixed walking bug which would happen when map is loaded from reloggin at fishing spot
 public class Abyte0_CatherbyFisher extends Abyte0_Script
 {
 	int sleepAt = 80;
@@ -19,15 +20,15 @@ public class Abyte0_CatherbyFisher extends Abyte0_Script
 	public void init(String params)
 	{
 		print("Selected Abyte0 Catherby Fisher");
-		print("Version 1.2");
-		print("Param can be 'Tunas', 'Shark' or default 'Lobs'");
-		if(params.equals("Shark"))
+		print("Version 1.3");
+		print("Param can be 'Tunas', 'Sharks' or default 'Lobs'");
+		if(params.equals("Shark") || params.equals("Sharks"))
 		{
 			FishType = 545;
 			isDoingShark = true;
 			print("Doing Sharks!");
 		}
-		else if(params.equals("Tunas"))
+		else if(params.equals("Tuna") || params.equals("Tunas"))
 		{
 			FishType = 366;
 			print("Doing Tunas and Swordy!");
@@ -68,6 +69,11 @@ public class Abyte0_CatherbyFisher extends Abyte0_Script
 			if(getX() <	412)
 			{
 				walkTo(412, 501);
+				return random(430, 1502);
+			}
+			if(getX() <	423)
+			{
+				walkTo(423, 495);
 				return random(430, 1502);
 			}
 			if(getX() <	437)
