@@ -53,18 +53,15 @@ public final class S_TavChaosDruids extends Script
     
     private int food_id = 373;
     private int food_wd_count = 0;
-    private int world = 3;
     
     private final Choice combat_style = new Choice();
     
     private final Checkbox
-    veteran = new Checkbox("Veteran (World 1 access)", true),
     take_low_level = new Checkbox("Take low level herbs (guam, tar, mar)", false),
     autobury = new Checkbox("Bury bones", false),
     sleep = new Checkbox("Sleep", true);
     
     private final TextField
-    tf_world = new TextField(String.valueOf(world)),
     tf_food_id = new TextField(String.valueOf(food_id)),
     tf_food_wd_count = new TextField(String.valueOf(food_wd_count));
 
@@ -95,7 +92,6 @@ public final class S_TavChaosDruids extends Script
     private long menu_time;
     private long start_time;
     private long last_moved;
-    private long last_hop;
     
     private int last_x;
     private int last_y;
@@ -132,7 +128,6 @@ public final class S_TavChaosDruids extends Script
     private boolean walking;
 
     private static final long
-    min_hop_time = 5000L,
     max_stand = 10000L;
 
     public S_TavChaosDruids(Extension ex) {
@@ -166,8 +161,6 @@ public final class S_TavChaosDruids extends Script
             grid_pane.add(tf_food_id);
             grid_pane.add(new Label("Food withdraw count"));
             grid_pane.add(tf_food_wd_count);
-            grid_pane.add(new Label("World"));
-            grid_pane.add(tf_world);
             
             frame = new Frame(getClass().getSimpleName());
             frame.setIconImages(Constants.ICONS);
@@ -177,7 +170,6 @@ public final class S_TavChaosDruids extends Script
             frame.add(take_low_level);
             frame.add(autobury);
             frame.add(sleep);
-            frame.add(veteran);
             frame.add(button_pane);
             frame.setResizable(false);
             frame.pack();
@@ -191,7 +183,7 @@ public final class S_TavChaosDruids extends Script
     @Override
     public int main() {
         if (start_time == -1L) {
-            start_time = last_moved = last_hop = System.currentTimeMillis();
+            start_time = last_moved = System.currentTimeMillis();
             start_pray_xp = pray_xp = getXpForLevel(PRAYER);
             start_att_xp = att_xp = getXpForLevel(ATTACK);
             start_def_xp = def_xp = getXpForLevel(DEFENCE);
@@ -292,14 +284,7 @@ public final class S_TavChaosDruids extends Script
             setAutoLogin(false); stopScript();
             return 0;
         }
-        if (walking) {
-            if ((System.currentTimeMillis() - last_moved) >= max_stand &&
-                    System.currentTimeMillis() >= (last_hop + min_hop_time)) {
-                
-                _hop();
-                return random(2000, 3000);
-            }
-        }
+
         if (pw.walkPath()) {
             walking = true;
             return 0;
@@ -425,10 +410,6 @@ public final class S_TavChaosDruids extends Script
                     return random(600, 800);
                 }
             }
-            if (getWorld() != world) {
-                hop(world);
-                return random(2000, 3000);
-            }
             if (getCurrentLevel(HITS) < (getLevel(HITS) / 2)) {
                 int count = getInventoryCount();
                 for (int i = 0; i < count; ++i) {
@@ -525,7 +506,6 @@ public final class S_TavChaosDruids extends Script
         if (str.contains("busy")) {
             menu_time = -1L;
         } else if (str.contains("welcome to runescape")) {
-            last_hop = last_moved = System.currentTimeMillis();
         }
 		StateTracker.messageReceived(this, str);
     }
@@ -536,7 +516,6 @@ public final class S_TavChaosDruids extends Script
             try {
                 food_id = Integer.parseInt(tf_food_id.getText());
                 food_wd_count = Integer.parseInt(tf_food_wd_count.getText());
-                world = Integer.parseInt(tf_world.getText());
             } catch (Throwable t) {
                 System.out.println("Error parsing field, check your inputs");
                 return;
@@ -571,23 +550,6 @@ public final class S_TavChaosDruids extends Script
             Arrays.fill(banked_ll_count, 0);
         }
         frame.setVisible(false);
-    }
-    
-    private void _hop() {
-        switch (getWorld()) {
-            case 1:
-                hop(2);
-                break;
-            case 2:
-                hop(3);
-                break;
-            case 3:
-                if (veteran.getState())
-                    hop(1);
-                else
-                    hop(2);
-                break;
-        }
     }
     
     private boolean underground() {
