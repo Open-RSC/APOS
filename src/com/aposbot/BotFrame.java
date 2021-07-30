@@ -13,12 +13,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class BotFrame extends Frame {
 
@@ -65,19 +59,14 @@ public final class BotFrame extends Frame {
             }
         }
 
-        //final int defaultWorld = Constants.RANDOM.nextBoolean() ? 2 : 3;
-        final int defaultWorld = 2 + Constants.RANDOM.nextInt(4);
-
-        final String str = "http://classic" + defaultWorld + ".runescape.com/";
-
-        Map<String, String> params = getBaseParameters();
-
         client = init.createClient(this);
         ((Component) client).setBackground(Color.BLACK);
 
         try {
-            final URL url = new URL(str);
-            stub = new AVStub((Applet) client, url, url, params);
+            final URL url = new URL("http://game.openrsc.com/");
+            stub = new AVStub((Applet) client, url, url, getBaseParameters());
+            client.getParentInit().setRSAKey(Constants.RSAKEY_URANIUM_MEMB);
+            client.getParentInit().setRSAExponent(Constants.RSAEXPONENT_URANIUM_MEMB);
         } catch (final Throwable t) {
             t.printStackTrace();
             dispose();
@@ -280,21 +269,10 @@ public final class BotFrame extends Frame {
 
         pack();
         setMinimumSize(getSize());
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         client.init();
         stub.setActive(true);
         client.start();
-
-        /* The original jar doesnt want to load jar if doesn't come from *.runescape.com
-         * so here we set a timeout after it has done that check to change the world.
-         * Changed the delay in the scheduled executor below to 3 (from 10) to force
-         * world selection to overwrite the default as soon as possible without crashing
-         * the applet.
-        */
-        final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
-        executor.schedule(() -> updateWorld(0), 3, TimeUnit.SECONDS);
-
     }
 
     static void setColours(Component c) {

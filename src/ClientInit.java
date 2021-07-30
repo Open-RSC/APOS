@@ -29,6 +29,7 @@ public final class ClientInit
     @Override
     public IClient createClient(BotFrame frame) {
         client.il[237] = "Welcome to @cya@APOS";
+        client.il[329] = "";
         final Extension ex = new Extension(frame);
         ex.setParentInit(this);
         ScriptListener.init(ex);
