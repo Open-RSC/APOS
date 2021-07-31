@@ -1,102 +1,97 @@
 //Abyte0
 //2012-01-18
 //Gnome City Bow String Maker
+//2021-07-06 Tested with OpenRSC
 
-import java.util.Locale;
-
-public class Abyte0_Flax extends Script
+public class Abyte0_Flax extends Abyte0_Script
 {
-	private long menu_time;
-	private long bank_time;
 	int idFlax = 675;
 	int idString = 676;
 	int idBanker = 540;
 	boolean power = false;
+	boolean isDroppingNow = false;
 
 	public Abyte0_Flax(Extension e)
 	{ super(e); }
-
-	public void print(String s)
-	{
-		System.out.println(s);
-	}
-
-	public void init(String param)
-	{
-		bank_time = -1L;
-		menu_time = -1L;
-		System.out.println("USAGE Abyte0_Flax nothing = banking OR power = powerflax");
-		System.out.println("String Maker for Gnome City");
-		System.out.println("Version 0.2 fix too far random bug");
-
+	
+	public void init(String param) 
+	{		
+		print("USAGE Abyte0_Flax nothing = banking OR power = powerflax");
+		print("String Maker for Gnome City");
+		print("Version 1.0 OpenRSC Compatible");
+		print("Make sure you are strong to fight a gnome level 23 bare, or get 47 cb");
+		print("Do not wear armor/weapon, only sleeping bag must be in your inv.");
+		
 		if(param.equals("power") || param.equals("Power") || param.equals("POWER"))
 		{
 			power = true;
-			System.out.println("Dropping -NOT SUPPORTED YET EXCEPTION-");
+			print("Dropping @mag@-WHY WOULD YOU DO THAT!? @red@BANK THEM!-");
 		}
 		else
 		{
 			power = false;
-			System.out.println("Banking the -Bow String-");
+			print("Banking the -Bow String-");
 		}
-	}
-
+	}	
+	
 	public int main()
 	{
-		// sleep if needed
+		// sleep if needed   
 		if(getFatigue() > 90)
 		{
 			useSleepingBag();
 			return 1000;
 		}
-		if(isBanking())
-		{
-			bank_time = -1L;
+		if(isBanking()) 
+		{			
 			//On Depose les FLAX
-			if(getInventoryCount(idString) > 0)
-			{
+			if(getInventoryCount(idString) > 0) 
+			{				
 				deposit(idString,getInventoryCount(idString));
-				return random(500, 600);
+				return random(500, 600);			
 			}
 			//Si il reste uniquement le Bag
-			if(getInventoryCount() == 1)
-			{
-				closeBank();
-				return random(500, 600);
+			if(getInventoryCount() == 1) 
+			{				
+				closeBank();				
+				return random(500, 600);			
 			}
-			return random(500, 600);
-		} else if (bank_time != -1) {
-			if (System.currentTimeMillis() >= (bank_time + 8000L)) {
-				bank_time = -1L;
-			}
-			return random(300, 400);
+			return random(500, 600);		
+		}				
+		if(isQuestMenu()) 
+		{			
+			answer(0);			
+			return random(3500, 3600);
 		}
-		if(isQuestMenu())
+		
+		if(isDroppingNow)
 		{
-			menu_time = -1L;
-			bank_time = System.currentTimeMillis();
-			answer(0);
-			return random(500, 600);
-		} else if (menu_time != -1) {
-			if (System.currentTimeMillis() >= (menu_time + 8000L)) {
-				menu_time = -1L;
-			}
-			return random(300, 400);
+				if(getInventoryCount(idString) != 0)	
+					dropItem(getInventoryIndex(idString));
+				else 
+					isDroppingNow = false;
+				
+				return random(300,400);
 		}
-
+		
 		//Si plein de String
 		if(getInventoryCount(idString) == 29)
 		{
+			if(power)
+			{
+				isDroppingNow = true;
+				return random(300,400);
+			}
 			//si pres des bankers
 			if(isAtApproxCoords(715,1452,16))
 			{
-				int banker[] = getNpcByIdNotTalk(idBanker);
+				int banker[] = getNpcByIdNotTalk(idBanker);	        
 				if(banker[0] != -1)
-				{
-					menu_time = System.currentTimeMillis();
-					talkToNpc(banker[0]);
+				{			
+					talkToNpc(banker[0]);	        
+					return random(2400,2600);		
 				}
-				return random(600, 800);
+				return 500;
 			}
 			//si Pres du Spinner
 			if(isAtApproxCoords(692,1468,16))
@@ -142,16 +137,10 @@ public class Abyte0_Flax extends Script
 			print("lost EMPTY");
 			return random(100,200);
 		}
-
+		
 		//Si plein de Flax
 		if(getInventoryCount(idFlax) == 29 || getInventoryCount(idString) + getInventoryCount(idFlax) == 29)
 		{
-			if(power)
-			{
-				if(getInventoryCount(idString) > 0)
-					dropItem(getInventoryIndex(idString));
-				return random(300,400);
-			}
 			//si pres des bankers
 			if(isAtApproxCoords(715,1452,16))
 			{
@@ -177,12 +166,4 @@ public class Abyte0_Flax extends Script
 		}
 		return 100;
 	}
-
-	@Override
-	public void onServerMessage(String str) {
-		str = str.toLowerCase(Locale.ENGLISH);
-		if (str.contains("busy")) {
-			menu_time = -1L;
-		}
-	}
-} 
+}

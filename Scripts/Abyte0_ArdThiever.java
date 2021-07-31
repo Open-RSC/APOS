@@ -2,9 +2,22 @@
 *  pickpockets anything, eats/banks (cakes) * 
 *	- yomama` */
 //Version 5.0 Updated to OpenRSC 2021-06-29
+//Version 5.1 Support Hero
 public class Abyte0_ArdThiever extends Abyte0_Script 
 {		
-	int fightMode = 3;	
+	int MAX_INVENTORY_SIZE = 30;
+	int freeInventrySlotsRequired = 21;
+	int fightMode = 3;
+	int hero = 324;
+	boolean isDoingHero = false;
+	
+	int goldId = 152;
+	int chaosId = 41;
+	int deathId = 38;
+	int bloodId = 619;
+	int wineId = 142;
+	int diamonId = 161;
+	
 	int[] npcID = new int[]
 	{ 
 		// all types of MAN npc's by default		
@@ -16,31 +29,38 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 		140, //jug		
 		612, //fire orb		
 		714, //lockpick		
-		559, //Poisoned Iron dagger		
-		161, //diamond		
-		152  //gold	
+		559 //Poisoned Iron dagger
 	};
 	int[] foodIDs = new int[] 
-	{		
-		330, //cake 3/3		
-		333, //cake 2/3		
-		335, //cake 1/3		
+	{				
+		330, //cake 3/3
+		333, //cake 2/3
+		335, //cake 1/3
 		895, //Swamp Toad		
 		897, //King worm		
 		138, //bread		
-		142  //wine	
-	};		
+		wineId  //wine	
+	};
+	int[] bankIDs = new int[] 
+	{			
+		diamonId, //diamond		
+		goldId,  //gold		
+		wineId  //wine	
+	};
 		
 	public Abyte0_ArdThiever(Extension e) {super(e);}		
 	public void init(String params) 
 	{		
-		System.out.println("ArdThiever fmode,npc,npc,npc...  paladin is 323");
-		System.out.println("ArdThiever V5");
+		System.out.println("ArdThiever fmode,npc,npc,npc...  paladin is 323, hero 324");
+		System.out.println("ArdThiever V5.1");
 		String[] in = params.split(",");		
 		fightMode = Integer.parseInt(in[0]);		
 		npcID = new int[in.length - 1];		
-		for(int i = 0; i < npcID.length; i++)			
-			npcID[i] = Integer.parseInt(in[i + 1]);	
+		for(int i = 0; i < npcID.length; i++)
+		{
+			npcID[i] = Integer.parseInt(in[i + 1]);
+			if(npcID[i] == hero) isDoingHero = true;
+		}
 	}	
 		
 	public int main() 
@@ -74,9 +94,34 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 				return random(500, 600);			
 			}
 			//deposit chaos and keep 1 chaos
-			if(getInventoryCount(41) > 1) 
+			if(getInventoryCount(chaosId) > 1) 
 			{				
-				deposit(41,getInventoryCount(41)-1);
+				deposit(chaosId,getInventoryCount(chaosId)-1);
+				return random(500, 600);			
+			}
+			if(getInventoryCount(deathId) > 1) 
+			{				
+				deposit(deathId,getInventoryCount(deathId)-1);
+				return random(500, 600);			
+			}
+			if(getInventoryCount(bloodId) > 1) 
+			{				
+				deposit(bloodId,getInventoryCount(bloodId)-1);
+				return random(500, 600);			
+			}
+			if(getInventoryCount(goldId) > 0) 
+			{				
+				deposit(goldId,getInventoryCount(goldId));
+				return random(500, 600);			
+			}
+			if(getInventoryCount(wineId) > 0) 
+			{				
+				deposit(wineId,getInventoryCount(wineId));
+				return random(500, 600);			
+			}
+			if(getInventoryCount(diamonId) > 0) 
+			{				
+				deposit(diamonId,getInventoryCount(diamonId));
 				return random(500, 600);			
 			}
 			//else if(getInventoryCount(41) < 1) 
@@ -85,18 +130,28 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 			//	return random(500, 600);			
 			//}
 			
-			if(getInventoryCount() == 30) 
+			if((getInventoryCount() == MAX_INVENTORY_SIZE && !isDoingHero) || getInventoryCount() >= MAX_INVENTORY_SIZE - freeInventrySlotsRequired && isDoingHero) 
 			{				
 				closeBank();				
 				return random(500, 600);			
 			}
-			withdraw(330, 30 - getInventoryCount() - 1);			
-			return random(700, 800);		
+			
+			if(isDoingHero)
+			{
+				withdraw(330, MAX_INVENTORY_SIZE - freeInventrySlotsRequired - getInventoryCount());
+				return random(700, 800);
+			}
+			else
+			{
+				withdraw(330, MAX_INVENTORY_SIZE - getInventoryCount() - 1);
+				return random(700, 800);
+			}
+				
 		}				
 		if(isQuestMenu()) 
 		{			
 			answer(0);			
-			return random(500, 600);		
+			return random(5500, 5600);		
 		}	
 		
 		
@@ -167,13 +222,13 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 		
 		
 		
-		if(getInventoryCount(foodIDs) == 0) 
+		if(getInventoryCount(foodIDs) == 0 || (getInventoryCount() == MAX_INVENTORY_SIZE && isDoingHero))
 		{			
 			int banker[] = getNpcByIdNotTalk(BANKERS);	        
 			if(banker[0] != -1)
 			{			
 				talkToNpc(banker[0]);	        
-				return 1000;		
+				return 3000;		
 			}
 			else if(getX() == 549 && getY() == 596)
 			{
@@ -187,7 +242,7 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 		}
 		if(getHpPercent() < 70) 
 		{	
-			int idx = getInventoryIndex(foodIDs);	    	
+			int idx = getInventoryIndex(foodIDs);
 			if(idx == -1) 
 			{
 				if(getHpPercent() < 30) 
@@ -202,7 +257,7 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 				}
 			}	    	
 			useItem(idx); 	    	
-			return random(500, 600);    	
+			return random(1500, 1600);    	
 		}				
 		int[] npc = getAllNpcById(npcID);		
 		if(npc[0] != -1)
