@@ -357,7 +357,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 					return random(2000,3000);
 				}
 			}
-			//Si on est a coter des escalié et on veut descendre
+			//Si on est a coter des escali et on veut descendre
 			if(getX() >= 602 && getX() <= 615 && getY() > 1500 && getY() < 1548)
 			{
 				stairs = getObjectById(44);				
