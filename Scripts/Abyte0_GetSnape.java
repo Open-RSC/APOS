@@ -5,10 +5,17 @@ public class Abyte0_GetSnape extends Abyte0_Script
 	int fmode = 2;
 	int[] path = null;	int loop = 0;
 	
+	int halfKey1 = 526;
+	int halfKey2 = 527;
+	int HalfDragonSquareShield1 = 1276;
+	int HalfDragonSquareShield2 = 1277;
+	
+	int lawRune = 42;
+	
 	int irit = 439;
 	int kwuarm = 441;
 	int dwarfWeed = 443;
-	int[] herbs = {438, irit, 440, kwuarm, 442, dwarfWeed, 815, 817, 819, 821, 823, 933};
+	int[] herbs = {HalfDragonSquareShield1,HalfDragonSquareShield2,halfKey1,halfKey2, 438, irit, 440, kwuarm, 442, dwarfWeed, 815, 817, 819, 821, 823, 933, lawRune};
 
 	//client extension;	
 	public Abyte0_GetSnape(Extension e) 

@@ -7,6 +7,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 	{ 
 		323 //Paladin
 	};		
+	int steelBar = 171;
 	int mithBar = 173;
 	
 	//change this to true if you want to eat food to be able to pick mith bar....
@@ -116,6 +117,12 @@ public class Abyte0_Paladin extends Abyte0_Script
 				deposit(154,getInventoryCount(154));
 				return random(500, 600);			
 			}
+			//On Depose Steel Bar
+			if(getInventoryCount(steelBar) > 0) 
+			{				
+				deposit(steelBar,getInventoryCount(steelBar));
+				return random(500, 600);			
+			}
 			//On Depose Mith Bar
 			if(getInventoryCount(mithBar) > 0) 
 			{				
@@ -150,10 +157,17 @@ public class Abyte0_Paladin extends Abyte0_Script
 				if(getInventoryCount() < 30)
 				{
 					//y a t il des bars sur le plancher
-					int[] groundItem = getItemById(mithBar);
-					if(groundItem[0] != -1)
+					int[] groundItemSteel = getItemById(steelBar);
+					if(groundItemSteel[0] != -1)
 					{
-						pickupItem(groundItem[0], groundItem[1], groundItem[2]);
+						pickupItem(groundItemSteel[0], groundItemSteel[1], groundItemSteel[2]);
+						return random(1000, 1500);
+					}
+					//y a t il des bars sur le plancher
+					int[] groundItemMith = getItemById(mithBar);
+					if(groundItemMith[0] != -1)
+					{
+						pickupItem(groundItemMith[0], groundItemMith[1], groundItemMith[2]);
 						return random(1000, 1500);
 					}
 				}
