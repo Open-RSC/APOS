@@ -13,6 +13,7 @@ import javax.swing.*;
 //Version 2.0 Updated to OpenRSC 2012-07-02
 //Version 2.1 Integrate Shark 2012-07-02
 //Version 2.3 Integrate Menu 2012-07-03
+//Version 2.4 Drop differently to avoid drop cooked fish
 public class Abyte0_CatherbyCooker extends Abyte0_Script 
 {   
 	int rawID = 366;   
@@ -58,9 +59,9 @@ public class Abyte0_CatherbyCooker extends Abyte0_Script
 		print("Default Selector, for quick setup set parameter: T = Tunas L = Lobs, S = Swordys, Shark = Sharks");
 		if(!params.equals(tunasParam) && !params.equals(lobstersParam) && !params.equals("S") && !params.equals("Shark"))
 		{
-			Frame frame = new Frame("Fish Selection");
+			Frame frame = new Frame("Fish selector");
 			Object[] fishes = {"Tunas", "Lobsters", "Swordfishs", "Sharks"};
-			String S_FightMode = (String)JOptionPane.showInputDialog(frame,		"Fish selector:\n", "Fish Selection",		JOptionPane.PLAIN_MESSAGE, null, fishes, null);
+			String S_FightMode = (String)JOptionPane.showInputDialog(frame,		"Fish selector:\n", "Types",		JOptionPane.PLAIN_MESSAGE, null, fishes, null);
 			
 			if(S_FightMode=="Tunas") params = tunasParam;
 			if(S_FightMode=="Lobsters") params = lobstersParam;
@@ -97,7 +98,7 @@ public class Abyte0_CatherbyCooker extends Abyte0_Script
 			print("Doing Sharks");
 		}
 
-		print("Version 2.2 Open RSC + Integrate Shark + Menu");
+		print("Version 2.4 Open RSC + Integrate Shark + Menu + New drop order");
 	}
 	   
 	public int main() 
@@ -130,19 +131,20 @@ public class Abyte0_CatherbyCooker extends Abyte0_Script
 		if(getInventoryCount(rawID) != 0) 
 		{         
 			if(distanceTo(cookArea[0], cookArea[1]) < 10) 
-			{             
+			{
+				//if we burnt fishies, they will be dropped            
+				if(getInventoryCount(burntID) > 0) 
+				{
+					return dropItemIdOrWait(burntID);   
+				}   
+				
 				useItemOnObject(rawID, 11);             
 				return random(1500, 2000);          
 			}          
 			walkTo(cookArea[0], cookArea[1]);          
 			return random(11000, 13000);      
 		}          
-		//if we burnt fishies, they will be dropped            
-		if(getInventoryCount(burntID) > 0) 
-		{               
-			dropItem(getLastInventoryIndex(burntID));               
-			return random(2000, 2200);            
-		}                          
+                       
 		if(distanceTo(bankArea[0], bankArea[1]) < 10) 
 		{         
 			int banker[] = getNpcByIdNotTalk(BANKERS);           

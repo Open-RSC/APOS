@@ -5,12 +5,15 @@
 	Version 1.4 - 2021-06-22 Update to OpenApos
 */
 import java.net.*; 
-import java.io.*;  
+import java.io.*;
+import java.util.*;
 
 public class Abyte0_Script extends Storm_Script 
 {    
 
     public Extension client;
+	
+	boolean waitingBeforeLastDrop = false;
 	
 	int oakTree = 306;
 	int oakLog = 632;
@@ -274,4 +277,107 @@ public class Abyte0_Script extends Storm_Script
         return -1;
     }
 
+	    /**
+     * Drop the 
+     */
+    public int dropItemIdOrWait(int id) {
+		
+        int firstInstanceIndex = getInventoryIndex(id);
+		if(firstInstanceIndex == -1)
+			return -1;
+		
+        int lastInstanceIndex = getLastInventoryIndex(id);
+		
+		if(!waitingBeforeLastDrop && firstInstanceIndex == lastInstanceIndex) //Lets wait a bit before dropping the last one
+		{
+			waitingBeforeLastDrop = true;
+			return 2000;
+		}
+		
+		dropItem(firstInstanceIndex);
+		waitingBeforeLastDrop = false;
+		
+		return 1500;
+    }
+
+	public int[][] getAllNpcsById(int... ids)
+	{
+		int cpt = 0;
+		for (int i = 0; i < client.getNpcCount(); i++) {
+			if (inArray(ids, client.getNpcId(client.getNpc(i))))
+				cpt++;
+		}
+		
+		int[][] npcS = new int[cpt][];
+		
+		int cptAdded = 0;
+
+		for (int i = 0; i < client.getNpcCount(); i++) {
+			if (inArray(ids, client.getNpcId(client.getNpc(i)))) {
+				final int x = client.getMobLocalX(client.getNpc(i)) + client.getAreaX();
+				final int y = client.getMobLocalY(client.getNpc(i)) + client.getAreaY();
+				final int dist = distanceTo(x, y, getX(), getY());
+				if (dist < 10)
+				{
+					final int[] npc = new int[]{-1, -1, -1};
+					
+					npc[0] = i;
+					npc[1] = x;
+					npc[2] = y;
+					
+					npcS[cptAdded]  = npc;
+				}
+			}
+		}
+		return npcS;
+	}
+	
+	public void RunFromCombat()
+	{
+		walkTo(getX(),getY());
+	}
+	
+	public boolean IsStillHavingFood(int foodId)
+	{
+		if(foodId == -1) return true;
+		if(foodId == 330)
+			return getInventoryCount(foodId,333,335) > 0;
+		else
+			return getInventoryCount(foodId) > 0;
+	}
+	
+	public final void EatFood(int foodId)
+	{
+		if(foodId == -1) return;
+		
+		if(foodId == 330)
+		{
+			EatCake();
+		}
+		else
+		{
+			int foodIndex = getInventoryIndex(foodId);
+			useItem(foodIndex);
+		}
+	}
+	
+	private void EatCake()
+	{
+		int part1 = getInventoryIndex(335);
+		int part2 = getInventoryIndex(333);
+		int part3 = getInventoryIndex(330);
+		if(part1 != -1)
+		{
+			useItem(part1);
+		}
+		else if(part2 != -1)
+		{
+			useItem(part2);
+		}
+		else if(part3 != -1)
+		{
+			useItem(part3);
+		}
+	}
+	
 }
