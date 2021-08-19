@@ -1,7 +1,7 @@
 public class Abyte0_Blood extends Abyte0_Script
 {
+//Version 3.1 2021-08-17 Support Cake as 330
 
-//public void print(String t) {System.out.println(t);}
 
 	int fmode = 2;
 	int coinsId = 10;
@@ -45,7 +45,7 @@ public class Abyte0_Blood extends Abyte0_Script
 		//if(str[1].equals("2")
 			
 		print("Blood Runes Banker ~By Abyte0");
-		print("Version 3.0 r3");
+		print("Version 3.1 Now support cake");
 		print("-");
 		print("Fmode = " + fmode);
 		print("foodId = " + foodId);
@@ -77,9 +77,9 @@ public class Abyte0_Blood extends Abyte0_Script
 					RunFromCombat();
 					return random(200,400);
 				}
-				if(getHpPercent() < 60 && getInventoryCount(foodId) > 0)
+				if(getHpPercent() < 60 && IsStillHavingFood(foodId))
 				{
-					EatFood();
+					EatFood(foodId);
 					return random(2400,3000);
 				}
 				if(getY() > 3388)
@@ -120,7 +120,7 @@ public class Abyte0_Blood extends Abyte0_Script
 						RunFromCombat();
 						return random(99,222);
 					}
-					EatFood();
+					EatFood(foodId);
 					return random(2400,3000);
 				}
 				else if(bloodChest[0] != -1)
@@ -219,7 +219,7 @@ public class Abyte0_Blood extends Abyte0_Script
 			
 			if(getHpPercent() < 70)
 			{
-				EatFood();
+				EatFood(foodId);
 				return random(2400,3000);
 			}
 			
@@ -238,7 +238,17 @@ public class Abyte0_Blood extends Abyte0_Script
 			return random(14000, 30003);//618,551
 		}
 		if(isAtApproxCoords(581, 574, 5))
-		{	
+		{
+			if(getInventoryCount(335) > 0) //We do not want any residue of cake in inventory for next batch
+			{
+				EatFood(335);
+				return 2000;
+			}
+			if(getInventoryCount(333) > 0) //We do not want any residue of cake in inventory for next batch
+			{
+				EatFood(333);
+				return 2000;
+			}
 			if(getInventoryCount() < 28 || getInventoryCount(bloodId) > 5 || getInventoryCount(coinsId) > 1000)
 			{
 				if(!isQuestMenu()) 
@@ -361,13 +371,6 @@ public class Abyte0_Blood extends Abyte0_Script
 		}
 		return 1000;	
 	}	
-	
-	public final void EatFood()
-	{
-		int foodIndex = getInventoryIndex(foodId);
-		print("Eating food at position : " + foodIndex);
-		useItem(foodIndex);
-	}
 	
 	public final void BuryBigBone()
 	{

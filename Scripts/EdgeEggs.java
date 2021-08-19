@@ -3,11 +3,11 @@ import java.text.DecimalFormat;
 import java.util.Locale;
 
 
-public class EdgeEggs extends Script {
+public class EdgeEggs extends Abyte0_Script {
 
     private static final int SPIDER_EGGS = 219;
-    private static final int LOBSTER = 373;
-    private static final int LOBSTER_WITHDRAW_COUNT = 2;
+    private static final int FOOD = 330;
+    private static final int FOOD_WITHDRAW_COUNT = 2;
     
     private static final int FIRST_EGGS_X = 208;
     private static final int FIRST_EGGS_Y = 3240;
@@ -20,13 +20,10 @@ public class EdgeEggs extends Script {
     
     private static final int FOURTH_EGGS_X = 201;
     private static final int FOURTH_EGGS_Y = 3234;
+	
+	private static final int EGGS_COUNT_TO_BANK = 25;
     
     private State state = State.PICKING;
-    
-    private boolean firstEgg;
-    private boolean secondEgg;
-    private boolean thirdEgg;
-    private boolean fourthEgg;
     
     private int eggCounter;
     private int lobCounter;
@@ -39,9 +36,6 @@ public class EdgeEggs extends Script {
     
     private int currentFightMode;
     private long startTime = -1L;
-    
-    private long lastTimeInFight = -1L;
-    private long idleTime = 0;
     
     
     public EdgeEggs(Extension arg0) {
@@ -67,64 +61,46 @@ public class EdgeEggs extends Script {
             setFightMode(currentFightMode);
         }
         if (state == State.PICKING) {
-            if (getInventoryCount(SPIDER_EGGS) == 27 && getInventoryCount(LOBSTER) == 0) {
+            if (getInventoryCount(SPIDER_EGGS) >= EGGS_COUNT_TO_BANK || GetRemainingFoodCount() == 0) {
                 state = State.WALK_SPIDERS_TO_BANK;
-                setEggsFalse();
                 return random(200,1000);
             }
-            //writeLine("1. "+ firstEgg +" " +secondEgg +" " + thirdEgg +" " +fourthEgg);
 
-            
-            if (!inCombat() && lastTimeInFight == -1L) {
-                //writeLine("Last time in fight");
-                lastTimeInFight = System.currentTimeMillis();
-                return 1000;
-            }
-            
-            if (inCombat()) {
-                lastTimeInFight = -1L;
-            }
-            //writeLine("2. " +firstEgg +" " +secondEgg +" " + thirdEgg +" " +fourthEgg);
-            if (pickedUpAllEggs()) {
-                // Sest mee olime kombatis ning meil ei ole timerit.
-                if (lastTimeInFight == -1L) {
-                    return 400;
-                }
-                idleTime = System.currentTimeMillis() - lastTimeInFight;
-                if (idleTime > 10000) {
-                    autohop(true);
-                    setEggsFalse();
-                    //writeLine("Panime false. " +firstEgg +" " +secondEgg +" " + thirdEgg +" " +fourthEgg);
-                    lastTimeInFight = -1L;
-                    idleTime = 0;
-                    //writeLine(firstEgg +" " +secondEgg +" " + thirdEgg +" " +fourthEgg);
-                }
-                return random(200,4000);
-            }
+			if(IsStillHavingFood(FOOD) && getHpPercent() < 60)
+			{
+				if(inCombat())
+				{
+					RunFromCombat();
+					return random(200,400);
+				}
+				EatFood(FOOD);
+				return 2500;
+			}
+			
             if (isItemAt(FIRST_EGGS_X, FIRST_EGGS_Y)) {
                 return pickUpEggs(FIRST_EGGS_X, FIRST_EGGS_Y);
             } 
-            firstEgg = true;
             if (isItemAt(SECOND_EGGS_X, SECOND_EGGS_Y)) {
                 return pickUpEggs(SECOND_EGGS_X, SECOND_EGGS_Y);
             }
-            secondEgg = true;
             if (isItemAt(THIRD_EGGS_X, THIRD_EGGS_Y)) {
                 return pickUpEggs(THIRD_EGGS_X, THIRD_EGGS_Y);
             }
-            thirdEgg = true;
             if (isItemAt(FOURTH_EGGS_X, FOURTH_EGGS_Y)) {
                 return pickUpEggs(FOURTH_EGGS_X, FOURTH_EGGS_Y);
             }
-            fourthEgg = true;
-            return 4000;
+			
+			if(getX() != 205 || getY() != 3236)
+				walkTo(205, 3236);
+			
+            return 300;
         }
         if (state == State.WALK_SPIDERS_TO_BANK) {
             walkToBank();
             return random(200,1000);
         }
         if (state == State.BANKING) {
-            if (getInventoryCount(SPIDER_EGGS) == 0 && getInventoryCount(LOBSTER) == LOBSTER_WITHDRAW_COUNT) {
+            if (getInventoryCount(SPIDER_EGGS) == 0 && GetRemainingFoodCount() == FOOD_WITHDRAW_COUNT) {
                 state = State.WALK_BANK_TO_SPIDERS;
                 return random(200, 1000);
             }
@@ -133,15 +109,15 @@ public class EdgeEggs extends Script {
                 int count = getInventoryCount(SPIDER_EGGS);
                     if (count > 0) {
                         deposit(SPIDER_EGGS, count);
-                        eggCounter = eggCounter + 27;
+                        eggCounter = eggCounter + count;
                     }
-                lobCounter = bankCount(LOBSTER);
+                lobCounter = bankCount(FOOD);
                 if (lobCounter < 10) {
                     takeScreenshot("out_of_lobs");
                     stopScript();
                 }
-                withdraw(LOBSTER, LOBSTER_WITHDRAW_COUNT);
-                lobCounter = lobCounter - LOBSTER_WITHDRAW_COUNT;
+                withdraw(FOOD, FOOD_WITHDRAW_COUNT - GetRemainingFoodCount());
+                lobCounter = lobCounter - FOOD_WITHDRAW_COUNT;
                 tripCounter++;
                 closeBank();
                 return random(300, 2000);
@@ -172,10 +148,18 @@ public class EdgeEggs extends Script {
     @Override
     public void onServerMessage(String msg) {
         if (msg.contains("Welcome to")) {
-            setEggsFalse();
+			//relogued
         }
     }
     
+	private int GetRemainingFoodCount()
+	{
+		if(FOOD== 330)
+			return getInventoryCount(330) + getInventoryCount(333) + getInventoryCount(335);
+		else
+			return getInventoryCount(FOOD);
+	}
+	
     public void walkToSpiders() {
         // bank
         if (getObjectIdFromCoords(217, 447) == 64) {
@@ -272,27 +256,18 @@ public class EdgeEggs extends Script {
         }
     }
     
-    private void setEggsFalse() {
-        firstEgg = false; 
-        secondEgg = false;
-        thirdEgg = false;
-        fourthEgg = false;
-    }
-    
-    private boolean pickedUpAllEggs() {
-        return firstEgg && secondEgg && thirdEgg && fourthEgg;
-    }
-    
     private int pickUpEggs(int x, int y) {
         if (isAtCoords(x, y)) {
             if (!inCombat()) {
                 // eat lobsta, kui ruumi pole
-                if (getInventoryCount() == MAX_INV_SIZE) {
-                    int index = getInventoryIndex(LOBSTER);
-                    if (getItemCommand(index).toLowerCase(Locale.ENGLISH).equals("eat")) {
-                        useItem(index);
-                        return random(200,400);
-                    }
+                if (getInventoryCount() == MAX_INV_SIZE && getInventoryCount(SPIDER_EGGS) < EGGS_COUNT_TO_BANK) {
+
+					if(IsStillHavingFood(FOOD))
+					{
+						EatFood(FOOD);
+						return 2500;
+					}
+				
                 }
                 pickupItem(SPIDER_EGGS, x, y);
                 return random(200,400);
@@ -336,11 +311,9 @@ public class EdgeEggs extends Script {
         int y = 40;
         drawString("Edge Eggs by H5d:", x, y, 1, white);
         y += 20;
-        //drawString("IdleTime: " + idleTime, x, y, 1, white);
         //y += 20;
         drawString("Run time: " + getRuntime(), x, y, 1, white);
         y += 10;
-        drawString("Current world: " + getWorld(), x, y, 1, white);
         y += 20;
         
         drawString("Lobs in bank: " +lobCounter, x, y, 1, 0xe6e600);
