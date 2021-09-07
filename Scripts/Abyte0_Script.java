@@ -96,6 +96,14 @@ public class Abyte0_Script extends Storm_Script
 		super.useSleepingBag();
 	}
 
+	public void buyItemIdFromShop(int id, int amount)
+	{
+		int position = getShopItemById(id);
+		if(position == -1) return;
+		
+		buyShopItem(position, amount);
+	}
+	
 	public void print(String gameText)
 	{
 		System.out.println(gameText);
