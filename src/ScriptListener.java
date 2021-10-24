@@ -39,6 +39,41 @@ public final class ScriptListener
         instance.onGameMessage(flag, s1, i1, s2, j1, k1, s3, s4);
     }
 
+    public static void playerDamagedCallback(final ta player)
+    {
+        instance.onPlayerDamaged(player);
+    }
+
+    public static void npcDamagedCallback(final ta npc)
+    {
+        instance.onNpcDamaged(npc);
+    }
+
+    public static void npcSpawnedCallback(final ta npc)
+    {
+        instance.onNpcSpawned(npc);
+    }
+
+    public static void npcProjectileDamagedCallback(final ta player)
+    {
+        instance.onNpcProjectileDamaged(player);
+    }
+
+    public static void deathCallback()
+    {
+        instance.onDeath();
+    }
+
+    public static void groundItemSpawnedCallback(final int groundItemIndex)
+    {
+        instance.onGroundItemSpawned(groundItemIndex);
+    }
+
+    public static void groundItemDespawnedCallback(final int id, final int localX, final int localY)
+    {
+        instance.onGroundItemDespawned(id, localX, localY);
+    }
+
     static final IScriptListener get() {
         return instance;
     }
@@ -112,6 +147,104 @@ public final class ScriptListener
     public void onKeyPress(int i) {
         if (running) {
             script.onKeyPress(i);
+        }
+    }
+
+    @Override
+    public void onPlayerDamaged(final Object player) {
+        if (!running) {
+            return;
+        }
+
+        try {
+            script.onPlayerDamaged(player);
+        } catch (final Throwable t) {
+            System.out.println(ERROR_MESSAGE);
+            t.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onNpcDamaged(final Object npc) {
+        if (!running) {
+            return;
+        }
+
+        try {
+            script.onNpcDamaged(npc);
+        } catch (final Throwable t) {
+            System.out.println(ERROR_MESSAGE);
+            t.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onNpcSpawned(final Object npc) {
+        if (!running) {
+            return;
+        }
+
+        try {
+            script.onNpcSpawned(npc);
+        } catch (final Throwable t) {
+            System.out.println(ERROR_MESSAGE);
+            t.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onNpcProjectileDamaged(final Object player) {
+        if (!running) {
+            return;
+        }
+
+        try {
+            script.onNpcProjectileDamaged(player);
+        } catch (final Throwable t) {
+            System.out.println(ERROR_MESSAGE);
+            t.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDeath() {
+        if (!running) {
+            return;
+        }
+
+        try {
+            script.onDeath();
+        } catch (final Throwable t) {
+            System.out.println(ERROR_MESSAGE);
+            t.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onGroundItemSpawned(final int groundItemIndex) {
+        if (!running) {
+            return;
+        }
+
+        try {
+            script.onGroundItemSpawned(groundItemIndex);
+        } catch (final Throwable t) {
+            System.out.println(ERROR_MESSAGE);
+            t.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onGroundItemDespawned(final int id, final int localX, final int localY) {
+        if (!running) {
+            return;
+        }
+
+        try {
+            script.onGroundItemDespawned(id, localX + this.ex.getAreaX(), localY + this.ex.getAreaY());
+        } catch (final Throwable t) {
+            System.out.println(ERROR_MESSAGE);
+            t.printStackTrace();
         }
     }
 

@@ -8,6 +8,20 @@ public interface IScriptListener {
 
     void onKeyPress(int code);
 
+    void onPlayerDamaged(Object player);
+
+    void onNpcDamaged(Object npc);
+
+    void onNpcSpawned(Object npc);
+
+    void onNpcProjectileDamaged(Object player);
+
+    void onDeath();
+
+    void onGroundItemSpawned(int groundItemIndex);
+
+    void onGroundItemDespawned(int id, int localX, int localY);
+
     void onGameMessage(boolean flag, String s1, int i1, String s2, int j1, int k1, String s3,
                        String s4);
 
