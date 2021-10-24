@@ -66,6 +66,17 @@ public final class StaticAccess
         ac.x[222] += " (3)";
         ac.x[223] += " (2)";
         ac.x[224] += " (1)";
+        ac.x[454] = "Unf. (Guam)";
+        ac.x[455] = "Unf. (Marrentill)";
+        ac.x[456] = "Unf. (Tarromin)";
+        ac.x[457] = "Unf. (Harralander)";
+        ac.x[458] = "Unf. (Ranarr)";
+        ac.x[459] = "Unf. (Irit)";
+        ac.x[460] = "Unf. (Avantoe)";
+        ac.x[461] = "Unf. (Kwuarm)";
+        ac.x[462] = "Unf. (Cadantine)";
+        ac.x[463] = "Unf. (Dwarfweed)";
+        ac.x[935] = "Unf. (Torstol)";
         for (int i = 0; i < 9; ++i) {
             ac.x[480 + (i * 3)] += " (3)";
             ac.x[480 + (i * 3) + 1] += " (2)";

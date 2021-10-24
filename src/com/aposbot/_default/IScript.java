@@ -20,6 +20,20 @@ public interface IScript {
 
     void onKeyPress(int keycode);
 
+    void onPlayerDamaged(Object player);
+
+    void onNpcDamaged(Object npc);
+
+    void onNpcSpawned(Object npc);
+
+    void onNpcProjectileDamaged(Object player);
+
+    void onDeath();
+
+    void onGroundItemSpawned(int groundItemIndex);
+
+    void onGroundItemDespawned(int id, int x, int y);
+
     boolean isSleeping();
 
     int getFatigue();

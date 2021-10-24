@@ -45,6 +45,10 @@ public interface IClient {
 
     void closeWelcomeBox();
 
+    void closeWildernessWarning();
+
+    boolean isDeathScreen();
+
     int getLocalX();
 
     int getLocalY();
@@ -238,6 +242,10 @@ public interface IClient {
     Object getNpc(int index);
 
     int getNpcId(Object mob);
+
+    int getProjectileDamagedNpcServerIndex();
+
+    int getProjectileDamagedPlayerServerIndex();
 
     boolean isMobWalking(Object mob);
 

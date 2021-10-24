@@ -6,6 +6,8 @@ public interface IAutoLogin {
 
     void onWelcomeBoxTick();
 
+    void onWildernessWarning();
+
     boolean isEnabled();
 
     void setEnabled(boolean b);
