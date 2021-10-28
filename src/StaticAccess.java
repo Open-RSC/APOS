@@ -78,9 +78,9 @@ public final class StaticAccess
         ac.x[463] = "Unf. (Dwarfweed)";
         ac.x[935] = "Unf. (Torstol)";
         for (int i = 0; i < 9; ++i) {
-            ac.x[480 + (i * 3)] += " (3)";
-            ac.x[480 + (i * 3) + 1] += " (2)";
-            ac.x[480 + (i * 3) + 2] += " (1)";
+            ac.x[474 + (i * 3)] += " (3)";
+            ac.x[474 + (i * 3) + 1] += " (2)";
+            ac.x[474 + (i * 3) + 2] += " (1)";
         }
         for (int i = 0; i < 2; ++i) {
             ac.x[566 + (i * 3)] += " (3)";
