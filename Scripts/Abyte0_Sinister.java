@@ -7,34 +7,12 @@ import java.awt.Dimension;
 import java.awt.event.*;
 import javax.swing.*;
 
+//Version 1.0 - Safety Teleport + SafeRun
+//Version 1.1 - Drag med added + Run From Bats
+//Version 1.2 - Strike to get key
+
 public class Abyte0_Sinister extends Abyte0_Script
 {
-	//-- Default Settings --
-	int fMode = 3;	 
-	int foodId = 373;
-	int spellId = 8; 
-	int runesCount = 2500;
-	int inventoryCount = 18;
-	//-----------------------
-	
-	int cptRunesToBankAt = 100;//zero is too dangerous as you cant hit with 0 str and 0 attack so you fight to death if stuck
-
-	int chaosDruids = 270;
-	int salarinId = 567;
-	int[] allNpcIds = {chaosDruids,salarinId};
-	
-	int mindRunes = 35;
-	int chaosRunes = 41;
-	
-	int sinisterKey = 932;
-	int halfKey1 = 526;
-	int halfKey2 = 527;
-	
-	int WhiteBerries = 471;
-	
-	int HalfDragonSquareShield1 = 1276;
-	int HalfDragonSquareShield2 = 1277;
-	
 	int windBolt = 8;
 	int waterBolt = 11;
 	int earthBolt = 14;
@@ -48,6 +26,41 @@ public class Abyte0_Sinister extends Abyte0_Script
 	int nature = 40;
 	int law = 42;
 	int CosmicRune = 46;
+	int mindRunes = 35;
+	int chaosRunes = 41;
+	int bloodRunes = 619;
+	
+	
+	
+	//-- Default Settings --
+	int fMode = 3;	 
+	int foodId = 373;
+	int spellId = 8; 
+	int runesCount = 2500;
+	int inventoryCount = 15;
+	boolean useAlternateSpell = true;
+	int alternateSpellId = 6; //Blood = 37, death = 20;, wind strike = 0, 6 = fire strike (3 fires)
+	int alternateRunesCount = 100;
+	int alternateRunesCount2 = 300;
+	int alternateRunesId = mindRunes;
+	int alternateRunesId2 = FireRune;
+	//-----------------------
+	
+	int cptRunesToBankAt = 100;//zero is too dangerous as you cant hit with 0 str and 0 attack so you fight to death if stuck
+
+	int chaosDruids = 270;
+	int salarinId = 567;
+	int[] allNpcIds = {chaosDruids,salarinId};
+	
+	int sinisterKey = 932;
+	int halfKey1 = 526;
+	int halfKey2 = 527;
+	
+	int WhiteBerries = 471;
+	
+	int HalfDragonSquareShield1 = 1276;
+	int HalfDragonSquareShield2 = 1277;
+	int DragonMed = 795;
 	
 	int superDef1 = 497;
 	
@@ -59,8 +72,8 @@ public class Abyte0_Sinister extends Abyte0_Script
 	int vial = 465;
 	
 	String[] itemsName = {"Shield + Keys + Law + Pot","All Good Items"};
-	int[] items0 = {HalfDragonSquareShield1,HalfDragonSquareShield2,sinisterKey,halfKey1,halfKey2,law,superDef1};
-	int[] items1 = {HalfDragonSquareShield1,HalfDragonSquareShield2,sinisterKey,halfKey1,halfKey2,law,deathRunes,CosmicRune,FireRune,AirRune,WhiteBerries,EarthRune,WaterRune,superDef1,438, irit, avantoe, kwuarm, 442, dwarfWeed, 815, 817, 819, 821, 823, 933};
+	int[] items0 = {DragonMed,HalfDragonSquareShield1,HalfDragonSquareShield2,sinisterKey,halfKey1,halfKey2,law,superDef1};
+	int[] items1 = {DragonMed,HalfDragonSquareShield1,HalfDragonSquareShield2,sinisterKey,halfKey1,halfKey2,law,deathRunes,mindRunes,CosmicRune,FireRune,AirRune,WhiteBerries,EarthRune,WaterRune,superDef1,438, irit, avantoe, kwuarm, 442, dwarfWeed, 815, 817, 819, 821, 823, 933};
 	Object[] itemsList = {items0,items1};
 	
 	int[] items = items1; //Default Setting
@@ -78,8 +91,8 @@ public class Abyte0_Sinister extends Abyte0_Script
 	String[] foodName = {"Tunas","Lobs","Swordfish","Sharks"};
 	int[] foodIdList = {367,373,370,546};
 	
-	String[] foodCountName = {"0","5","10","12"};
-	int[] foodCountList = {30,25,20,18};
+	String[] foodCountName = {"0","5","10","12","4"};
+	int[] foodCountList = {30,25,20,18,15};
 	
 	String[] drinkOrNotName = {"Drink","No Drink"};
 	int drinkOrNot = 0; //Default Setting
@@ -189,10 +202,10 @@ public class Abyte0_Sinister extends Abyte0_Script
 			print("--");
 		}
 		else
-			print("Default settings: Defence, 2500 chaos, Lobsters, 5 empty spaces, drink, pick all items");
+			print("Default settings: Defence, 2500 chaos, 100 fire strike, Lobsters, 15 empty spaces, drink, pick all items");
 		
 		print("Sinister Key Banker by: Abyte0");
-		print("Version Version 1 - RunOrAttack + teleport safety added");
+		print("Version 1.2 - Strike to get key");
 		print("--");
 		print("Hosted By: Harry");
 		print("--");
@@ -314,7 +327,9 @@ public class Abyte0_Sinister extends Abyte0_Script
 					walkTo(salarin[1],salarin[2]);
 					return random(1300, 1400);
 				}
-				if(spellId == windBolt && getInventoryCount(WaterRune) >=2)
+				if(useAlternateSpell && getInventoryCount(alternateRunesId) > 0 && (alternateRunesId2 == -1 || getInventoryCount(alternateRunesId2) > 4))
+					mageNpc(salarin[0], alternateSpellId);
+				else if(spellId == windBolt && getInventoryCount(WaterRune) >=2)
 					mageNpc(salarin[0], waterBolt);
 				else if(spellId == windBolt && getInventoryCount(EarthRune) >=3)
 					mageNpc(salarin[0], earthBolt);
@@ -359,6 +374,8 @@ public class Abyte0_Sinister extends Abyte0_Script
 			for(int h = 0; h < items.length; h++) 
 			{
 				if(items[h] == law) continue;
+				if(items[h] == mindRunes) continue;
+				if(items[h] == FireRune) continue;
 				
 				if(getInventoryCount(items[h]) > 0) 
 				{
@@ -376,15 +393,25 @@ public class Abyte0_Sinister extends Abyte0_Script
 				deposit(law, 50);
 				return random(2000, 3500);				
 			}
-			if(getInventoryCount(law) < 1) 
+			if(getInventoryCount(law) < 1)
 			{
 				withdraw(law, 1);
-				return random(1000, 1500);				
+				return random(1000, 1500);
 			}
 			if(spellId == 8 && getInventoryCount(chaosRunes) < runesCount) 
 			{
 				withdraw(chaosRunes, runesCount-getInventoryCount(chaosRunes));
-				return random(1000, 1500);				
+				return random(1000, 1500);
+			}
+			if(useAlternateSpell && getInventoryCount(alternateRunesId) < alternateRunesCount) 
+			{
+				withdraw(alternateRunesId, alternateRunesCount-getInventoryCount(alternateRunesId));
+				return random(1000, 1500);
+			}
+			if(useAlternateSpell && alternateRunesId2 != -1 && getInventoryCount(alternateRunesId2) < alternateRunesCount2) 
+			{
+				withdraw(alternateRunesId2, alternateRunesCount2-getInventoryCount(alternateRunesId2));
+				return random(1000, 1500);
 			}
 			if(getInventoryCount() < inventoryCount)
 			{
@@ -411,7 +438,7 @@ public class Abyte0_Sinister extends Abyte0_Script
 				if(doorObj[0] != -1)
 				{
 					if (isAtApproxCoords(doorObj[1], doorObj[2], 2))
-					{					
+					{
 						atWallObject(doorObj[1], doorObj[2]);
 						return random(200,500);
 					}
@@ -445,8 +472,15 @@ public class Abyte0_Sinister extends Abyte0_Script
 			{
 				int[] stair = getObjectById(43);			
 				if(stair[0] != -1)
+				{
+					if(inCombat())
+					{
+						RunFromCombat();
+						return random(200,400);
+					}
 					atObject(stair[1], stair[2]);
-				return random(300,400);
+					return random(300,400);
+				}
 			}
 			
 			//Chaos Druids rooom
@@ -533,8 +567,15 @@ public class Abyte0_Sinister extends Abyte0_Script
 			{
 				int[] door = getWallObjectById(162);			
 				if(door[0] != -1)
+				{
+					if(inCombat())
+					{
+						RunFromCombat();
+						return random(200,400);
+					}
 					atWallObject2(door[1], door[2]);
-				return random(300,400);
+					return random(300,400);
+				}
 			}
 			
 			//Chaos Druids rooom
@@ -585,12 +626,6 @@ public class Abyte0_Sinister extends Abyte0_Script
 		int foodIndex = getInventoryIndex(foodId);
 		useItem(foodIndex);
 	}
-	
-	public void RunFromCombat()
-	{
-		walkTo(getX(),getY());
-	}
-	
 	
 	public void RunSouthOrAttackSouth(int[] npcIds)
 	{
