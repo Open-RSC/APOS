@@ -123,13 +123,8 @@ public final class PaintListener
             y = client.getGameHeight() - 84 - 25;
         } else {
             x = 7;
-            y = 55;
+            y = 135;
         }
-
-        client.drawString("PID: " + client.getMobServerIndex(client.getPlayer()),
-                x, y, 2, 0xFFFFFF);
-
-        y += 17;
 
         drawStatBar(x, y, hits, base_hits, HP_FRONT, HP_BACK);
         client.drawString(String.format("Hits: %d/%d",
