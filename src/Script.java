@@ -309,6 +309,81 @@ public abstract class Script
     }
 
     /**
+     * Called when a player receives damage.
+     *
+     * @param player the player that received damage.
+     */
+    @Override
+    public void onPlayerDamaged(final Object player)
+    {
+    }
+
+    /**
+     * Called when an npc receives damage.
+     *
+     * @param npc the npc that received damage.
+     */
+    @Override
+    public void onNpcDamaged(final Object npc)
+    {
+    }
+
+    /**
+     * Called when an npc is loaded into the player's local area.
+     *
+     * This is called both when an npc either re-spawns or walks into the local area.
+     *
+     * @param npc the npc that spawned.
+     */
+    @Override
+    public void onNpcSpawned(final Object npc)
+    {
+    }
+
+    /**
+     * Called when a player attacks an npc with a projectile.
+     *
+     * The server index of the npc attacked by the projectile is set on the attacking player.
+     * The server index of the last player attacked by a projectile is set to -1 on the attacking player.
+     *
+     * @param player the player that attacked an npc with a projectile.
+     */
+    @Override
+    public void onNpcProjectileDamaged(final Object player)
+    {
+    }
+
+    /**
+     * Called when the player dies.
+     */
+    @Override
+    public void onDeath()
+    {
+    }
+
+    /**
+     * Called when a ground item spawns.
+     *
+     * @param groundItemIndex the index of the ground item.
+     */
+    @Override
+    public void onGroundItemSpawned(final int groundItemIndex)
+    {
+    }
+
+    /**
+     * Called when a ground item despawns.
+     *
+     * @param id the item id of the despawned ground item
+     * @param x the x coordinate of the despawned ground item
+     * @param y the y coordinate of the despawned ground item
+     */
+    @Override
+    public void onGroundItemDespawned(final int id, final int x, final int y)
+    {
+    }
+
+    /**
      * Disables keys used by the bot so they can be used by the script. They are
      * enabled again when the user stops the script.
      */
