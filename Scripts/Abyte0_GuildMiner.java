@@ -25,6 +25,13 @@ public class Abyte0_GuildMiner extends Abyte0_Script
 		myReference = e;
 	}
 	
+	@Override
+	public String[] getRandomQuotes()
+	{
+		String[] result = {"73","97","I bet this guy use some sort of autominer, report him!","Botter!","What pickaxe are you guy using?","How far are you from level 99?","Coal!!!!","Do you mine the mith?","Mining level?","Smith level?","lvl?","OMG","Got it!","Who throw the first rock?","Did you throw me a rock?","@ran@Booorrriiinngggggg"};
+		return result;
+	}
+
 	public void init ( String params )
 	{
 		print("Started Abyte0 Guild Miner");
@@ -69,6 +76,7 @@ public class Abyte0_GuildMiner extends Abyte0_Script
 	}
 	public int main( )
 	{
+		SayRandomQuote();
 		int[] doorObj;
 		int[] stairs;
 		if(getFightMode() != 2)

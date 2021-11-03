@@ -103,6 +103,12 @@ public class Abyte0_Script extends Storm_Script
 		
 		buyShopItem(position, amount);
 	}
+	public int getShopItemIdAmount(int id)
+	{
+		int position = getShopItemById(id);
+		
+		return getShopItemAmount(position);
+	}
 	
 	public void print(String gameText)
 	{
@@ -111,6 +117,33 @@ public class Abyte0_Script extends Storm_Script
 	}
 	
 	//* BUILDS METHODS *//
+	
+	public String[] getRandomQuotes()
+	{
+		String[] result = {""};
+		return result;
+	}
+	
+	public void SayRandomQuote()
+	{
+		String[] results = getRandomQuotes();
+		
+		if(random(0,40000) != 1)
+			return;
+		
+		int selectedQuote = random(1,results.length) -1;
+		
+		if("" == results[selectedQuote])
+			return;
+		
+		Say(results[selectedQuote]);
+	}
+	
+	public void Say(String content)
+	{
+		setTypeLine(content);
+		while(!next());
+	}
 	
 	public void printInventory()
 	{
