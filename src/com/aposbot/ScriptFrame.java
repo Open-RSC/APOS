@@ -207,7 +207,6 @@ public final class ScriptFrame extends Frame {
 
     public void process(String filename, List<String> list) {
         File bonusdir = new File((filename));
-        System.out.println(filename);
         filename = filename.replace(dir.toString() + File.separator, "");
         if (bonusdir.isDirectory()) {
             String[] bonusFiles = bonusdir.list();
