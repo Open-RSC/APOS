@@ -1,8 +1,6 @@
 import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 /**
  * Mines iron and coal ore and smelts steel bars.
@@ -146,25 +144,25 @@ public class AA_ArdougneSteel extends AA_Script {
 
         final long secondsElapsed = Duration.between(this.startTime, Instant.now()).getSeconds();
 
-        this.drawString(String.format("@yel@Runtime: @whi@%s", getFormattedElapsedSeconds(secondsElapsed)),
+        this.drawString(String.format("@yel@Runtime: @whi@%s", getElapsedSeconds(secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
         this.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
         final double miningXpGained = this.getAccurateXpForLevel(SKILL_INDEX_MINING) - this.initialMiningXp;
 
-        this.drawString(String.format("@yel@Mine: @whi@%s @cya@(@whi@%s xp@cya@/ @whi@hr@cya@)",
-                        DECIMAL_FORMAT.format(miningXpGained), getFormattedUnitsPerHour(miningXpGained, secondsElapsed)),
+        this.drawString(String.format("@yel@Mining: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
+                        DECIMAL_FORMAT.format(miningXpGained), getUnitsPerHour(miningXpGained, secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
         final double smithingXpGained = this.getAccurateXpForLevel(SKILL_INDEX_SMITHING) - this.initialSmithingXp;
 
-        this.drawString(String.format("@yel@Smith: @whi@%s @cya@(@whi@%s xp@cya@/ @whi@hr@cya@)",
-                        DECIMAL_FORMAT.format(smithingXpGained), getFormattedUnitsPerHour(smithingXpGained, secondsElapsed)),
+        this.drawString(String.format("@yel@Smithing: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
+                        DECIMAL_FORMAT.format(smithingXpGained), getUnitsPerHour(smithingXpGained, secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
         this.drawString(String.format("@yel@Steel: @whi@%s @cya@(@whi@%s bars@cya@/@whi@hr@cya@)",
-                        this.steelBarCount, getFormattedUnitsPerHour(this.steelBarCount, secondsElapsed)),
+                        this.steelBarCount, getUnitsPerHour(this.steelBarCount, secondsElapsed)),
                 PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
     }
 
@@ -249,7 +247,6 @@ public class AA_ArdougneSteel extends AA_Script {
     private int bank() {
         if (Area.BANK.contains(this.playerX, this.playerY)) {
             if (this.getInventoryCount() == INITIAL_INVENTORY_SIZE) {
-                this.printUpdate();
                 this.closeBank();
                 this.state = State.MINE;
                 return 0;
@@ -323,26 +320,6 @@ public class AA_ArdougneSteel extends AA_Script {
                 currentDistance = distance;
             }
         }
-    }
-
-    private void printUpdate() {
-        final long secondsElapsed = Duration.between(this.startTime, Instant.now()).getSeconds();
-
-        final double miningXpGained = this.getAccurateXpForLevel(SKILL_INDEX_MINING) - this.initialMiningXp;
-        final double smithingXpGained = this.getAccurateXpForLevel(SKILL_INDEX_SMITHING) - this.initialSmithingXp;
-
-        System.out.printf(
-                "[%s] Time %s|Runtime %s|Mining %s - %s xp/hr|Smithing %s - %s xp/hr|Steel bars %s - %s bars/hr",
-                this,
-                LocalDateTime.now().toLocalTime().truncatedTo(ChronoUnit.SECONDS),
-                getFormattedElapsedSeconds(secondsElapsed),
-                this.getLevel(SKILL_INDEX_MINING),
-                getFormattedUnitsPerHour(miningXpGained, secondsElapsed),
-                this.getLevel(SKILL_INDEX_SMITHING),
-                getFormattedUnitsPerHour(smithingXpGained, secondsElapsed),
-                this.bankCount(ITEM_ID_STEEL_BAR),
-                getFormattedUnitsPerHour(this.steelBarCount, secondsElapsed)
-        );
     }
 
     private enum State {
