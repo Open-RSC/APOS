@@ -1,14 +1,12 @@
 import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 /**
  * Mines iron, copper, tin at Varrock East Quarry.
  * <p>
  * Requirements:
- * Start at Varrock East with sleeping bad and pickaxe.
+ * Start at Varrock East with sleeping bag and pickaxe.
  * <p>
  * Parameters:
  * -o,--ore <iron|tin|copper>
@@ -19,45 +17,32 @@ import java.time.temporal.ChronoUnit;
  */
 public class AA_VarrockEastMiner extends AA_Script {
     private static final Coordinate COORDINATE_LOAD_BANK = new Coordinate(77, 544);
-
     private static final Coordinate COORDINATE_LOAD_QUARRY = new Coordinate(75, 536);
 
     private static final int SKILL_MINING_INDEX = 14;
-
     private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 18;
+    private static final int MAXIMUM_FATIGUE = 99;
 
     private Instant startTime;
-
     private Coordinate adjacentCoordinate;
-
     private RSObject[] rocks;
-
     private RSObject currentRock;
-
     private RSObject previousRock;
-
     private Pickaxe pickaxe;
+    private Ore ore;
 
     private double initialMiningXp;
 
     private long clickTimeout;
-
     private long previousRockTimeout;
-
     private long closeBankTimeout;
 
     private int oresMined;
-
     private int playerX;
-
     private int playerY;
 
     private boolean idle;
-
-    private Ore ore;
-
     private boolean powermine;
-
     private boolean equal;
 
     public AA_VarrockEastMiner(final Extension extension) {
@@ -179,17 +164,19 @@ public class AA_VarrockEastMiner extends AA_Script {
 
         final long secondsElapsed = Duration.between(this.startTime, Instant.now()).getSeconds();
 
-        this.drawString(String.format("@yel@Runtime: @whi@%s", getFormattedElapsedSeconds(secondsElapsed)),
+        this.drawString(String.format("@yel@Runtime: @whi@%s", getElapsedSeconds(secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+
+        this.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
         final double xpGained = this.getAccurateXpForLevel(SKILL_MINING_INDEX) - this.initialMiningXp;
 
-        this.drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/ @whi@hr@cya@)",
-                        DECIMAL_FORMAT.format(xpGained), getFormattedUnitsPerHour(xpGained, secondsElapsed)),
+        this.drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
+                        DECIMAL_FORMAT.format(xpGained), getUnitsPerHour(xpGained, secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-        this.drawString(String.format("@yel@Ores: @whi@%s @cya@(@whi@%s ore@cya@/ @whi@hr@cya@)",
-                        this.oresMined, getFormattedUnitsPerHour(this.oresMined, secondsElapsed)),
+        this.drawString(String.format("@yel@Ores: @whi@%s @cya@(@whi@%s ore@cya@/@whi@hr@cya@)",
+                        this.oresMined, getUnitsPerHour(this.oresMined, secondsElapsed)),
                 PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
     }
 
@@ -203,8 +190,6 @@ public class AA_VarrockEastMiner extends AA_Script {
                 if (System.currentTimeMillis() <= this.closeBankTimeout) {
                     return 0;
                 }
-
-                this.printUpdate();
 
                 if (this.equal) {
                     this.switchOres();
@@ -243,8 +228,7 @@ public class AA_VarrockEastMiner extends AA_Script {
 
     private int mine() {
         if (this.playerY >= COORDINATE_LOAD_QUARRY.getY()) {
-            if (this.fatigued) {
-                this.printUpdate();
+            if (this.getFatigue() >= MAXIMUM_FATIGUE) {
                 return this.sleep();
             }
 
@@ -338,24 +322,6 @@ public class AA_VarrockEastMiner extends AA_Script {
         this.extension.put2(rock.getCoordinate().getX());
         this.extension.put2(rock.getCoordinate().getY());
         this.extension.finishPacket();
-    }
-
-    private void printUpdate() {
-        final double xpGained = this.getAccurateXpForLevel(SKILL_MINING_INDEX) - this.initialMiningXp;
-
-        final long secondsElapsed = Duration.between(this.startTime, Instant.now()).getSeconds();
-
-        System.out.printf("[%s] Time %s|Runtime %s|Mining L%d %s - %s xp/hr|%s %s - %s ore/hr%n",
-                this,
-                LocalDateTime.now().toLocalTime().truncatedTo(ChronoUnit.SECONDS),
-                getFormattedElapsedSeconds(secondsElapsed),
-                this.getLevel(SKILL_MINING_INDEX),
-                DECIMAL_FORMAT.format(xpGained),
-                getFormattedUnitsPerHour(xpGained, secondsElapsed),
-                this.ore,
-                this.oresMined,
-                getFormattedUnitsPerHour(this.oresMined, secondsElapsed)
-        );
     }
 
     private enum Pickaxe {
