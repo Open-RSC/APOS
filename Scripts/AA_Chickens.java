@@ -11,7 +11,7 @@ import java.util.Map;
  * Start script at a chicken pen and with sleeping bag in inventory.
  * <p>
  * Optional Parameter
- * -m,--fightmode <controlled|attack|strength|defense>
+ * -f,--fightmode <controlled|attack|strength|defense>
  * <p>
  * Author: Chomp
  */
@@ -47,7 +47,7 @@ public class AA_Chickens extends AA_Script {
 
             for (int i = 0; i < args.length; i++) {
                 switch (args[i].toLowerCase()) {
-                    case "-m":
+                    case "-f":
                     case "--fightmode":
                         this.combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
                         break;

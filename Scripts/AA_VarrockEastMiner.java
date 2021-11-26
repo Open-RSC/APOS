@@ -1,3 +1,5 @@
+import com.aposbot.Constants;
+
 import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
@@ -22,6 +24,7 @@ public class AA_VarrockEastMiner extends AA_Script {
     private static final int SKILL_MINING_INDEX = 14;
     private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 18;
     private static final int MAXIMUM_FATIGUE = 99;
+    private static final int INITIAL_INVENTORY_SIZE = 2;
 
     private Instant startTime;
     private Coordinate adjacentCoordinate;
@@ -37,9 +40,10 @@ public class AA_VarrockEastMiner extends AA_Script {
     private long previousRockTimeout;
     private long closeBankTimeout;
 
-    private int oresMined;
     private int playerX;
     private int playerY;
+
+    private int oresMined;
 
     private boolean idle;
     private boolean powermine;
@@ -116,7 +120,6 @@ public class AA_VarrockEastMiner extends AA_Script {
         }
 
         this.initialMiningXp = this.getAccurateXpForLevel(SKILL_MINING_INDEX);
-
         this.startTime = Instant.now();
     }
 
@@ -175,8 +178,8 @@ public class AA_VarrockEastMiner extends AA_Script {
                         DECIMAL_FORMAT.format(xpGained), getUnitsPerHour(xpGained, secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-        this.drawString(String.format("@yel@Ores: @whi@%s @cya@(@whi@%s ore@cya@/@whi@hr@cya@)",
-                        this.oresMined, getUnitsPerHour(this.oresMined, secondsElapsed)),
+        this.drawString(String.format("@yel@%s: @whi@%s @cya@(@whi@%s ore@cya@/@whi@hr@cya@)",
+                        this.ore, this.oresMined, getUnitsPerHour(this.oresMined, secondsElapsed)),
                 PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
     }
 
@@ -186,7 +189,7 @@ public class AA_VarrockEastMiner extends AA_Script {
                 return this.openBank();
             }
 
-            if (this.getInventoryCount() == 2) {
+            if (this.getInventoryCount() == INITIAL_INVENTORY_SIZE) {
                 if (System.currentTimeMillis() <= this.closeBankTimeout) {
                     return 0;
                 }
@@ -200,10 +203,8 @@ public class AA_VarrockEastMiner extends AA_Script {
                 return 0;
             }
 
-            final int itemId = this.getInventoryId(2);
-            final int itemCount = this.getInventoryCount(itemId);
-
-            this.deposit(itemId, itemCount);
+            final int itemId = this.getInventoryId(INITIAL_INVENTORY_SIZE);
+            this.deposit(itemId, MAX_INV_SIZE);
             return SLEEP_ONE_TICK;
         }
 
@@ -318,7 +319,7 @@ public class AA_VarrockEastMiner extends AA_Script {
     }
 
     private void mineRock(final RSObject rock) {
-        this.extension.createPacket(136);
+        this.extension.createPacket(Constants.OP_OBJECT_ACTION1);
         this.extension.put2(rock.getCoordinate().getX());
         this.extension.put2(rock.getCoordinate().getY());
         this.extension.finishPacket();
@@ -340,13 +341,19 @@ public class AA_VarrockEastMiner extends AA_Script {
     }
 
     private enum Ore {
-        TIN,
-        COPPER,
-        IRON;
+        TIN("Tin"),
+        COPPER("Copper"),
+        IRON("Iron");
+
+        private final String name;
+
+        Ore(final String name) {
+            this.name = name;
+        }
 
         @Override
         public String toString() {
-            return this.name().charAt(0) + this.name().substring(1).toLowerCase();
+            return this.name;
         }
     }
 
@@ -356,9 +363,7 @@ public class AA_VarrockEastMiner extends AA_Script {
         WEST(103, new Coordinate(76, 544));
 
         private static final Coordinate COORDINATE_ADJACENT = new Coordinate(75, 544);
-
         private final int id;
-
         private final Coordinate coordinate;
 
         IronRock(final int id, final Coordinate coordinate) {
@@ -381,9 +386,7 @@ public class AA_VarrockEastMiner extends AA_Script {
         SOUTH(105, new Coordinate(79, 546));
 
         private static final Coordinate COORDINATE_ADJACENT = new Coordinate(79, 545);
-
         private final int id;
-
         private final Coordinate coordinate;
 
         TinRock(final int id, final Coordinate coordinate) {
@@ -407,9 +410,7 @@ public class AA_VarrockEastMiner extends AA_Script {
         WEST(101, new Coordinate(74, 549));
 
         private static final Coordinate COORDINATE_ADJACENT = new Coordinate(73, 548);
-
         private final int id;
-
         private final Coordinate coordinate;
 
         CopperRock(final int id, final Coordinate coordinate) {
@@ -430,7 +431,6 @@ public class AA_VarrockEastMiner extends AA_Script {
         BANK(new Coordinate(98, 510), new Coordinate(106, 515));
 
         private final Coordinate lowerBoundingCoordinate;
-
         private final Coordinate upperBoundingCoordinate;
 
         Area(final Coordinate lowerBoundingCoordinate, final Coordinate upperBoundingCoordinate) {
@@ -451,7 +451,6 @@ public class AA_VarrockEastMiner extends AA_Script {
         BANK_DOORS(64, new Coordinate(102, 509));
 
         private final int id;
-
         private final Coordinate coordinate;
 
         Object(final int id, final Coordinate coordinate) {

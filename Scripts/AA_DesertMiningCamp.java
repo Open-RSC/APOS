@@ -797,9 +797,7 @@ public class AA_DesertMiningCamp extends AA_Script {
             final int coinBankCount = this.bankCount(ITEM_ID_COINS);
 
             if (coinBankCount < MINIMUM_SHANTAY_PASS_COST) {
-                System.err.println("Out of coins. Cannot buy shantay passes.");
-                this.setAutoLogin(false);
-                this.stopScript();
+                return this.exit("Out of coins. Cannot buy shantay passes.");
             }
 
             this.withdraw(ITEM_ID_COINS, TOTAL_SHANTAY_PASS_COST);
