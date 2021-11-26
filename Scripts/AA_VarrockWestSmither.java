@@ -1,3 +1,5 @@
+import com.aposbot.Constants;
+
 import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
@@ -37,6 +39,8 @@ import java.time.Instant;
  * Author: Chomp
  */
 public class AA_VarrockWestSmither extends AA_Script {
+    private static final long HAMMERING_DELAY = 600L; // +- based on latency
+
     private static final int ITEM_ID_HAMMER = 168;
     private static final int INITIAL_INVENTORY_SIZE = 2;
     private static final int SKILL_INDEX_SMITHING = 13;
@@ -48,16 +52,17 @@ public class AA_VarrockWestSmither extends AA_Script {
 
     private double initialSmithingXp;
 
-    private long bankCloseTimeout;
+    private long bankDepositTimeout;
     private long bankWithdrawTimeout;
     private long doorOpenTimeout;
     private long optionMenuTimeout;
 
+    private int playerX;
+    private int playerY;
+
     private int barWithdrawCount;
     private int barsSmithed;
     private int barsRemaining;
-    private int playerX;
-    private int playerY;
 
     public AA_VarrockWestSmither(final Extension extension) {
         super(extension);
@@ -114,7 +119,7 @@ public class AA_VarrockWestSmither extends AA_Script {
         this.playerX = this.getX();
         this.playerY = this.getY();
 
-        if (this.getInventoryCount(this.bar.id) < this.product.barCount || this.isBanking()) {
+        if (this.getInventoryCount(this.bar.id) < this.product.barCount) {
             return this.bank();
         }
 
@@ -125,7 +130,10 @@ public class AA_VarrockWestSmither extends AA_Script {
     public void onServerMessage(final String message) {
         if (message.startsWith("hammer", 4)) {
             this.barsSmithed += this.product.barCount;
-            this.optionMenuTimeout = System.currentTimeMillis() + TIMEOUT_ONE_TICK;
+            if (this.barsRemaining >= this.product.barCount) {
+                this.barsRemaining -= this.product.barCount;
+            }
+            this.optionMenuTimeout = System.currentTimeMillis() + HAMMERING_DELAY;
         } else if (message.endsWith("shut") || message.endsWith("open")) {
             this.doorOpenTimeout = System.currentTimeMillis() + TIMEOUT_ONE_TICK;
         } else {
@@ -160,6 +168,9 @@ public class AA_VarrockWestSmither extends AA_Script {
                         this.bar, this.barsSmithed, getUnitsPerHour(this.barsSmithed, secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
+        this.drawString(String.format("@yel@Remaining: @whi@%d", this.barsRemaining),
+                PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+
         this.drawString(String.format("@yel@Time remaining: @whi@%s",
                         getTTL(this.barsSmithed, this.barsRemaining, secondsElapsed)),
                 PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
@@ -171,7 +182,29 @@ public class AA_VarrockWestSmither extends AA_Script {
                 return this.openBank();
             }
 
-            return this.useBank();
+            if (System.currentTimeMillis() <= this.bankWithdrawTimeout) {
+                return 0;
+            }
+
+            if (this.getInventoryCount() == INITIAL_INVENTORY_SIZE) {
+                if (this.bankCount(this.bar.id) < this.product.barCount) {
+                    return this.exit("Out of bars.");
+                }
+
+                this.barsRemaining = this.bankCount(this.bar.id);
+                this.withdraw(this.bar.id, this.barWithdrawCount);
+                this.bankWithdrawTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
+                return 0;
+            }
+
+            if (System.currentTimeMillis() <= this.bankDepositTimeout) {
+                return 0;
+            }
+
+            final int itemId = this.getInventoryId(INITIAL_INVENTORY_SIZE);
+            this.deposit(itemId, MAX_INV_SIZE);
+            this.bankDepositTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
+            return 0;
         }
 
         if (Area.ANVIL_HOUSE.contains(this.playerX, this.playerY)) {
@@ -203,46 +236,43 @@ public class AA_VarrockWestSmither extends AA_Script {
         return SLEEP_ONE_TICK;
     }
 
-    private int useBank() {
-        if (this.getInventoryCount(this.bar.id) >= this.product.barCount) {
-            if (System.currentTimeMillis() <= this.bankCloseTimeout) {
-                return 0;
-            }
-
-            this.barsRemaining = this.bankCount(this.bar.id);
-            this.closeBank();
-            this.bankCloseTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-            return 0;
-        }
-
-        if (System.currentTimeMillis() <= this.bankWithdrawTimeout) {
-            return 0;
-        }
-
-        if (this.getInventoryCount() > INITIAL_INVENTORY_SIZE) {
-            final int itemId = this.getInventoryId(INITIAL_INVENTORY_SIZE);
-            this.deposit(itemId, this.getInventoryCount(itemId));
-            return SLEEP_ONE_TICK;
-        }
-
-        if (this.bankCount(this.bar.id) < this.product.barCount) {
-            System.err.println("Out of bars.");
-            this.setAutoLogin(false);
-            this.stopScript();
-        }
-
-        this.withdraw(this.bar.id, this.barWithdrawCount);
-        this.bankWithdrawTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
-        return 0;
-    }
-
     private int smith() {
         if (Area.ANVIL_HOUSE.contains(this.playerX, this.playerY)) {
             if (this.getFatigue() >= MAXIMUM_FATIGUE) {
                 return this.sleep();
             }
 
-            return this.useAnvil();
+            if (this.isQuestMenu()) {
+                int index;
+
+                for (final String menuOption : this.product.getMenuOptions()) {
+                    index = this.getMenuIndex(menuOption);
+
+                    if (index != -1) {
+                        this.answer(index);
+                        this.optionMenuTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+                        return 0;
+                    }
+                }
+
+                return SLEEP_ONE_SECOND;
+            }
+
+            if (System.currentTimeMillis() <= this.optionMenuTimeout) {
+                return 0;
+            }
+
+            if (this.playerX != Object.ANVIL.coordinate.getX() ||
+                    this.playerY != Object.ANVIL.coordinate.getY() - 1)
+            {
+                this.walkTo(Object.ANVIL.coordinate.getX(), Object.ANVIL.coordinate.getY() - 1);
+                return SLEEP_ONE_TICK;
+            }
+
+            this.extension.displayMessage("@gre@Hammering...");
+            this.useAnvil();
+            this.optionMenuTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+            return 0;
         }
 
         if (Area.BANK.contains(this.playerX, this.playerY)) {
@@ -274,53 +304,37 @@ public class AA_VarrockWestSmither extends AA_Script {
         return SLEEP_ONE_TICK;
     }
 
-    private int useAnvil() {
-        if (this.isQuestMenu()) {
-            int index;
-
-            for (final String menuOption : this.product.getMenuOptions()) {
-                index = this.getMenuIndex(menuOption);
-
-                if (index != -1) {
-                    this.answer(index);
-                    this.optionMenuTimeout = System.currentTimeMillis() + TIMEOUT_ONE_SECOND;
-                    return 0;
-                }
-            }
-
-            return SLEEP_ONE_SECOND;
-        }
-
-        if (System.currentTimeMillis() <= this.optionMenuTimeout) {
-            return 0;
-        }
-
-        this.useSlotOnObject(INITIAL_INVENTORY_SIZE, Object.ANVIL.coordinate.getX(), Object.ANVIL.coordinate.getY());
-        this.optionMenuTimeout = System.currentTimeMillis() + TIMEOUT_ONE_SECOND;
-        return 0;
+    private void useAnvil() {
+        this.extension.createPacket(Constants.OP_OBJECT_USEWITH);
+        this.extension.put2(Object.ANVIL.coordinate.getX());
+        this.extension.put2(Object.ANVIL.coordinate.getY());
+        this.extension.put2(INITIAL_INVENTORY_SIZE);
+        this.extension.finishPacket();
     }
 
     private enum Bar {
-        BRONZE(169),
-        IRON(170),
-        STEEL(171),
-        MITHRIL(173),
-        ADAMANTITE(174),
-        RUNITE(408);
+        BRONZE(169, "Bronze"),
+        IRON(170, "Iron"),
+        STEEL(171, "Steel"),
+        MITHRIL(173, "Mithril"),
+        ADAMANTITE(174, "Adamantite"),
+        RUNITE(408, "Runite");
 
         private final int id;
+        private final String name;
 
-        Bar(final int id) {
+        Bar(final int id, final String name) {
             this.id = id;
-        }
-
-        @Override
-        public String toString() {
-            return this.name().charAt(0) + this.name().substring(1).toLowerCase();
+            this.name = name;
         }
 
         public int getId() {
             return this.id;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
         }
     }
 
@@ -347,7 +361,6 @@ public class AA_VarrockWestSmither extends AA_Script {
         NAILS(1, new String[]{"Make Nails"});
 
         private final int barCount;
-
         private final String[] menuOptions;
 
         Product(final int barCount, final String[] menuOptions) {
@@ -369,7 +382,6 @@ public class AA_VarrockWestSmither extends AA_Script {
         ANVIL_HOUSE(new Coordinate(145, 510), new Coordinate(148, 516));
 
         private final Coordinate lowerBoundingCoordinate;
-
         private final Coordinate upperBoundingCoordinate;
 
         Area(final Coordinate lowerBoundingCoordinate, final Coordinate upperBoundingCoordinate) {
@@ -392,7 +404,6 @@ public class AA_VarrockWestSmither extends AA_Script {
         ANVIL(50, new Coordinate(148, 513));
 
         private final int id;
-
         private final Coordinate coordinate;
 
         Object(final int id, final Coordinate coordinate) {

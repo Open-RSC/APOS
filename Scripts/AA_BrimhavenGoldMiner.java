@@ -203,10 +203,7 @@ public class AA_BrimhavenGoldMiner extends AA_Script {
 
             if (this.getInventoryCount() == INITIAL_INVENTORY_SIZE) {
                 if (this.bankCount(ITEM_ID_COINS) < COIN_COUNT) {
-                    System.err.println("Out of coins.");
-                    this.setAutoLogin(false);
-                    this.logout();
-                    this.stopScript();
+                    return this.exit("Out of coins.");
                 }
 
                 this.withdraw(ITEM_ID_COINS, COIN_COUNT);

@@ -1,3 +1,5 @@
+import com.aposbot.Constants;
+
 import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
@@ -26,13 +28,14 @@ public class AA_AlkharidSmelter extends AA_Script {
     private long depositTimeout;
     private long withdrawPrimaryOreTimeout;
     private long withdrawSecondaryOreTimeout;
-    private long closeTimeout;
     private long smeltTimeout;
 
-    private int barsSmelted;
     private int playerX;
     private int playerY;
-    private int primaryOreRemaining;
+    private int inventoryCount;
+
+    private int oreRemaining;
+    private int barsSmelted;
 
     public AA_AlkharidSmelter(final Extension extension) {
         super(extension);
@@ -69,11 +72,11 @@ public class AA_AlkharidSmelter extends AA_Script {
     public int main() {
         this.playerX = this.getX();
         this.playerY = this.getY();
+        this.inventoryCount = this.getInventoryCount();
 
-        if (this.getInventoryCount() == 1 ||
+        if (this.inventoryCount == 1 ||
                 this.getInventoryId(1) != this.bar.primaryOreId ||
-                !this.hasInventoryItem(this.bar.secondaryOreId) ||
-                this.isBanking()) {
+                this.getInventoryCount(this.bar.secondaryOreId) < this.bar.secondaryOreCount) {
             return this.bank();
         }
 
@@ -83,7 +86,10 @@ public class AA_AlkharidSmelter extends AA_Script {
     @Override
     public void onServerMessage(final String message) {
         if (message.startsWith("bar", 15)) {
-            this.barsSmelted += 1;
+            this.barsSmelted++;
+            if (this.oreRemaining > 0) {
+                this.oreRemaining--;
+            }
             this.smeltTimeout = 0L;
         } else if (message.startsWith("impure", 15)) {
             this.smeltTimeout = 0L;
@@ -119,8 +125,11 @@ public class AA_AlkharidSmelter extends AA_Script {
                         this.bar, this.barsSmelted, getUnitsPerHour(this.barsSmelted, secondsElapsed)),
                 PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
+        this.drawString(String.format("@yel@Remaining: @whi@%d", this.oreRemaining),
+                PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+
         this.drawString(String.format("@yel@Time remaining: @whi@%s",
-                        getTTL(this.barsSmelted, this.primaryOreRemaining, secondsElapsed)),
+                        getTTL(this.barsSmelted, this.oreRemaining, secondsElapsed)),
                 PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
     }
 
@@ -134,7 +143,14 @@ public class AA_AlkharidSmelter extends AA_Script {
                 return 0;
             }
 
-            this.useSlotOnObject(1, Object.FURNACE.coordinate.getX(), Object.FURNACE.coordinate.getY());
+            if (this.playerX != Object.FURNACE.coordinate.getX() - 1 ||
+                    this.playerY != Object.FURNACE.coordinate.getY()) {
+                this.walkTo(Object.FURNACE.coordinate.getX() - 1, Object.FURNACE.coordinate.getY());
+                return SLEEP_ONE_TICK;
+            }
+
+            this.extension.displayMessage("@gre@Smelting...");
+            this.useFurnace();
             this.smeltTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
             return 0;
         }
@@ -155,30 +171,24 @@ public class AA_AlkharidSmelter extends AA_Script {
                 return this.openBank();
             }
 
-            if (this.getInventoryId(1) == this.bar.primaryOreId &&
-                    this.getInventoryCount(this.bar.primaryOreId) == this.bar.primaryOreCount) {
-                if (this.getInventoryCount(this.bar.secondaryOreId) == this.bar.secondaryOreCount) {
-                    if (System.currentTimeMillis() <= this.closeTimeout) {
-                        return 0;
-                    }
-
-                    this.primaryOreRemaining = this.bankCount(this.bar.primaryOreId);
-                    this.closeBank();
-                    this.closeTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-                    return 0;
-                }
-
+            if (this.inventoryCount > 1 &&
+                    this.getInventoryId(1) == this.bar.primaryOreId &&
+                    this.getInventoryCount(this.bar.primaryOreId) <= this.bar.primaryOreWithdrawCount) {
                 if (System.currentTimeMillis() <= this.withdrawSecondaryOreTimeout) {
                     return 0;
                 }
 
-                if (this.bankCount(this.bar.secondaryOreId) < this.bar.secondaryOreCount) {
-                    System.err.printf("Ran out of %s.%n", getItemNameId(this.bar.secondaryOreId));
-                    this.setAutoLogin(false);
-                    this.stopScript();
+                final int secondaryOreBankCount = this.bankCount(this.bar.secondaryOreId);
+
+                if (secondaryOreBankCount < this.bar.secondaryOreCount) {
+                    return this.exit(String.format("Ran out of %s.", getItemNameId(this.bar.secondaryOreId)));
                 }
 
-                this.withdraw(this.bar.secondaryOreId, this.bar.secondaryOreCount);
+                final int primaryOreRemaining = this.bankCount(this.bar.primaryOreId);
+                final int secondaryOreRemaining = secondaryOreBankCount / this.bar.secondaryOreCount;
+
+                this.oreRemaining = Math.min(primaryOreRemaining, secondaryOreRemaining);
+                this.withdraw(this.bar.secondaryOreId, this.bar.secondaryOreWithdrawCount);
                 this.withdrawSecondaryOreTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
                 return 0;
             }
@@ -187,14 +197,18 @@ public class AA_AlkharidSmelter extends AA_Script {
                 return 0;
             }
 
-            if (this.getInventoryCount() == 1) {
-                if (this.bankCount(this.bar.primaryOreId) < this.bar.primaryOreCount) {
-                    System.err.printf("Ran out of %s.%n", getItemNameId(this.bar.primaryOreId));
-                    this.setAutoLogin(false);
-                    this.stopScript();
+            if (this.inventoryCount == 1) {
+                final int primaryOreBankCount = this.bankCount(this.bar.primaryOreId);
+
+                if (primaryOreBankCount == 0) {
+                    return this.exit(String.format("Ran out of %s.", getItemNameId(this.bar.primaryOreId)));
                 }
 
-                this.withdraw(this.bar.primaryOreId, this.bar.primaryOreCount);
+                if (this.bar.secondaryOreId == -1) {
+                    this.oreRemaining = primaryOreBankCount;
+                }
+
+                this.withdraw(this.bar.primaryOreId, this.bar.primaryOreWithdrawCount);
                 this.withdrawPrimaryOreTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
                 return 0;
             }
@@ -204,9 +218,7 @@ public class AA_AlkharidSmelter extends AA_Script {
             }
 
             final int itemId = this.getInventoryId(1);
-            final int itemCount = this.getInventoryCount(itemId);
-
-            this.deposit(itemId, itemCount);
+            this.deposit(itemId, MAX_INV_SIZE);
             this.depositTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
             return 0;
         }
@@ -225,33 +237,43 @@ public class AA_AlkharidSmelter extends AA_Script {
         return SLEEP_ONE_TICK;
     }
 
-    private enum Bar {
-        BRONZE(169, 150, 202, 14, 14),
-        IRON(170, 151, 151, 29, 29),
-        SILVER(384, 383, 383, 29, 29),
-        STEEL(171, 151, 155, 9, 18),
-        GOLD(172, 152, 152, 29, 29),
-        MITHRIL(173, 153, 155, 5, 20),
-        ADAMANTITE(174, 154, 155, 4, 24),
-        RUNITE(408, 409, 155, 3, 24);
+    private void useFurnace() {
+        this.extension.createPacket(Constants.OP_OBJECT_USEWITH);
+        this.extension.put2(Object.FURNACE.coordinate.getX());
+        this.extension.put2(Object.FURNACE.coordinate.getY());
+        this.extension.put2(1);
+        this.extension.finishPacket();
+    }
 
-        private final int id;
+    private enum Bar {
+        BRONZE(150, 202, 1, 14, 14, "Bronze"),
+        IRON(151, -1, 0, 29, 0, "Iron"),
+        SILVER(383, -1, 0, 29, 0, "Silver"),
+        STEEL(151, 155, 2, 9, 18, "Steel"),
+        GOLD(152, -1, 0, 29, 0, "Gold"),
+        MITHRIL(153, 155, 4, 5, 20, "Mithril"),
+        ADAMANTITE(154, 155, 6, 4, 24, "Adamantite"),
+        RUNITE(409, 155, 8, 3, 24, "Runite");
+
         private final int primaryOreId;
         private final int secondaryOreId;
-        private final int primaryOreCount;
         private final int secondaryOreCount;
+        private final int primaryOreWithdrawCount;
+        private final int secondaryOreWithdrawCount;
+        private final String name;
 
-        Bar(final int id, final int primaryOreId, final int secondaryOreId, final int primaryOreCount, final int secondaryOreCount) {
-            this.id = id;
+        Bar(final int primaryOreId, final int secondaryOreId, final int secondaryOreCount, final int primaryOreWithdrawCount, final int secondaryOreWithdrawCount, final String name) {
             this.primaryOreId = primaryOreId;
             this.secondaryOreId = secondaryOreId;
-            this.primaryOreCount = primaryOreCount;
             this.secondaryOreCount = secondaryOreCount;
+            this.primaryOreWithdrawCount = primaryOreWithdrawCount;
+            this.secondaryOreWithdrawCount = secondaryOreWithdrawCount;
+            this.name = name;
         }
 
         @Override
         public String toString() {
-            return this.name().charAt(0) + this.name().substring(1).toLowerCase();
+            return this.name;
         }
     }
 

@@ -55,7 +55,7 @@ public abstract class AA_Script extends Script {
     }
 
     public static String getTTL(final double processed, final int remaining, final long elapsedSeconds) {
-        return processed == 0 ? "∞" : getElapsedSeconds((long) ((remaining / ((processed * 60 * 60) / elapsedSeconds)) * 60 * 60));
+        return processed == 0 ? "0:00:00" : getElapsedSeconds((long) (remaining * (elapsedSeconds / processed)));
     }
 
     @Override
@@ -119,6 +119,14 @@ public abstract class AA_Script extends Script {
 
         this.useItem(index);
         return SLEEP_ONE_SECOND;
+    }
+
+    protected final int exit(final String reason)
+    {
+        System.err.println(reason);
+        this.setAutoLogin(false);
+        this.stopScript();
+        return 0;
     }
 
     private int openGenericInterface(final int[] npcs) {
