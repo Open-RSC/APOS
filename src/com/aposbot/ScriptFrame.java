@@ -7,12 +7,12 @@ import com.aposbot._default.IScriptListener;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
 public final class ScriptFrame extends Frame {
@@ -25,6 +25,7 @@ public final class ScriptFrame extends Frame {
     private final IClient client;
     private ScriptEngineManager manager;
     private int lastSelectedIndex;
+    private final TextField scriptSearchField;
 
     public ScriptFrame(IClient client) {
         super("Scripts");
@@ -55,30 +56,50 @@ public final class ScriptFrame extends Frame {
 
         final Button okButton = new Button("OK");
         okButton.setFont(Constants.UI_FONT);
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        initScript();
-                    }
-                }, "ScriptInit").start();
+        okButton.addActionListener(e -> {
+            if (displayed_list.getSelectedIndex() == -1) {
+                System.out.println("Script not selected.");
+            } else {
+                new Thread(this::initScript, "ScriptInit").start();
             }
         });
         buttonPanel.add(okButton);
 
         final Button cancelButton = new Button("Cancel");
         cancelButton.setFont(Constants.UI_FONT);
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-            }
-        });
+        cancelButton.addActionListener(e -> setVisible(false));
         buttonPanel.add(cancelButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        final Panel searchPanel = new Panel();
+        searchPanel.setLayout(new GridLayout(1, 0));
+        Label searchLabel = new Label("Search:");
+        searchLabel.setFont(Constants.UI_FONT);
+        searchPanel.add(searchLabel);
+
+        scriptSearchField = new TextField("");
+        scriptSearchField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) { }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    displayed_list.select(getMatchedScriptIndex());
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) { }
+        });
+
+        searchPanel.add(scriptSearchField);
+        scriptSearchField.setFont(Constants.UI_FONT);
+
+        final Panel southPanel = new Panel();
+        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
+        southPanel.add(searchPanel);
+        southPanel.add(buttonPanel);
+        add(southPanel, BorderLayout.SOUTH);
 
         pack();
         setMinimumSize(getSize());
@@ -86,6 +107,40 @@ public final class ScriptFrame extends Frame {
         final Insets in = getInsets();
 
         setSize(in.right + in.left + 310, in.top + in.bottom + 240);
+    }
+
+    private int getMatchedScriptIndex() {
+        String searchedScriptName = scriptSearchField.getText().toLowerCase();
+        String[] availableScriptNames = displayed_list.getItems();
+        if (availableScriptNames.length == 0)
+            return -1;
+
+        Map<String, Integer> scriptSearchMatches = new TreeMap<>((s1, s2) -> {
+            if (s1.length() > s2.length()) {
+                return 1;
+            } else if (s1.length() < s2.length()) {
+                return -1;
+            } else {
+                return s1.compareTo(s2);
+            }
+        });
+
+        for (int i = 0; i < availableScriptNames.length; i ++) {
+            String availableScriptName = availableScriptNames[i].toLowerCase();
+
+            if (searchedScriptName.equals(availableScriptName)) {
+                return i;
+            }
+
+            if (availableScriptName.contains(searchedScriptName)) {
+                scriptSearchMatches.put(availableScriptName, i);
+            }
+        }
+
+        if (scriptSearchMatches.isEmpty())
+            return -1;
+
+        return scriptSearchMatches.values().stream().findFirst().get();
     }
 
     public void initScript() {
