@@ -3,10 +3,13 @@
 	2012-02-16
 	Version 1.3 - 2012-05-04
 	Version 1.4 - 2021-06-22 Update to OpenApos
+	Version 1.5 - 2021-12-01 Talk + DateTime
 */
 import java.net.*; 
 import java.io.*;
 import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 public class Abyte0_Script extends Storm_Script 
 {    
@@ -128,7 +131,7 @@ public class Abyte0_Script extends Storm_Script
 	{
 		String[] results = getRandomQuotes();
 		
-		if(random(0,40000) != 1)
+		if(random(0,20000) != 1)
 			return;
 		
 		int selectedQuote = random(1,results.length) -1;
@@ -145,6 +148,39 @@ public class Abyte0_Script extends Storm_Script
 		while(!next());
 	}
 	
+    @Override
+    public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
+		
+		String receivedLC = msg.toLowerCase();
+		
+        if ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?")) {
+			if (receivedLC.contains("cook"))
+				Say("I am " + getLevel(7));
+			if (receivedLC.contains("wood") || receivedLC.contains("wc"))
+				Say("I am " + getLevel(8));
+			if (receivedLC.contains("fletch"))
+				Say("I am " + getLevel(9));
+			if (receivedLC.contains("fish"))
+				Say("I am " + getLevel(10));
+			if (receivedLC.contains("fire"))
+				Say("I am " + getLevel(11));
+			if (receivedLC.contains("craft"))
+				Say("I am " + getLevel(12));
+			if (receivedLC.contains("smith"))
+				Say("I am " + getLevel(13));
+			if (receivedLC.contains("mining")|| receivedLC.contains("mine"))
+				Say("I am " + getLevel(14));
+			if (receivedLC.contains("herb"))
+				Say("I am " + getLevel(15));
+			if (receivedLC.contains("agility"))
+				Say("I am " + getLevel(16));
+			if (receivedLC.contains("thieving") || receivedLC.contains("thieve") || receivedLC.contains("thief"))
+				Say("I am " + getLevel(17));
+
+			//https://stackoverflow.com/questions/2286648/named-placeholders-in-string-formatting
+        }
+    }
+
 	public void printInventory()
 	{
 		//String nom = AutoLogin.user;
@@ -419,6 +455,13 @@ public class Abyte0_Script extends Storm_Script
 		{
 			useItem(part3);
 		}
+	}
+	
+	public String getDateTime()
+	{
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		return dtf.format(now);
 	}
 	
 }

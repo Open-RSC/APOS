@@ -10,6 +10,13 @@ public class Abyte0_Paladin extends Abyte0_Script
 	int steelBar = 171;
 	int mithBar = 173;
 	
+	@Override
+	public String[] getRandomQuotes()
+	{
+		String[] result = {"Thieving level?","Once a thief, always a thief","give me that wallet!","Wanna buy a watch?","I stole a million from that guy over there!","I stole his keys, kill him you'll see he wont drop any!"};
+		return result;
+	}
+
 	//change this to true if you want to eat food to be able to pick mith bar....
 	//I HIGLY don't suggest this but its up to you guys
 	boolean eatFoodToPickMithBar = false;
@@ -371,7 +378,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 					return random(2000,3000);
 				}
 			}
-			//Si on est a coter des escali et on veut descendre
+			//Si on est a coter des escalié et on veut descendre
 			if(getX() >= 602 && getX() <= 615 && getY() > 1500 && getY() < 1548)
 			{
 				stairs = getObjectById(44);				

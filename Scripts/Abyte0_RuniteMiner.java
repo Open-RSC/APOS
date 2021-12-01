@@ -1,3 +1,5 @@
+//Version 5 Updated to OpenRSC
+//5.1 Move to avoid log out
 public class Abyte0_RuniteMiner extends Abyte0_Script
 {
 	int oreRunite = 409; // Rune ore
@@ -18,6 +20,7 @@ public class Abyte0_RuniteMiner extends Abyte0_Script
 	
 	boolean died = false;
 	boolean readyToSleep = false;
+	int cptReturns = 0;
 	
 	public Abyte0_RuniteMiner(Extension e)
 	{
@@ -29,7 +32,7 @@ public class Abyte0_RuniteMiner extends Abyte0_Script
 		cptRuneBanked = 0;
 		
 		print("Abyte0 : Runite Miner...");
-		print("Version 5 Updated to OpenRSC");
+		print("Version 5.1 Updated to OpenRSC");
 		
 		print("Bank Ruby, Diamond, Runite ores + WALK BACK FROM LUMB");
 		print(".");
@@ -632,16 +635,25 @@ public class Abyte0_RuniteMiner extends Abyte0_Script
 				walkTo(269,166);
 				return random(789, 1800);
 			} 
-			if(distanceTo(257,157) < 30)
-			{		
+			if(distanceTo(257,157) < 25)
+			{
+				cptReturns++;
 				int nombreRunite = mineOre(RockRunite);
 				if(nombreRunite > 0)
 					return random(1500,3601);
-				//walkTo(268,random(157,159));
-				//return random(1000,10000);
+				
+				if(cptReturns > 50)
+				{
+					cptReturns = 0;
+					walkTo(257,random(156,158));
+					return random(1000,10000);
+				}
 			}
 			//print("ELSE walkTo RockRunite");
-			walkTo(257,157);
+			
+			if(getX() != 257 || getY() != 157)
+				walkTo(257,157);
+			
 			return random(400,1103);
 		}
 	}
