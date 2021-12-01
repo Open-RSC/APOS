@@ -24,6 +24,7 @@ public final class ScriptFrame extends Frame {
     private final TextField field;
     private final IClient client;
     private ScriptEngineManager manager;
+    private int lastSelectedIndex;
 
     public ScriptFrame(IClient client) {
         super("Scripts");
@@ -96,6 +97,7 @@ public final class ScriptFrame extends Frame {
         listener.setIScript(null);
         System.gc();
 
+        lastSelectedIndex = displayed_list.getSelectedIndex();
         final String selected_name = displayed_list.getSelectedItem();
         IScript script = null;
         if (selected_name.endsWith(".class")) {
@@ -112,7 +114,6 @@ public final class ScriptFrame extends Frame {
             t.printStackTrace();
             return;
         }
-        field.setText("");
         client.getScriptListener().setIScript(script);
         System.out.println("Press the \"Start script\" button to start it.");
         setVisible(false);
@@ -203,11 +204,11 @@ public final class ScriptFrame extends Frame {
         for (final String str : list) {
             displayed_list.add(str);
         }
+        displayed_list.select(lastSelectedIndex);
     }
 
     public void process(String filename, List<String> list) {
         File bonusdir = new File((filename));
-        System.out.println(filename);
         filename = filename.replace(dir.toString() + File.separator, "");
         if (bonusdir.isDirectory()) {
             String[] bonusFiles = bonusdir.list();

@@ -84,27 +84,27 @@ public class Extension extends client
                 fogginess = 0;
                 break;
             case KeyEvent.VK_PAGE_UP:
-                setCameraNSOffset(getCameraNSOffset() - 10);
+                setCameraNSOffset(getCameraNSOffset() - 60);
                 break;
             case KeyEvent.VK_PAGE_DOWN:
-                setCameraNSOffset(getCameraNSOffset() + 10);
+                setCameraNSOffset(getCameraNSOffset() + 60);
                 break;
             case KeyEvent.VK_HOME:
-                setCameraEWOffset(getCameraEWOffset() + 10);
+                setCameraEWOffset(getCameraEWOffset() + 60);
                 break;
             case KeyEvent.VK_END:
-                setCameraEWOffset(getCameraEWOffset() - 10);
+                setCameraEWOffset(getCameraEWOffset() - 60);
                 break;
             case KeyEvent.VK_UP:
                 final int h = getCameraHeight();
                 if (h > 300) {
-                    setCameraHeight(h - 10);
-                    fogginess -= 30;
+                    setCameraHeight(h - 60);
+                    fogginess -= 180;
                 }
                 break;
             case KeyEvent.VK_DOWN:
-                setCameraHeight(getCameraHeight() + 10);
-                fogginess += 30;
+                setCameraHeight(getCameraHeight() + 60);
+                fogginess += 180;
                 break;
             case KeyEvent.VK_F12:
             case KeyEvent.VK_PRINTSCREEN:
