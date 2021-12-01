@@ -6,11 +6,18 @@
 public class Abyte0_ArdThiever extends Abyte0_Script 
 {		
 	int MAX_INVENTORY_SIZE = 30;
-	int freeInventrySlotsRequired = 21;
+	int freeInventrySlotsRequired = 22;
 	int fightMode = 3;
 	int hero = 324;
 	boolean isDoingHero = false;
 	
+	@Override
+	public String[] getRandomQuotes()
+	{
+		String[] result = {"Thieving level?","Once a thief, always a thief","give me that wallet!","Wanna buy a watch?","I stole a million from that guy over there!","I stole his keys, kill him you'll see he wont drop any!"};
+		return result;
+	}
+
 	int goldId = 152;
 	int chaosId = 41;
 	int deathId = 38;
@@ -70,12 +77,12 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 		if(inCombat())
 		{			
 			walkTo(getX(), getY());			
-			return random(800,1111);		
+			return 1000;		
 		}				
 		if(getFatigue() > 90) 
-		{			
-			useSleepingBag();			
-			return 1000;		
+		{
+			useSleepingBag();
+			return 1000;
 		}
 		if(getInventoryCount(dropIDs) > 0) {			
 			dropItem(getInventoryIndex(dropIDs));		
@@ -101,12 +108,12 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 			}
 			if(getInventoryCount(deathId) > 1) 
 			{				
-				deposit(deathId,getInventoryCount(deathId)-1);
+				deposit(deathId,getInventoryCount(deathId));
 				return random(500, 600);			
 			}
 			if(getInventoryCount(bloodId) > 1) 
 			{				
-				deposit(bloodId,getInventoryCount(bloodId)-1);
+				deposit(bloodId,getInventoryCount(bloodId));
 				return random(500, 600);			
 			}
 			if(getInventoryCount(goldId) > 0) 
@@ -219,11 +226,9 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 		}
 		
 		
-		
-		
-		
 		if(getInventoryCount(foodIDs) == 0 || (getInventoryCount() == MAX_INVENTORY_SIZE && isDoingHero))
 		{			
+
 			int banker[] = getNpcByIdNotTalk(BANKERS);	        
 			if(banker[0] != -1)
 			{			
@@ -233,11 +238,13 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 			else if(getX() == 549 && getY() == 596)
 			{
 				//si au "WalkingCenter" on walk "WalkingNearBank"
-				walkTo(548,608);//WalkingNearBank
+				walkTo(548,608);//WalkingNearBank     
+				return 3000;		
 			}
 			else
 			{
-				walkTo(549,596);//WalkingCenter
+				walkTo(549,596);//WalkingCenter     
+				return 3000;		
 			}
 		}
 		if(getHpPercent() < 70) 
