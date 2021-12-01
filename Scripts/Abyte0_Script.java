@@ -131,7 +131,7 @@ public class Abyte0_Script extends Storm_Script
 	{
 		String[] results = getRandomQuotes();
 		
-		if(random(0,40000) != 1)
+		if(random(0,20000) != 1)
 			return;
 		
 		int selectedQuote = random(1,results.length) -1;
@@ -156,7 +156,7 @@ public class Abyte0_Script extends Storm_Script
         if ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?")) {
 			if (receivedLC.contains("cook"))
 				Say("I am " + getLevel(7));
-			if (receivedLC.contains("wood"))
+			if (receivedLC.contains("wood") || receivedLC.contains("wc"))
 				Say("I am " + getLevel(8));
 			if (receivedLC.contains("fletch"))
 				Say("I am " + getLevel(9));

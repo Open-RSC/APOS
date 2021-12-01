@@ -22,6 +22,20 @@ public class Abyte0_HideNSeekGiver extends Abyte0_Script
 	String startTime = "";
 	boolean startedFirstIteration = false;
 	
+	@Override
+	public String[] getRandomQuotes()
+	{
+		int doubleDice = random(1,10);
+		if(doubleDice > 5)
+		{
+			String[] temp = {""};
+			return temp;
+		}
+		
+		String[] result = {"Where am I?","Nobody gona know!","Pisst! I am here!","5 - 4 - 3 - 2 - 1 Go! Find me!"};
+		return result;
+	}
+
 	public Abyte0_HideNSeekGiver(Extension e)
 	{
 		super(e);
