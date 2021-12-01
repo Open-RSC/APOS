@@ -3,6 +3,7 @@
 //2012-01-24 - Version 0 - Added Open Doors/Gates at 10 squares from you if closed
 //2012-01-24 - Version 0 - Added Eating multiple food like Yomama Scripts
 //2012-01-24 - Version 0 - Will Add Pick && Bury BigBones
+//2021-09-24 - Version 0 - Suport Shark
 
 public class Abyte0_SAF extends Abyte0_Script
 {
@@ -27,7 +28,8 @@ public class Abyte0_SAF extends Abyte0_Script
         897, //King worm        
         138, //bread        
         142, //wine  
-		373  //Lobs  
+	373,  //Lobs 
+	546 //Shark
     }; 
 
     boolean walkBack = false;
@@ -45,6 +47,7 @@ public class Abyte0_SAF extends Abyte0_Script
 	System.out.println("Abyte0_SAF");
 	System.out.println("BETA 0");
 	System.out.println("USAGE = abyte0_saf f=3,n=321,r=25,h=20,e=373,w=1,b=1 ");
+	print("2021-09-24 - DO not use param e use the foodIds list");
         String[] in;
 
         try {

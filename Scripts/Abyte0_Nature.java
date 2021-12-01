@@ -73,8 +73,8 @@ public class Abyte0_Nature extends Abyte0_Script
 		int lottedChest[] = getObjectById(340); //might be lucky
 		if(lottedChest[0] != -1)
 		{
-			if(lottedChest[1] == 582 && lottedChest[2] == 1527)
-			atObject2(lottedChest[1],lottedChest[2]);
+			if((lottedChest[1] == 582 && lottedChest[2] == 1527) || (lottedChest[1] == 539 && lottedChest[2] == 1547))
+				atObject2(lottedChest[1],lottedChest[2]);
 		}
 			
 		cpt++;
