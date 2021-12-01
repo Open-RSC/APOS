@@ -154,17 +154,29 @@ public class Abyte0_Script extends Storm_Script
 		String receivedLC = msg.toLowerCase();
 		
         if ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?")) {
-			if (receivedLC.contains("mining"))
-				Say("I am " + getLevel(14));
-			if (receivedLC.contains("smithing") || receivedLC.contains("smith"))
-				Say("I am " + getLevel(13));
-			if (receivedLC.contains("fishing") || receivedLC.contains("fish"))
-				Say("I am " + getLevel(10));
-			if (receivedLC.contains("cooking") || receivedLC.contains("cook"))
+			if (receivedLC.contains("cook"))
 				Say("I am " + getLevel(7));
-			if (receivedLC.contains("fire") || receivedLC.contains("firemaking"))
+			if (receivedLC.contains("wood"))
+				Say("I am " + getLevel(8));
+			if (receivedLC.contains("fletch"))
+				Say("I am " + getLevel(9));
+			if (receivedLC.contains("fish"))
+				Say("I am " + getLevel(10));
+			if (receivedLC.contains("fire"))
 				Say("I am " + getLevel(11));
-			
+			if (receivedLC.contains("craft"))
+				Say("I am " + getLevel(12));
+			if (receivedLC.contains("smith"))
+				Say("I am " + getLevel(13));
+			if (receivedLC.contains("mining")|| receivedLC.contains("mine"))
+				Say("I am " + getLevel(14));
+			if (receivedLC.contains("herb"))
+				Say("I am " + getLevel(15));
+			if (receivedLC.contains("agility"))
+				Say("I am " + getLevel(16));
+			if (receivedLC.contains("thieving") || receivedLC.contains("thieve") || receivedLC.contains("thief"))
+				Say("I am " + getLevel(17));
+
 			//https://stackoverflow.com/questions/2286648/named-placeholders-in-string-formatting
         }
     }
