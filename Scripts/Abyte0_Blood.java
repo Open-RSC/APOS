@@ -199,8 +199,8 @@ public class Abyte0_Blood extends Abyte0_Script
 			}
 			if(getInventoryCount() < 28) 
 			{
-				withdraw(foodId, 30-getInventoryCount());
-				return random(1000, 1500);				
+				withdraw(foodId, 29-getInventoryCount());
+				return random(1000, 1500);
 			}
 			if(getInventoryCount() > 28 && getInventoryCount(bloodId) < 5 && getInventoryCount(coinsId) < 1000)
 				closeBank();		

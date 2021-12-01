@@ -3,10 +3,13 @@
 	2012-02-16
 	Version 1.3 - 2012-05-04
 	Version 1.4 - 2021-06-22 Update to OpenApos
+	Version 1.5 - 2021-12-01 Talk + DateTime
 */
 import java.net.*; 
 import java.io.*;
 import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 public class Abyte0_Script extends Storm_Script 
 {    
@@ -145,6 +148,27 @@ public class Abyte0_Script extends Storm_Script
 		while(!next());
 	}
 	
+    @Override
+    public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
+		
+		String receivedLC = msg.toLowerCase();
+		
+        if ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?")) {
+			if (receivedLC.contains("mining"))
+				Say("I am " + getLevel(14));
+			if (receivedLC.contains("smithing") || receivedLC.contains("smith"))
+				Say("I am " + getLevel(13));
+			if (receivedLC.contains("fishing") || receivedLC.contains("fish"))
+				Say("I am " + getLevel(10));
+			if (receivedLC.contains("cooking") || receivedLC.contains("cook"))
+				Say("I am " + getLevel(7));
+			if (receivedLC.contains("fire") || receivedLC.contains("firemaking"))
+				Say("I am " + getLevel(11));
+			
+			//https://stackoverflow.com/questions/2286648/named-placeholders-in-string-formatting
+        }
+    }
+
 	public void printInventory()
 	{
 		//String nom = AutoLogin.user;
@@ -419,6 +443,13 @@ public class Abyte0_Script extends Storm_Script
 		{
 			useItem(part3);
 		}
+	}
+	
+	public String getDateTime()
+	{
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		return dtf.format(now);
 	}
 	
 }
