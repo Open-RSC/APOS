@@ -1,6 +1,6 @@
 /** * This script is used to cook your food in the desert. *
  * start at alkarhid bank, pick the ores you wanna smelt * into bars, make sure you only have a sleeping bag * in your inventory... and have fun... * * * v 1.0 * *   - yomama` */
- public class AlKharidSmelter extends Script
+public class AlKharidSmelter extends Script
  {   int[] smeltArea   = new int[]{82, 679};   int[] bankArea   = new int[]{85, 694};
  int[] withdraw1   = null;   int[] withdraw2   = null;   int barID      = 0;
  public AlKharidSmelter(Extension e) {      super(e);   }
