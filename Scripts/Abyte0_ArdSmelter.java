@@ -95,7 +95,7 @@ public class Abyte0_ArdSmelter extends Abyte0_Script {
 			} else if (getInventoryCount(mix[2]) == mix[3] && getInventoryCount(mix[4]) == mix[5] && getInventoryCount(mix[0]) == 0)
 				closeBank();
 			else {
-				//Si les quantité sont buguer on depose tout et on recommence
+				//Si les quantit sont buguer on depose tout et on recommence
 				deposit(mix[2], getInventoryCount(mix[2]));//ore 1
 				deposit(mix[4], getInventoryCount(mix[4]));//ore 2
 				deposit(mix[0], getInventoryCount(mix[0]));//bars
@@ -108,7 +108,6 @@ public class Abyte0_ArdSmelter extends Abyte0_Script {
 		}
 		if (getX() >= 577 && getX() <= 585 && getY() >= 572 && getY() <= 576) {
 			//print("In Bank");
-			//Si dans la banque Ligné
 			if (getInventoryCount(mix[2]) != mix[3] || getInventoryCount(mix[4]) != mix[5]) {
 				print("Talking to Banker");
 				if (!isBanking()) {
@@ -210,7 +209,6 @@ public class Abyte0_ArdSmelter extends Abyte0_Script {
 			//	atWallObject(589,591);
 			//}
 			if (getX() >= 577 && getX() <= 585 && getY() >= 572 && getY() <= 576) {
-				//Si dans la banque Ligné
 				walkTo(586, 581);
 				return random(240, 2500);
 			}

@@ -119,7 +119,7 @@ public class Abyte0_MagicSmelter extends Script {
 						print("No more Natures or Fire Staff");
 						stopScript();
 					}
-					//Si les quantité sont buguer on depose tout et on recommence
+					//Si les quantit sont buguer on depose tout et on recommence
 					deposit(mix[2], getInventoryCount(mix[2]));//ore 1
 					deposit(mix[4], getInventoryCount(mix[4]));//ore 2
 					deposit(mix[0], getInventoryCount(mix[0]));//bars
@@ -143,7 +143,7 @@ public class Abyte0_MagicSmelter extends Script {
 						print("No more Natures or Fire Staff");
 						stopScript();
 					}
-					//Si les quantité sont buguer on depose tout et on recommence
+					//Si les quantit sont buguer on depose tout et on recommence
 					deposit(mix[2], getInventoryCount(mix[2]));//ore 1
 					deposit(mix[4], getInventoryCount(mix[4]));//ore 2
 					deposit(mix[0], getInventoryCount(mix[0]));//bars
