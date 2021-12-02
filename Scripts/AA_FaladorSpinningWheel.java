@@ -1,21 +1,25 @@
 import com.aposbot.Constants;
 
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Spins wool at the Falador Spinning Wheel.
- * Start at Falador east bank with sleeping bag in inventory.
+ * Spins wool or flax at the Falador Spinning Wheel.
+ * <p>
+ * Required:
+ * Start at Falador East Bank with an empty inventory.
+ * <p>
+ * Required Parameter:
+ * -i,--item <wool|flax>
  * <p>
  * Author: Chomp
  */
-public class AA_FaladorWoolSpinner extends AA_Script {
-	private static final int ITEM_ID_WOOL = 145;
-	private static final int ITEM_ID_BALL_OF_WOOL = 207;
+public class AA_FaladorSpinningWheel extends AA_Script {
 	private static final int MAXIMUM_FATIGUE = 100;
 	private static final int SKILL_INDEX_CRAFTING = 12;
 
+	private Item item;
 	private Instant startTime;
 
 	private double initialCraftingXp;
@@ -27,17 +31,30 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 	private int playerX;
 	private int playerY;
 
-	private int ballCount;
-	private int woolCount;
+	private int spinCount;
+	private int materialRemaining;
 
-	public AA_FaladorWoolSpinner(final Extension extension) {
+	public AA_FaladorSpinningWheel(final Extension extension) {
 		super(extension);
 	}
 
 	@Override
 	public void init(final String parameters) {
-		if (!this.hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
-			throw new IllegalStateException("Sleeping bag missing from inventory.");
+		if (parameters.isEmpty()) {
+			throw new IllegalArgumentException("Empty script parameter. Must specify Item parameter.");
+		}
+
+		final String[] args = parameters.split(" ");
+
+		for (int i = 0; i < args.length; i++) {
+			switch (args[i].toLowerCase()) {
+				case "-i":
+				case "--item":
+					this.item = Item.valueOf(args[++i].toUpperCase());
+					break;
+				default:
+					throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
+			}
 		}
 
 		this.initialCraftingXp = this.getAccurateXpForLevel(SKILL_INDEX_CRAFTING);
@@ -49,7 +66,7 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 		this.playerX = this.getX();
 		this.playerY = this.getY();
 
-		if (this.getInventoryCount() > 1 && this.getInventoryId(1) == ITEM_ID_WOOL) {
+		if (this.getInventoryCount() > 0 && this.getInventoryId(0) == this.item.id) {
 			return this.spin();
 		}
 
@@ -58,10 +75,10 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 
 	@Override
 	public void onServerMessage(final String message) {
-		if (message.endsWith("wool")) {
-			this.ballCount++;
-			if (this.woolCount > 0) {
-				this.woolCount--;
+		if (message.endsWith("wool") || message.endsWith("string")) {
+			this.spinCount++;
+			if (this.materialRemaining > 0) {
+				this.materialRemaining--;
 			}
 			this.spinTimeout = 0L;
 		} else {
@@ -73,7 +90,7 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 	public void paint() {
 		int y = PAINT_OFFSET_Y;
 
-		this.drawString("@yel@Wool Spinner", PAINT_OFFSET_X, y, Font.BOLD, PAINT_COLOR);
+		this.drawString("@yel@Falador Spinning Wheel", PAINT_OFFSET_X, y, Font.BOLD, PAINT_COLOR);
 
 		if (this.startTime == null) {
 			return;
@@ -92,22 +109,31 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 				DECIMAL_FORMAT.format(xpGained), getUnitsPerHour(xpGained, secondsElapsed)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-		this.drawString(String.format("@yel@Balls: @whi@%s @cya@(@whi@%s wool@cya@/@whi@hr@cya@)",
-				this.ballCount, getUnitsPerHour(this.ballCount, secondsElapsed)),
+		this.drawString(String.format("@yel@%s: @whi@%s @cya@(@whi@%s per@cya@/@whi@hr@cya@)",
+				this.item.productName, this.spinCount, getUnitsPerHour(this.spinCount, secondsElapsed)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-		this.drawString(String.format("@yel@Wool: @whi@%d", this.woolCount),
+		this.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+
+		this.drawString(String.format("@yel@Remaining: @whi@%d", this.materialRemaining),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
 		this.drawString(String.format("@yel@Time remaining: @whi@%s",
-				getTTL(this.ballCount, this.woolCount, secondsElapsed)),
+				getTTL(this.spinCount, this.materialRemaining, secondsElapsed)),
 			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 	}
 
 	private int spin() {
 		if (Area.HOUSE.contains(this.playerX, this.playerY)) {
 			if (this.getFatigue() >= MAXIMUM_FATIGUE) {
-				return this.sleep();
+				if (this.playerX != Object.BED.coordinate.getX() - 1 ||
+					this.playerY != Object.BED.coordinate.getY() - 1) {
+					this.walkTo(Object.BED.coordinate.getX() - 1, Object.BED.coordinate.getY() - 1);
+					return SLEEP_ONE_TICK;
+				}
+
+				this.useBed();
+				return SLEEP_ONE_SECOND;
 			}
 
 			if (System.currentTimeMillis() <= this.spinTimeout) {
@@ -127,8 +153,7 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 		}
 
 		if (Area.BANK.contains(this.playerX, this.playerY) &&
-			this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) ==
-				Object.BANK_DOORS.id) {
+			this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
 			this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
 			return SLEEP_ONE_SECOND;
 		}
@@ -148,17 +173,18 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 				return this.openBank();
 			}
 
-			if (this.getInventoryCount() == 1) {
+			if (this.getInventoryCount() == 0) {
 				if (System.currentTimeMillis() <= this.withdrawTimeout) {
 					return 0;
 				}
 
-				if (!this.hasBankItem(ITEM_ID_WOOL)) {
-					return this.exit("Out of wool.");
+				this.materialRemaining = this.bankCount(this.item.id);
+
+				if (this.materialRemaining == 0) {
+					return this.exit(String.format("Out of %s.", this.item.name));
 				}
 
-				this.woolCount = this.bankCount(ITEM_ID_WOOL);
-				this.withdraw(ITEM_ID_WOOL, MAX_INV_SIZE - 1);
+				this.withdraw(this.item.id, MAX_INV_SIZE);
 				this.withdrawTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}
@@ -167,7 +193,7 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 				return 0;
 			}
 
-			final int itemId = this.getInventoryId(1);
+			final int itemId = this.getInventoryId(0);
 			this.deposit(itemId, MAX_INV_SIZE);
 			this.depositTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
 			return 0;
@@ -183,8 +209,7 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) ==
-			Object.BANK_DOORS.id) {
+		if (this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
 			this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
 			return SLEEP_ONE_SECOND;
 		}
@@ -197,8 +222,30 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 		this.extension.createPacket(Constants.OP_OBJECT_USEWITH);
 		this.extension.put2(Object.SPINNING_WHEEL.coordinate.getX());
 		this.extension.put2(Object.SPINNING_WHEEL.coordinate.getY());
-		this.extension.put2(1);
+		this.extension.put2(0);
 		this.extension.finishPacket();
+	}
+
+	private void useBed() {
+		this.extension.createPacket(Constants.OP_OBJECT_ACTION1);
+		this.extension.put2(Object.BED.coordinate.getX());
+		this.extension.put2(Object.BED.coordinate.getY());
+		this.extension.finishPacket();
+	}
+
+	private enum Item {
+		WOOL(145, "Wool", "Balls"),
+		FLAX(675, "Flax", "String");
+
+		private final int id;
+		private final String name;
+		private final String productName;
+
+		Item(final int id, final String name, final String productName) {
+			this.id = id;
+			this.name = name;
+			this.productName = productName;
+		}
 	}
 
 	private enum Area implements RSArea {
@@ -224,6 +271,7 @@ public class AA_FaladorWoolSpinner extends AA_Script {
 
 	private enum Object implements RSObject {
 		SPINNING_WHEEL(121, new Coordinate(295, 579)),
+		BED(15, new Coordinate(298, 579)),
 		BANK_DOORS(64, new Coordinate(287, 571)),
 		HOUSE_DOOR(2, new Coordinate(297, 577));
 

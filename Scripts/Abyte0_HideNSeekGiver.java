@@ -128,7 +128,7 @@ public class Abyte0_HideNSeekGiver extends Abyte0_Script {
         }
 
         if (isInTradeOffer()) {
-            if (getOurTradedItemCount() > 0) {
+            if (getLocalTradeItemCount() > 0) {
                 acceptTrade();
                 return 1000;
             }

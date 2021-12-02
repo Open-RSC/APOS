@@ -1,6 +1,6 @@
 import com.aposbot.Constants;
 
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
@@ -24,6 +24,7 @@ public class AA_AlkharidAmulets extends AA_Script {
 
 	private static final int SKILL_INDEX_CRAFTING = 12;
 
+	private static final int MAXIMUM_SLEEP_WALK_FATIGUE = 80;
 	private static final int MAXIMUM_FATIGUE = 98;
 	private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 18;
 
@@ -193,6 +194,11 @@ public class AA_AlkharidAmulets extends AA_Script {
 		}
 
 		this.walkTo(Object.FURNACE.coordinate.getX() - 1, Object.FURNACE.coordinate.getY());
+
+		if (this.getFatigue() >= MAXIMUM_SLEEP_WALK_FATIGUE && this.isWalking()) {
+			return this.sleep();
+		}
+
 		return SLEEP_ONE_TICK;
 	}
 

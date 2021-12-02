@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -267,6 +267,11 @@ public class AA_BrimhavenGoldMiner extends AA_Script {
 		}
 
 		this.walkTo(Area.BRIMHAVEN_DOCKS.upperBoundingCoordinate.getX(), Area.BRIMHAVEN_DOCKS.upperBoundingCoordinate.getY());
+
+		if (this.getFatigue() != 0 && this.isWalking()) {
+			return this.sleep();
+		}
+
 		return SLEEP_ONE_TICK;
 	}
 

@@ -209,17 +209,17 @@ public final class SAF_BankTransfer extends Script
                 if (giveOrTake == 0) {
                     if (getInventoryIndex(ids.get(currentItem)) != -1) {
                         if (isItemStackableId(ids.get(currentItem))) {
-                            System.out.println("Stackable : " + getOurTradedItemCount());
-                            if (getOurTradedItemCount() < 1) {
+                            System.out.println("Stackable : " + getLocalTradeItemCount());
+                            if (getLocalTradeItemCount() < 1) {
                                 offerItemTrade(getInventoryIndex(ids.get(currentItem)), amounts.get(currentItem));
                             }
                         } else {
                             if (getInventoryCount(ids.get(currentItem)) > 11) {
-                                if (getOurTradedItemCount() < 12) {
+                                if (getLocalTradeItemCount() < 12) {
                                     offerItemTrade(getInventoryIndex(ids.get(currentItem)), 12);
                                 }
                             } else {
-                                if (getOurTradedItemCount() < getInventoryCount(ids.get(currentItem))) {
+                                if (getLocalTradeItemCount() < getInventoryCount(ids.get(currentItem))) {
                                     offerItemTrade(getInventoryIndex(ids.get(currentItem)), getInventoryCount(ids.get(currentItem)));
                                 }
                             }
@@ -230,7 +230,7 @@ public final class SAF_BankTransfer extends Script
                 }
                 // If giveOrTake != 0 then we are in buying mode
                 else {
-                    if (getTheirTradedItemCount() > 0) {
+                    if (getRemoteTradeItemCount() > 0) {
                         acceptTrade();
                         return random(1000, 2000);
                     }
