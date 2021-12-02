@@ -5,6 +5,8 @@
  int[] withdraw1   = null;   int[] withdraw2   = null;   int barID      = 0;
  public AlKharidSmelter(Extension e) {      super(e);   }
  public void init(String params) {
+	 System.out.println("v 1.0 * *   - yomama");
+	 
  if(params.equalsIgnoreCase("bronze")) {
  withdraw1 = new int[]{202, 14}; // 14 tin         
  withdraw2 = new int[]{150, 14}; // 14 copper        
