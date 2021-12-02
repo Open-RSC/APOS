@@ -1,0 +1,14 @@
+image: openjdk:8-jdk
+
+# Packages installation before running script
+before_script:
+  - apt-get --quiet update --yes
+  - apt-get --quiet install --yes ant
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - ant compile
