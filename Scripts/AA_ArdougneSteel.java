@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -234,13 +234,22 @@ public class AA_ArdougneSteel extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (this.distanceTo(Object.FURNACE_DOOR.coordinate.getX(), Object.FURNACE_DOOR.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT &&
-			this.getWallObjectIdFromCoords(Object.FURNACE_DOOR.coordinate.getX(), Object.FURNACE_DOOR.coordinate.getY()) == Object.FURNACE_DOOR.id) {
-			this.atWallObject(Object.FURNACE_DOOR.coordinate.getX(), Object.FURNACE_DOOR.coordinate.getY());
-			return SLEEP_ONE_SECOND;
+		if (this.distanceTo(Object.FURNACE_DOOR.coordinate.getX(), Object.FURNACE_DOOR.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+			if (this.getWallObjectIdFromCoords(Object.FURNACE_DOOR.coordinate.getX(), Object.FURNACE_DOOR.coordinate.getY()) == Object.FURNACE_DOOR.id) {
+				this.atWallObject(Object.FURNACE_DOOR.coordinate.getX(), Object.FURNACE_DOOR.coordinate.getY());
+				return SLEEP_ONE_SECOND;
+			}
+
+			this.walkTo(Object.FURNACE.coordinate.getX(), Object.FURNACE.coordinate.getY() + 2);
+			return SLEEP_ONE_TICK;
 		}
 
-		this.walkTo(Object.FURNACE.coordinate.getX(), Object.FURNACE.coordinate.getY() + 2);
+		this.walkTo(Object.FURNACE_DOOR.coordinate.getX(), Object.FURNACE_DOOR.coordinate.getY());
+
+		if (this.getFatigue() != 0 && this.isWalking()) {
+			return this.sleep();
+		}
+
 		return SLEEP_ONE_TICK;
 	}
 
@@ -269,13 +278,22 @@ public class AA_ArdougneSteel extends AA_Script {
 			return SLEEP_ONE_SECOND;
 		}
 
-		if (this.distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT &&
-			this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-			this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
-			return SLEEP_ONE_SECOND;
+		if (this.distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+			if (this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
+				this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+				return SLEEP_ONE_SECOND;
+			}
+
+			this.walkTo(Object.BANK_DOORS.coordinate.getX() + 1, Object.BANK_DOORS.coordinate.getY());
+			return SLEEP_ONE_TICK;
 		}
 
-		this.walkTo(Object.BANK_DOORS.coordinate.getX() + 1, Object.BANK_DOORS.coordinate.getY());
+		this.walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+
+		if (this.getFatigue() != 0 && this.isWalking()) {
+			return this.sleep();
+		}
+
 		return SLEEP_ONE_TICK;
 	}
 

@@ -1,7 +1,18 @@
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 
+/**
+ * Enchants amulets.
+ * <p>
+ * Requirements:
+ * Start at a bank or Shantay Pass with sleeping bag, staff, cosmic runes.
+ * <p>
+ * Required Parameter:
+ * -a,--amulet <sapphire|emerald|ruby|diamond|dragonstone>
+ * <p>
+ * Author: Chomp
+ */
 public class AA_AmuletEnchanter extends AA_Script {
 	private static final Coordinate COORDINATE_SHANTAY_BANK_CHEST = new Coordinate(58, 731);
 

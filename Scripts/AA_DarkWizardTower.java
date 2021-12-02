@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -15,12 +15,7 @@ import java.time.Instant;
 public class AA_DarkWizardTower extends AA_Script {
 	private static final int[] NPC_IDS_DARK_WIZARD = new int[]{57, 60};
 
-	private static final int[] ITEM_IDS_LOOT = new int[]{10, 31, 32, 33, 34, 35, 38, 40, 41, 42, 46, 619};
-
-	private static final int SKILL_INDEX_ATTACK = 0;
-	private static final int SKILL_INDEX_DEFENCE = 1;
-	private static final int SKILL_INDEX_STRENGTH = 2;
-	private static final int SKILL_INDEX_HITS = 3;
+	private static final int[] ITEM_IDS_LOOT = new int[]{10, 31, 32, 33, 34, 35, 36, 38, 40, 41, 42, 46, 619};
 
 	private static final int MAXIMUM_FATIGUE = 99;
 
@@ -116,10 +111,15 @@ public class AA_DarkWizardTower extends AA_Script {
 		this.drawString(String.format("@yel@Runtime: @whi@%s", getElapsedSeconds(secondsElapsed)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-		final double gainedXp = this.getTotalCombatXp() - this.initialCombatXp;
+		this.drawString(String.format("@yel@Pid: @whi@%d", this.extension.getMobServerIndex(this.extension.getPlayer())),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+
+		this.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+
+		final double xpGained = this.getTotalCombatXp() - this.initialCombatXp;
 
 		this.drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
-				DECIMAL_FORMAT.format(gainedXp), getUnitsPerHour(gainedXp, secondsElapsed)),
+				DECIMAL_FORMAT.format(xpGained), getUnitsPerHour(xpGained, secondsElapsed)),
 			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 	}
 

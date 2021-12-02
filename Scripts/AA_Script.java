@@ -85,6 +85,12 @@ public abstract class AA_Script extends Script {
 		return this.getClass().getSimpleName();
 	}
 
+	protected boolean isDead() {
+		return this.extension.isDeathScreen() ||
+			this.extension.getLocalX() < 0 || this.extension.getLocalX() > 96 ||
+			this.extension.getLocalY() < 0 || this.extension.getLocalY() > 96;
+	}
+
 	protected double getTotalCombatXp() {
 		int total = 0;
 
@@ -174,6 +180,50 @@ public abstract class AA_Script extends Script {
 
 		public int getIndex() {
 			return this.index;
+		}
+	}
+
+	public enum Food {
+		NONE(-1, 0, "None"),
+		SHRIMP(350, 3, "Shrimp"),
+		ANCHOVIES(352, 1, "Anchovies"),
+		SARDINE(355, 4, "Sardine"),
+		HERRING(362, 5, "Herring"),
+		GIANT_CARP(718, 6, "Giant Carp"),
+		MACKEREL(553, 6, "Mackerel"),
+		TROUT(359, 7, "Trout"),
+		COD(551, 7, "Cod"),
+		PIKE(364, 8, "Pike"),
+		SALMON(357, 9, "Salmon"),
+		TUNA(367, 10, "Tuna"),
+		LOBSTER(373, 12, "Lobster"),
+		BASS(555, 13, "Bass"),
+		SWORDFISH(370, 14, "Swordfish"),
+		SHARK(546, 20, "Shark"),
+		SEA_TURTLE(1193, 20, "Sea Turtle"),
+		MANTA_RAY(1191, 20, "Manta Ray");
+
+		private final int id;
+		private final int healAmount;
+		private final String name;
+
+		Food(final int id, final int healAmount, final String name) {
+			this.id = id;
+			this.healAmount = healAmount;
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return this.name;
+		}
+
+		public int getId() {
+			return this.id;
+		}
+
+		public int getHealAmount() {
+			return this.healAmount;
 		}
 	}
 

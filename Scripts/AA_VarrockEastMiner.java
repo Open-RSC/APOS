@@ -1,6 +1,6 @@
 import com.aposbot.Constants;
 
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -220,6 +220,11 @@ public class AA_VarrockEastMiner extends AA_Script {
 			}
 
 			this.walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+
+			if (this.getFatigue() != 0 && this.isWalking()) {
+				return this.sleep();
+			}
+
 			return SLEEP_ONE_TICK;
 		}
 

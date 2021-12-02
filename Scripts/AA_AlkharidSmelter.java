@@ -1,6 +1,6 @@
 import com.aposbot.Constants;
 
-import java.awt.*;
+import java.awt.Font;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -16,306 +16,312 @@ import java.time.Instant;
  * Author: Chomp
  */
 public class AA_AlkharidSmelter extends AA_Script {
-    private static final int SKILL_INDEX_SMITHING = 13;
-    private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 18;
-    private static final int MAXIMUM_FATIGUE = 99;
+	private static final int SKILL_INDEX_SMITHING = 13;
+	private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 18;
+	private static final int MAXIMUM_SLEEP_WALK_FATIGUE = 80;
+	private static final int MAXIMUM_FATIGUE = 99;
 
-    private Bar bar;
-    private Instant startTime;
+	private Bar bar;
+	private Instant startTime;
 
-    private double initialSmithingXp;
+	private double initialSmithingXp;
 
-    private long depositTimeout;
-    private long withdrawPrimaryOreTimeout;
-    private long withdrawSecondaryOreTimeout;
-    private long smeltTimeout;
+	private long depositTimeout;
+	private long withdrawPrimaryOreTimeout;
+	private long withdrawSecondaryOreTimeout;
+	private long smeltTimeout;
 
-    private int playerX;
-    private int playerY;
-    private int inventoryCount;
+	private int playerX;
+	private int playerY;
+	private int inventoryCount;
 
-    private int oreRemaining;
-    private int barsSmelted;
+	private int oreRemaining;
+	private int barsSmelted;
 
-    public AA_AlkharidSmelter(final Extension extension) {
-        super(extension);
-    }
+	public AA_AlkharidSmelter(final Extension extension) {
+		super(extension);
+	}
 
-    @Override
-    public void init(final String parameters) {
-        if (parameters.isEmpty()) {
-            throw new IllegalArgumentException("Missing bar type parameter.");
-        }
+	@Override
+	public void init(final String parameters) {
+		if (parameters.isEmpty()) {
+			throw new IllegalArgumentException("Missing bar type parameter.");
+		}
 
-        final String[] args = parameters.split(" ");
+		final String[] args = parameters.split(" ");
 
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i].toLowerCase()) {
-                case "-b":
-                case "--bar":
-                    this.bar = Bar.valueOf(args[++i].toUpperCase());
-                    break;
-                default:
-                    throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-            }
-        }
+		for (int i = 0; i < args.length; i++) {
+			switch (args[i].toLowerCase()) {
+				case "-b":
+				case "--bar":
+					this.bar = Bar.valueOf(args[++i].toUpperCase());
+					break;
+				default:
+					throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
+			}
+		}
 
-        if (!this.hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
-            throw new IllegalStateException("Sleeping bag missing from inventory.");
-        }
+		if (!this.hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
+			throw new IllegalStateException("Sleeping bag missing from inventory.");
+		}
 
-        this.initialSmithingXp = this.getAccurateXpForLevel(SKILL_INDEX_SMITHING);
-        this.startTime = Instant.now();
-    }
+		this.initialSmithingXp = this.getAccurateXpForLevel(SKILL_INDEX_SMITHING);
+		this.startTime = Instant.now();
+	}
 
-    @Override
-    public int main() {
-        this.playerX = this.getX();
-        this.playerY = this.getY();
-        this.inventoryCount = this.getInventoryCount();
+	@Override
+	public int main() {
+		this.playerX = this.getX();
+		this.playerY = this.getY();
+		this.inventoryCount = this.getInventoryCount();
 
-        if (this.inventoryCount == 1 ||
-                this.getInventoryId(1) != this.bar.primaryOreId ||
-                this.getInventoryCount(this.bar.secondaryOreId) < this.bar.secondaryOreCount) {
-            return this.bank();
-        }
+		if (this.inventoryCount == 1 ||
+			this.getInventoryId(1) != this.bar.primaryOreId ||
+			this.getInventoryCount(this.bar.secondaryOreId) < this.bar.secondaryOreCount) {
+			return this.bank();
+		}
 
-        return this.smelt();
-    }
+		return this.smelt();
+	}
 
-    @Override
-    public void onServerMessage(final String message) {
-        if (message.startsWith("bar", 15)) {
-            this.barsSmelted++;
-            if (this.oreRemaining > 0) {
-                this.oreRemaining--;
-            }
-            this.smeltTimeout = 0L;
-        } else if (message.startsWith("impure", 15)) {
-            this.smeltTimeout = 0L;
-        } else {
-            super.onServerMessage(message);
-        }
-    }
+	@Override
+	public void onServerMessage(final String message) {
+		if (message.startsWith("bar", 15)) {
+			this.barsSmelted++;
+			if (this.oreRemaining > 0) {
+				this.oreRemaining--;
+			}
+			this.smeltTimeout = 0L;
+		} else if (message.startsWith("impure", 15)) {
+			this.smeltTimeout = 0L;
+		} else {
+			super.onServerMessage(message);
+		}
+	}
 
-    @Override
-    public void paint() {
-        int y = PAINT_OFFSET_Y;
+	@Override
+	public void paint() {
+		int y = PAINT_OFFSET_Y;
 
-        this.drawString("@yel@Alkharid Smelter", PAINT_OFFSET_X, y, Font.BOLD, PAINT_COLOR);
+		this.drawString("@yel@Alkharid Smelter", PAINT_OFFSET_X, y, Font.BOLD, PAINT_COLOR);
 
-        if (this.startTime == null) {
-            return;
-        }
+		if (this.startTime == null) {
+			return;
+		}
 
-        final long secondsElapsed = Duration.between(this.startTime, Instant.now()).getSeconds();
+		final long secondsElapsed = Duration.between(this.startTime, Instant.now()).getSeconds();
 
-        this.drawString(String.format("@yel@Runtime: @whi@%s", getElapsedSeconds(secondsElapsed)),
-                PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+		this.drawString(String.format("@yel@Runtime: @whi@%s", getElapsedSeconds(secondsElapsed)),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-        this.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+		this.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-        final double xpGained = this.getAccurateXpForLevel(SKILL_INDEX_SMITHING) - this.initialSmithingXp;
+		final double xpGained = this.getAccurateXpForLevel(SKILL_INDEX_SMITHING) - this.initialSmithingXp;
 
-        this.drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
-                        DECIMAL_FORMAT.format(xpGained), getUnitsPerHour(xpGained, secondsElapsed)),
-                PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+		this.drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
+				DECIMAL_FORMAT.format(xpGained), getUnitsPerHour(xpGained, secondsElapsed)),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-        this.drawString(String.format("@yel@%s: @whi@%d @cya@(@whi@%s bars@cya@/@whi@hr@cya@)",
-                        this.bar, this.barsSmelted, getUnitsPerHour(this.barsSmelted, secondsElapsed)),
-                PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+		this.drawString(String.format("@yel@%s: @whi@%d @cya@(@whi@%s bars@cya@/@whi@hr@cya@)",
+				this.bar, this.barsSmelted, getUnitsPerHour(this.barsSmelted, secondsElapsed)),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-        this.drawString(String.format("@yel@Remaining: @whi@%d", this.oreRemaining),
-                PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+		this.drawString(String.format("@yel@Remaining: @whi@%d", this.oreRemaining),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 
-        this.drawString(String.format("@yel@Time remaining: @whi@%s",
-                        getTTL(this.barsSmelted, this.oreRemaining, secondsElapsed)),
-                PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
-    }
+		this.drawString(String.format("@yel@Time remaining: @whi@%s",
+				getTTL(this.barsSmelted, this.oreRemaining, secondsElapsed)),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
+	}
 
-    private int smelt() {
-        if (Area.FURNACE.contains(this.playerX, this.playerY)) {
-            if (this.getFatigue() >= MAXIMUM_FATIGUE) {
-                return this.sleep();
-            }
+	private int smelt() {
+		if (Area.FURNACE.contains(this.playerX, this.playerY)) {
+			if (this.getFatigue() >= MAXIMUM_FATIGUE) {
+				return this.sleep();
+			}
 
-            if (System.currentTimeMillis() <= this.smeltTimeout) {
-                return 0;
-            }
+			if (System.currentTimeMillis() <= this.smeltTimeout) {
+				return 0;
+			}
 
-            if (this.playerX != Object.FURNACE.coordinate.getX() - 1 ||
-                    this.playerY != Object.FURNACE.coordinate.getY()) {
-                this.walkTo(Object.FURNACE.coordinate.getX() - 1, Object.FURNACE.coordinate.getY());
-                return SLEEP_ONE_TICK;
-            }
+			if (this.playerX != Object.FURNACE.coordinate.getX() - 1 ||
+				this.playerY != Object.FURNACE.coordinate.getY()) {
+				this.walkTo(Object.FURNACE.coordinate.getX() - 1, Object.FURNACE.coordinate.getY());
+				return SLEEP_ONE_TICK;
+			}
 
-            this.extension.displayMessage("@gre@Smelting...");
-            this.useFurnace();
-            this.smeltTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
-            return 0;
-        }
+			this.extension.displayMessage("@gre@Smelting...");
+			this.useFurnace();
+			this.smeltTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
+			return 0;
+		}
 
-        if (Area.BANK.contains(this.playerX, this.playerY) &&
-                this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-            this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
-            return SLEEP_ONE_SECOND;
-        }
+		if (Area.BANK.contains(this.playerX, this.playerY) &&
+			this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
+			this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			return SLEEP_ONE_SECOND;
+		}
 
-        this.walkTo(Object.FURNACE.coordinate.getX() - 1, Object.FURNACE.coordinate.getY());
-        return SLEEP_ONE_TICK;
-    }
+		this.walkTo(Object.FURNACE.coordinate.getX() - 1, Object.FURNACE.coordinate.getY());
 
-    private int bank() {
-        if (Area.BANK.contains(this.playerX, this.playerY)) {
-            if (!this.isBanking()) {
-                return this.openBank();
-            }
+		if (this.getFatigue() >= MAXIMUM_SLEEP_WALK_FATIGUE && this.isWalking()) {
+			return this.sleep();
+		}
 
-            if (this.inventoryCount > 1 &&
-                    this.getInventoryId(1) == this.bar.primaryOreId &&
-                    this.getInventoryCount(this.bar.primaryOreId) <= this.bar.primaryOreWithdrawCount) {
-                if (System.currentTimeMillis() <= this.withdrawSecondaryOreTimeout) {
-                    return 0;
-                }
+		return SLEEP_ONE_TICK;
+	}
 
-                final int secondaryOreBankCount = this.bankCount(this.bar.secondaryOreId);
+	private int bank() {
+		if (Area.BANK.contains(this.playerX, this.playerY)) {
+			if (!this.isBanking()) {
+				return this.openBank();
+			}
 
-                if (secondaryOreBankCount < this.bar.secondaryOreCount) {
-                    return this.exit(String.format("Ran out of %s.", getItemNameId(this.bar.secondaryOreId)));
-                }
+			if (this.inventoryCount > 1 &&
+				this.getInventoryId(1) == this.bar.primaryOreId &&
+				this.getInventoryCount(this.bar.primaryOreId) <= this.bar.primaryOreWithdrawCount) {
+				if (System.currentTimeMillis() <= this.withdrawSecondaryOreTimeout) {
+					return 0;
+				}
 
-                final int primaryOreRemaining = this.bankCount(this.bar.primaryOreId);
-                final int secondaryOreRemaining = secondaryOreBankCount / this.bar.secondaryOreCount;
+				final int secondaryOreBankCount = this.bankCount(this.bar.secondaryOreId);
 
-                this.oreRemaining = Math.min(primaryOreRemaining, secondaryOreRemaining);
-                this.withdraw(this.bar.secondaryOreId, this.bar.secondaryOreWithdrawCount);
-                this.withdrawSecondaryOreTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-                return 0;
-            }
+				if (secondaryOreBankCount < this.bar.secondaryOreCount) {
+					return this.exit(String.format("Ran out of %s.", getItemNameId(this.bar.secondaryOreId)));
+				}
 
-            if (System.currentTimeMillis() <= this.withdrawPrimaryOreTimeout) {
-                return 0;
-            }
+				final int primaryOreRemaining = this.bankCount(this.bar.primaryOreId);
+				final int secondaryOreRemaining = secondaryOreBankCount / this.bar.secondaryOreCount;
 
-            if (this.inventoryCount == 1) {
-                final int primaryOreBankCount = this.bankCount(this.bar.primaryOreId);
+				this.oreRemaining = Math.min(primaryOreRemaining, secondaryOreRemaining);
+				this.withdraw(this.bar.secondaryOreId, this.bar.secondaryOreWithdrawCount);
+				this.withdrawSecondaryOreTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+				return 0;
+			}
 
-                if (primaryOreBankCount == 0) {
-                    return this.exit(String.format("Ran out of %s.", getItemNameId(this.bar.primaryOreId)));
-                }
+			if (System.currentTimeMillis() <= this.withdrawPrimaryOreTimeout) {
+				return 0;
+			}
 
-                if (this.bar.secondaryOreId == -1) {
-                    this.oreRemaining = primaryOreBankCount;
-                }
+			if (this.inventoryCount == 1) {
+				final int primaryOreBankCount = this.bankCount(this.bar.primaryOreId);
 
-                this.withdraw(this.bar.primaryOreId, this.bar.primaryOreWithdrawCount);
-                this.withdrawPrimaryOreTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-                return 0;
-            }
+				if (primaryOreBankCount == 0) {
+					return this.exit(String.format("Ran out of %s.", getItemNameId(this.bar.primaryOreId)));
+				}
 
-            if (System.currentTimeMillis() <= this.depositTimeout) {
-                return 0;
-            }
+				if (this.bar.secondaryOreId == -1) {
+					this.oreRemaining = primaryOreBankCount;
+				}
 
-            final int itemId = this.getInventoryId(1);
-            this.deposit(itemId, MAX_INV_SIZE);
-            this.depositTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-            return 0;
-        }
+				this.withdraw(this.bar.primaryOreId, this.bar.primaryOreWithdrawCount);
+				this.withdrawPrimaryOreTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+				return 0;
+			}
 
-        if (this.distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-            if (this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-                this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
-                return SLEEP_ONE_SECOND;
-            }
+			if (System.currentTimeMillis() <= this.depositTimeout) {
+				return 0;
+			}
 
-            this.walkTo(Object.BANK_DOORS.coordinate.getX() + 1, Object.BANK_DOORS.coordinate.getY());
-            return SLEEP_ONE_TICK;
-        }
+			final int itemId = this.getInventoryId(1);
+			this.deposit(itemId, MAX_INV_SIZE);
+			this.depositTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+			return 0;
+		}
 
-        this.walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
-        return SLEEP_ONE_TICK;
-    }
+		if (this.distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+			if (this.getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
+				this.atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+				return SLEEP_ONE_SECOND;
+			}
 
-    private void useFurnace() {
-        this.extension.createPacket(Constants.OP_OBJECT_USEWITH);
-        this.extension.put2(Object.FURNACE.coordinate.getX());
-        this.extension.put2(Object.FURNACE.coordinate.getY());
-        this.extension.put2(1);
-        this.extension.finishPacket();
-    }
+			this.walkTo(Object.BANK_DOORS.coordinate.getX() + 1, Object.BANK_DOORS.coordinate.getY());
+			return SLEEP_ONE_TICK;
+		}
 
-    private enum Bar {
-        BRONZE(150, 202, 1, 14, 14, "Bronze"),
-        IRON(151, -1, 0, 29, 0, "Iron"),
-        SILVER(383, -1, 0, 29, 0, "Silver"),
-        STEEL(151, 155, 2, 9, 18, "Steel"),
-        GOLD(152, -1, 0, 29, 0, "Gold"),
-        MITHRIL(153, 155, 4, 5, 20, "Mithril"),
-        ADAMANTITE(154, 155, 6, 4, 24, "Adamantite"),
-        RUNITE(409, 155, 8, 3, 24, "Runite");
+		this.walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+		return SLEEP_ONE_TICK;
+	}
 
-        private final int primaryOreId;
-        private final int secondaryOreId;
-        private final int secondaryOreCount;
-        private final int primaryOreWithdrawCount;
-        private final int secondaryOreWithdrawCount;
-        private final String name;
+	private void useFurnace() {
+		this.extension.createPacket(Constants.OP_OBJECT_USEWITH);
+		this.extension.put2(Object.FURNACE.coordinate.getX());
+		this.extension.put2(Object.FURNACE.coordinate.getY());
+		this.extension.put2(1);
+		this.extension.finishPacket();
+	}
 
-        Bar(final int primaryOreId, final int secondaryOreId, final int secondaryOreCount, final int primaryOreWithdrawCount, final int secondaryOreWithdrawCount, final String name) {
-            this.primaryOreId = primaryOreId;
-            this.secondaryOreId = secondaryOreId;
-            this.secondaryOreCount = secondaryOreCount;
-            this.primaryOreWithdrawCount = primaryOreWithdrawCount;
-            this.secondaryOreWithdrawCount = secondaryOreWithdrawCount;
-            this.name = name;
-        }
+	private enum Bar {
+		BRONZE(150, 202, 1, 14, 14, "Bronze"),
+		IRON(151, -1, 0, 29, 0, "Iron"),
+		SILVER(383, -1, 0, 29, 0, "Silver"),
+		STEEL(151, 155, 2, 9, 18, "Steel"),
+		GOLD(152, -1, 0, 29, 0, "Gold"),
+		MITHRIL(153, 155, 4, 5, 20, "Mithril"),
+		ADAMANTITE(154, 155, 6, 4, 24, "Adamantite"),
+		RUNITE(409, 155, 8, 3, 24, "Runite");
 
-        @Override
-        public String toString() {
-            return this.name;
-        }
-    }
+		private final int primaryOreId;
+		private final int secondaryOreId;
+		private final int secondaryOreCount;
+		private final int primaryOreWithdrawCount;
+		private final int secondaryOreWithdrawCount;
+		private final String name;
 
-    private enum Area implements RSArea {
-        BANK(new Coordinate(87, 689), new Coordinate(93, 700)),
-        FURNACE(new Coordinate(82, 678), new Coordinate(86, 681));
+		Bar(final int primaryOreId, final int secondaryOreId, final int secondaryOreCount, final int primaryOreWithdrawCount, final int secondaryOreWithdrawCount, final String name) {
+			this.primaryOreId = primaryOreId;
+			this.secondaryOreId = secondaryOreId;
+			this.secondaryOreCount = secondaryOreCount;
+			this.primaryOreWithdrawCount = primaryOreWithdrawCount;
+			this.secondaryOreWithdrawCount = secondaryOreWithdrawCount;
+			this.name = name;
+		}
 
-        private final Coordinate lowerBoundingCoordinate;
-        private final Coordinate upperBoundingCoordinate;
+		@Override
+		public String toString() {
+			return this.name;
+		}
+	}
 
-        Area(final Coordinate lowerBoundingCoordinate, final Coordinate upperBoundingCoordinate) {
-            this.lowerBoundingCoordinate = lowerBoundingCoordinate;
-            this.upperBoundingCoordinate = upperBoundingCoordinate;
-        }
+	private enum Area implements RSArea {
+		BANK(new Coordinate(87, 689), new Coordinate(93, 700)),
+		FURNACE(new Coordinate(82, 678), new Coordinate(86, 681));
 
-        public Coordinate getLowerBoundingCoordinate() {
-            return this.lowerBoundingCoordinate;
-        }
+		private final Coordinate lowerBoundingCoordinate;
+		private final Coordinate upperBoundingCoordinate;
 
-        public Coordinate getUpperBoundingCoordinate() {
-            return this.upperBoundingCoordinate;
-        }
-    }
+		Area(final Coordinate lowerBoundingCoordinate, final Coordinate upperBoundingCoordinate) {
+			this.lowerBoundingCoordinate = lowerBoundingCoordinate;
+			this.upperBoundingCoordinate = upperBoundingCoordinate;
+		}
 
-    private enum Object implements RSObject {
-        FURNACE(118, new Coordinate(85, 679)),
-        BANK_DOORS(64, new Coordinate(86, 695));
+		public Coordinate getLowerBoundingCoordinate() {
+			return this.lowerBoundingCoordinate;
+		}
 
-        private final int id;
-        private final Coordinate coordinate;
+		public Coordinate getUpperBoundingCoordinate() {
+			return this.upperBoundingCoordinate;
+		}
+	}
 
-        Object(final int id, final Coordinate coordinate) {
-            this.id = id;
-            this.coordinate = coordinate;
-        }
+	private enum Object implements RSObject {
+		FURNACE(118, new Coordinate(85, 679)),
+		BANK_DOORS(64, new Coordinate(86, 695));
 
-        public int getId() {
-            return this.id;
-        }
+		private final int id;
+		private final Coordinate coordinate;
 
-        public Coordinate getCoordinate() {
-            return this.coordinate;
-        }
-    }
+		Object(final int id, final Coordinate coordinate) {
+			this.id = id;
+			this.coordinate = coordinate;
+		}
+
+		public int getId() {
+			return this.id;
+		}
+
+		public Coordinate getCoordinate() {
+			return this.coordinate;
+		}
+	}
 }
