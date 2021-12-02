@@ -10,10 +10,10 @@ public final class S_ArdMinePickup extends Script {
 	};
 
 	private static final int
-	BANK_X = 551,
-	BANK_Y = 612,
-	DEST_X = 616,
-	DEST_Y = 653;
+		BANK_X = 551,
+		BANK_Y = 612,
+		DEST_X = 616,
+		DEST_Y = 653;
 
 	private final DecimalFormat ifmt = new DecimalFormat("#,##0");
 	private final HashMap<Integer, Integer> gained = new HashMap<>();
@@ -25,15 +25,13 @@ public final class S_ArdMinePickup extends Script {
 	private PathWalker.Path to_bank;
 	private PathWalker.Path from_bank;
 
-	public S_ArdMinePickup(Extension ex)
-	{
+	public S_ArdMinePickup(Extension ex) {
 		super(ex);
 		pw = new PathWalker(ex);
 	}
 
 	@Override
-	public void init(String params)
-	{
+	public void init(String params) {
 		bank_time = menu_time = start_time = -1L;
 		last_inv_count = -1;
 		pw.init(null);
@@ -42,8 +40,7 @@ public final class S_ArdMinePickup extends Script {
 	}
 
 	@Override
-	public int main()
-	{
+	public int main() {
 		if (start_time == -1L) {
 			start_time = System.currentTimeMillis();
 			gained.clear();
@@ -128,8 +125,7 @@ public final class S_ArdMinePickup extends Script {
 	}
 
 	@Override
-	public void paint()
-	{
+	public void paint() {
 		int x = 310;
 		int y = 45;
 
@@ -138,31 +134,28 @@ public final class S_ArdMinePickup extends Script {
 		for (int id : gained.keySet()) {
 			int count = gained.get(id);
 			drawString(String.format("%s gained: %s (%s/h)",
-				getItemNameId(id), ifmt.format(count), per_hour(count)),
+					getItemNameId(id), ifmt.format(count), per_hour(count)),
 				x, y, 2, 0xFFFFFF);
 			y += 15;
 		}
 	}
 
 	@Override
-	public void onServerMessage(String str)
-	{
+	public void onServerMessage(String str) {
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("busy")) {
 			menu_time = -1L;
 		}
 	}
 
-	private String per_hour(int count)
-	{
+	private String per_hour(int count) {
 		if (count == 0) return "0";
 		double amount = count * 60.0 * 60.0;
 		double secs = (System.currentTimeMillis() - start_time) / 1000.0;
 		return ifmt.format((long) (amount / secs));
 	}
 
-	private boolean _insideBank()
-	{
+	private boolean _insideBank() {
 		return getX() <= 554 && getX() >= 551 &&
 			getY() <= 616 && getY() >= 609;
 	}

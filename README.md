@@ -1,5 +1,6 @@
 APOS for RSC#234
 ================
+[![pipeline status](https://gitlab.com/open-runescape-classic/APOS/badges/master/pipeline.svg)](https://gitlab.com/open-runescape-classic/APOS/-/commits/master)
 
 APOS was developed by RLN/nade/mofo (2009-2011).
 

@@ -5,52 +5,49 @@
 	Version 1.4 - 2021-06-22 Update to OpenApos
 	Version 1.5 - 2021-12-01 Talk + DateTime
 */
-import java.net.*; 
-import java.io.*;
-import java.util.*;
-import java.time.format.DateTimeFormatter;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class Abyte0_Script extends Storm_Script 
-{    
+public class Abyte0_Script extends Storm_Script {
 
-    public Extension client;
-	
+	public Extension client;
+
 	boolean waitingBeforeLastDrop = false;
-	
+
 	int oakTree = 306;
 	int oakLog = 632;
 	int oakLongBow = 648;
 	int oakLongBowU = 658;
-	
+
 	int willowTree = 307;
 	int willowLog = 633;
 	int willowLongBow = 650;
 	int willowLongBowU = 660;
-	
+
 	int yewTree = 309;
 	int yewLog = 635;
 	int yewLongBow = 654;
 	int yewLongBowU = 664;
-	
+
 	int magicTree = 310;
 	int magicLog = 636;
 	int magicLongBow = 656;
 	int magicLongBowU = 666;
-	
+
 	int bowString = 676;
-	
-	public static String[] PROPERTY_NAMES = new String[]{"nom", 
+
+	public static String[] PROPERTY_NAMES = new String[]{"nom",
 		"money",
-	    "feathers",
-	    "chaosRunes",
-	    "natureRunes",
-	    "ironOres",
-	    "coalOres",
-	    "mithOres",
-	    "addyOres",
-	    "runiteOres",
-	    "ironBars",
+		"feathers",
+		"chaosRunes",
+		"natureRunes",
+		"ironOres",
+		"coalOres",
+		"mithOres",
+		"addyOres",
+		"runiteOres",
+		"ironBars",
 		"steelBars",
 		"runiteBars",
 		"bowStrings",
@@ -62,35 +59,34 @@ public class Abyte0_Script extends Storm_Script
 		"cookLobs",
 		"rawSharks",
 		"cookSharks"};
-	
-	public static String[] PROPERTY_NAMES_STATS = new String[]{"nom" 
-		,"attack"
-		,"defence"
-		,"strength"
-		,"hits"
-		,"prayer"
-		,"magic"
-		,"ranged"
-		,"fishing"
-		,"cooking"
-		,"mining"
-		,"smithing"
-		,"woodcut"
-		,"fletching"
-		,"agility"
-		,"firemaking"
-		,"crafting"
-		,"herblaw"
-		,"thieving"};
-	
-	
+
+	public static String[] PROPERTY_NAMES_STATS = new String[]{"nom"
+		, "attack"
+		, "defence"
+		, "strength"
+		, "hits"
+		, "prayer"
+		, "magic"
+		, "ranged"
+		, "fishing"
+		, "cooking"
+		, "mining"
+		, "smithing"
+		, "woodcut"
+		, "fletching"
+		, "agility"
+		, "firemaking"
+		, "crafting"
+		, "herblaw"
+		, "thieving"};
+
+
 	public Abyte0_Script(Extension e) {
 		super(e);
-        this.client = e;
-		}    
-	
-	public void useSleepingBag()
-	{
+		this.client = e;
+	}
+
+	public void useSleepingBag() {
 		//sendPosition(AutoLogin.user,getX(),getY());
 		printInventory();
 		printStats();
@@ -99,61 +95,56 @@ public class Abyte0_Script extends Storm_Script
 		super.useSleepingBag();
 	}
 
-	public void buyItemIdFromShop(int id, int amount)
-	{
+	public void buyItemIdFromShop(int id, int amount) {
 		int position = getShopItemById(id);
-		if(position == -1) return;
-		
+		if (position == -1) return;
+
 		buyShopItem(position, amount);
 	}
-	public int getShopItemIdAmount(int id)
-	{
+
+	public int getShopItemIdAmount(int id) {
 		int position = getShopItemById(id);
-		
+
 		return getShopItemAmount(position);
 	}
-	
-	public void print(String gameText)
-	{
+
+	public void print(String gameText) {
 		System.out.println(gameText);
 		printBot(gameText);
 	}
-	
+
 	//* BUILDS METHODS *//
-	
-	public String[] getRandomQuotes()
-	{
+
+	public String[] getRandomQuotes() {
 		String[] result = {""};
 		return result;
 	}
-	
-	public void SayRandomQuote()
-	{
+
+	public void SayRandomQuote() {
 		String[] results = getRandomQuotes();
-		
-		if(random(0,20000) != 1)
+
+		if (random(0, 20000) != 1)
 			return;
-		
-		int selectedQuote = random(1,results.length) -1;
-		
-		if("" == results[selectedQuote])
+
+		int selectedQuote = random(1, results.length) - 1;
+
+		if ("" == results[selectedQuote])
 			return;
-		
+
 		Say(results[selectedQuote]);
 	}
-	
-	public void Say(String content)
-	{
+
+	public void Say(String content) {
 		setTypeLine(content);
-		while(!next());
+		while (!next()) ;
 	}
-	
-    @Override
-    public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
-		
+
+	@Override
+	public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
+
 		String receivedLC = msg.toLowerCase();
-		
-        if ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?")) {
+
+		if ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?")) {
 			if (receivedLC.contains("cook"))
 				Say("I am " + getLevel(7));
 			if (receivedLC.contains("wood") || receivedLC.contains("wc"))
@@ -168,7 +159,7 @@ public class Abyte0_Script extends Storm_Script
 				Say("I am " + getLevel(12));
 			if (receivedLC.contains("smith"))
 				Say("I am " + getLevel(13));
-			if (receivedLC.contains("mining")|| receivedLC.contains("mine"))
+			if (receivedLC.contains("mining") || receivedLC.contains("mine"))
 				Say("I am " + getLevel(14));
 			if (receivedLC.contains("herb"))
 				Say("I am " + getLevel(15));
@@ -178,22 +169,21 @@ public class Abyte0_Script extends Storm_Script
 				Say("I am " + getLevel(17));
 
 			//https://stackoverflow.com/questions/2286648/named-placeholders-in-string-formatting
-        }
-    }
+		}
+	}
 
-	public void printInventory()
-	{
+	public void printInventory() {
 		//String nom = AutoLogin.user;
 		int money = 10;
 		int feathers = 381;
 		int chaosRunes = 41;
 		int natureRunes = 40;
 		int ironOres = 151;
-	    int coalOres = 155;
-	    int mithOres = 153;
-	    int addyOres = 154;
-	    int runiteOres = 409;
-	    int ironBars = 170;
+		int coalOres = 155;
+		int mithOres = 153;
+		int addyOres = 154;
+		int runiteOres = 409;
+		int ironBars = 170;
 		int steelBars = 171;
 		int runiteBars = 408;
 		int bowStrings = 676;
@@ -205,28 +195,26 @@ public class Abyte0_Script extends Storm_Script
 		int cookLobs = 373;
 		int rawSharks = 545;
 		int cookSharks = 546;
-		
-		int[] ids = new int[]{money,feathers,chaosRunes,natureRunes,
-		ironOres,coalOres,mithOres,addyOres,runiteOres,ironBars,steelBars,runiteBars,
-		bowStrings,yewLongU,yewLong,magicLongU,magicLong,rawLobs,cookLobs,rawSharks,cookSharks};
-	
+
+		int[] ids = new int[]{money, feathers, chaosRunes, natureRunes,
+			ironOres, coalOres, mithOres, addyOres, runiteOres, ironBars, steelBars, runiteBars,
+			bowStrings, yewLongU, yewLong, magicLongU, magicLong, rawLobs, cookLobs, rawSharks, cookSharks};
+
 		String[] valeurs = new String[22];
 		//valeurs[0] = nom;
-		
-		for(int i = 0; i < 21; i++)
-		{
+
+		for (int i = 0; i < 21; i++) {
 			int[] bk = new int[]{ids[i]};
-			
-			valeurs[i+1] = getInventoryCount(bk)+"";
+
+			valeurs[i + 1] = getInventoryCount(bk) + "";
 		}
-	
+
 		sendInventory(valeurs);
 	}
-	
-	public void printStats()
-	{			
+
+	public void printStats() {
 		//String nom = AutoLogin.user;
-		
+
 		int attack = getLevel(0);
 		int defence = getLevel(1);
 		int strength = getLevel(2);
@@ -234,7 +222,7 @@ public class Abyte0_Script extends Storm_Script
 		int prayer = getLevel(5);
 		int magic = getLevel(6);
 		int ranged = getLevel(4);
-		
+
 		int fishing = getLevel(10);
 		int cooking = getLevel(7);
 		int mining = getLevel(14);
@@ -246,24 +234,22 @@ public class Abyte0_Script extends Storm_Script
 		int crafting = getLevel(12);
 		int herblaw = getLevel(15);
 		int thieving = getLevel(17);
-		
+
 		int[] ids = new int[]{attack, defence, strength, hits, prayer, magic, ranged, fishing, cooking, mining, smithing, woodcut, fletching, agility, firemaking, crafting, herblaw, thieving};
-	
+
 		String[] valeurs = new String[19];
 		//valeurs[0] = nom;
-		
-		for(int i = 0; i < 18; i++)
-		{
-			valeurs[i+1] = ids[i]+"";
+
+		for (int i = 0; i < 18; i++) {
+			valeurs[i + 1] = ids[i] + "";
 		}
-	
+
 		sendStats(valeurs);
 	}
-	
-	public void printStatsXp()
-	{			
+
+	public void printStatsXp() {
 		//String nom = AutoLogin.user;
-		
+
 		int attack = getExperience(0);
 		int defence = getExperience(1);
 		int strength = getExperience(2);
@@ -271,7 +257,7 @@ public class Abyte0_Script extends Storm_Script
 		int prayer = getExperience(5);
 		int magic = getExperience(6);
 		int ranged = getExperience(4);
-		
+
 		int fishing = getExperience(10);
 		int cooking = getExperience(7);
 		int mining = getExperience(14);
@@ -283,110 +269,100 @@ public class Abyte0_Script extends Storm_Script
 		int crafting = getExperience(12);
 		int herblaw = getExperience(15);
 		int thieving = getExperience(17);
-		
+
 		int[] ids = new int[]{attack, defence, strength, hits, prayer, magic, ranged, fishing, cooking, mining, smithing, woodcut, fletching, agility, firemaking, crafting, herblaw, thieving};
-	
+
 		String[] valeurs = new String[19];
 		//valeurs[0] = nom;
-		
-		for(int i = 0; i < 18; i++)
-		{
-			valeurs[i+1] = ids[i]+"";
+
+		for (int i = 0; i < 18; i++) {
+			valeurs[i + 1] = ids[i] + "";
 		}
-	
+
 		sendStatsXp(valeurs);
 	}
 
 	//* SEND METHODS *//
-	public void sendPosition(String name,int x, int y) 
-	{
-	} 
-	
-	public void sendInventory(String[] propertyUsed, String[] values) 
-	{
-	} 
-	
-	public void sendStats(String[] propertyUsed, String[] values) 
-	{
-	} 
-	
-	public void sendStatsXp(String[] propertyUsed, String[] values) 
-	{
-	} 
-	
-	public void sendStats(String[] values)
-	{
+	public void sendPosition(String name, int x, int y) {
+	}
+
+	public void sendInventory(String[] propertyUsed, String[] values) {
+	}
+
+	public void sendStats(String[] propertyUsed, String[] values) {
+	}
+
+	public void sendStatsXp(String[] propertyUsed, String[] values) {
+	}
+
+	public void sendStats(String[] values) {
 		sendStats(PROPERTY_NAMES_STATS, values);
 	}
-	
-	public void sendStatsXp(String[] values)
-	{
+
+	public void sendStatsXp(String[] values) {
 		sendStatsXp(PROPERTY_NAMES_STATS, values);
 	}
-	
-	public void sendInventory(String[] values)
-	{
+
+	public void sendInventory(String[] values) {
 		sendInventory(PROPERTY_NAMES, values);
 	}
-	
-	public void createAccount(String name) 
-	{
-	}
-	
-	public int getExperience(int skill) {
-        return (int) client.getExperience(skill);
-    }	
-	
-	    /**
-     * Returns the position of the item with the given ID in the client's
-     * inventory.
-     *
-     * @param ids the identifiers of the items to search for.
-     * @return the position of the first item with the given id(s). May range
-     * from 0 to MAX_INV_SIZE.
-     */
-    public int getLastInventoryIndex(int... ids) {
-        for (int i = getInventoryCount()-1; i >=0 ; i--) {
-            if (inArray(ids, client.getInventoryId(i))) {
-                return i;
-            }
-        }
-        return -1;
-    }
 
-	    /**
-     * Drop the 
-     */
-    public int dropItemIdOrWait(int id) {
-		
-        int firstInstanceIndex = getInventoryIndex(id);
-		if(firstInstanceIndex == -1)
+	public void createAccount(String name) {
+	}
+
+	public int getExperience(int skill) {
+		return (int) client.getExperience(skill);
+	}
+
+	/**
+	 * Returns the position of the item with the given ID in the client's
+	 * inventory.
+	 *
+	 * @param ids the identifiers of the items to search for.
+	 * @return the position of the first item with the given id(s). May range
+	 * from 0 to MAX_INV_SIZE.
+	 */
+	public int getLastInventoryIndex(int... ids) {
+		for (int i = getInventoryCount() - 1; i >= 0; i--) {
+			if (inArray(ids, client.getInventoryId(i))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Drop the
+	 */
+	public int dropItemIdOrWait(int id) {
+
+		int firstInstanceIndex = getInventoryIndex(id);
+		if (firstInstanceIndex == -1)
 			return -1;
-		
-        int lastInstanceIndex = getLastInventoryIndex(id);
-		
-		if(!waitingBeforeLastDrop && firstInstanceIndex == lastInstanceIndex) //Lets wait a bit before dropping the last one
+
+		int lastInstanceIndex = getLastInventoryIndex(id);
+
+		if (!waitingBeforeLastDrop && firstInstanceIndex == lastInstanceIndex) //Lets wait a bit before dropping the last one
 		{
 			waitingBeforeLastDrop = true;
 			return 2000;
 		}
-		
+
 		dropItem(firstInstanceIndex);
 		waitingBeforeLastDrop = false;
-		
-		return 1500;
-    }
 
-	public int[][] getAllNpcsById(int... ids)
-	{
+		return 1500;
+	}
+
+	public int[][] getAllNpcsById(int... ids) {
 		int cpt = 0;
 		for (int i = 0; i < client.getNpcCount(); i++) {
 			if (inArray(ids, client.getNpcId(client.getNpc(i))))
 				cpt++;
 		}
-		
+
 		int[][] npcS = new int[cpt][];
-		
+
 		int cptAdded = 0;
 
 		for (int i = 0; i < client.getNpcCount(); i++) {
@@ -394,74 +370,60 @@ public class Abyte0_Script extends Storm_Script
 				final int x = client.getMobLocalX(client.getNpc(i)) + client.getAreaX();
 				final int y = client.getMobLocalY(client.getNpc(i)) + client.getAreaY();
 				final int dist = distanceTo(x, y, getX(), getY());
-				if (dist < 10)
-				{
+				if (dist < 10) {
 					final int[] npc = new int[]{-1, -1, -1};
-					
+
 					npc[0] = i;
 					npc[1] = x;
 					npc[2] = y;
-					
-					npcS[cptAdded]  = npc;
+
+					npcS[cptAdded] = npc;
 				}
 			}
 		}
 		return npcS;
 	}
-	
-	public void RunFromCombat()
-	{
-		walkTo(getX(),getY());
+
+	public void RunFromCombat() {
+		walkTo(getX(), getY());
 	}
-	
-	public boolean IsStillHavingFood(int foodId)
-	{
-		if(foodId == -1) return true;
-		if(foodId == 330)
-			return getInventoryCount(foodId,333,335) > 0;
+
+	public boolean IsStillHavingFood(int foodId) {
+		if (foodId == -1) return true;
+		if (foodId == 330)
+			return getInventoryCount(foodId, 333, 335) > 0;
 		else
 			return getInventoryCount(foodId) > 0;
 	}
-	
-	public final void EatFood(int foodId)
-	{
-		if(foodId == -1) return;
-		
-		if(foodId == 330)
-		{
+
+	public final void EatFood(int foodId) {
+		if (foodId == -1) return;
+
+		if (foodId == 330) {
 			EatCake();
-		}
-		else
-		{
+		} else {
 			int foodIndex = getInventoryIndex(foodId);
 			useItem(foodIndex);
 		}
 	}
-	
-	private void EatCake()
-	{
+
+	private void EatCake() {
 		int part1 = getInventoryIndex(335);
 		int part2 = getInventoryIndex(333);
 		int part3 = getInventoryIndex(330);
-		if(part1 != -1)
-		{
+		if (part1 != -1) {
 			useItem(part1);
-		}
-		else if(part2 != -1)
-		{
+		} else if (part2 != -1) {
 			useItem(part2);
-		}
-		else if(part3 != -1)
-		{
+		} else if (part3 != -1) {
 			useItem(part3);
 		}
 	}
-	
-	public String getDateTime()
-	{
+
+	public String getDateTime() {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		return dtf.format(now);
 	}
-	
+
 }

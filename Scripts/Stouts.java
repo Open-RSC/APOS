@@ -1,44 +1,41 @@
 /**
-
-* This script is used to help you gain attack levels with out
-
-* gaining any hitpoints exp.
-
-*
-
-* if you run the script with the parameter "buy"
-
-* make sure that you are near falador west bank
-
-* have money in your inventory and thats it
-
-*
-
-* if you run the script with the parameter "train"
-
-* make sure that you are near varrock east bank
-
-*
-
-* if you want to use wine instead of beer to train
-
-* change the variables below.
-
-*
-
-* v 1.5
-
-*
-
-* - yomama`
-
-*/
+ * This script is used to help you gain attack levels with out
+ * <p>
+ * gaining any hitpoints exp.
+ * <p>
+ * <p>
+ * <p>
+ * if you run the script with the parameter "buy"
+ * <p>
+ * make sure that you are near falador west bank
+ * <p>
+ * have money in your inventory and thats it
+ * <p>
+ * <p>
+ * <p>
+ * if you run the script with the parameter "train"
+ * <p>
+ * make sure that you are near varrock east bank
+ * <p>
+ * <p>
+ * <p>
+ * if you want to use wine instead of beer to train
+ * <p>
+ * change the variables below.
+ * <p>
+ * <p>
+ * <p>
+ * v 1.5
+ * <p>
+ * <p>
+ * <p>
+ * - yomama`
+ */
 
 public class Stouts extends Script {
 
 
-
- ///// change these if you want to TRAIN/BUY with different beer/wine
+	///// change these if you want to TRAIN/BUY with different beer/wine
 
  /*
 
@@ -50,410 +47,386 @@ public class Stouts extends Script {
 
  142: wine
 
- */ 
+ */
 
- int drinkID = 142;
+	int drinkID = 142;
 
- int glassID = 140;
+	int glassID = 140;
 
- /////
+	/////
 
 
+	boolean train = true;
 
- boolean train = true;
+	boolean upstairs = false;
 
- boolean upstairs = false;
+	int[] bankArea = new int[2];
 
- int[] bankArea = new int[2];
+	int[] actArea = new int[2];
 
- int[] actArea = new int[2];
+	long talk = System.currentTimeMillis();
 
- long talk = System.currentTimeMillis();
 
+	public Stouts(Extension e) {
 
+		super(e);
 
- public Stouts(Extension e) {
+	}
 
- super(e);
 
- }
+	public void init(String params) {
 
+		params = params.trim().toLowerCase();
 
+		if (params.equals("buy")) {
 
- public void init(String params) {
+			train = false;
 
-    params = params.trim().toLowerCase();
+			bankArea = new int[]{329, 552};
 
-    if(params.equals("buy")) {
+			actArea = new int[]{322, 547};
 
-      train = false;
+		} else if (params.equals("train")) {
 
-      bankArea = new int[]{329, 552};
+			train = true;
 
-      actArea = new int[]{322, 547};
+			bankArea = new int[]{103, 511};
 
-    }
+			actArea = new int[]{105, 501};
 
-    else if(params.equals("train")) {
+		} else {
 
-      train = true;
+			System.out.println("Invalid input, script ended (params are \"buy\" and \"train\")");
 
-      bankArea = new int[]{103, 511};
+			stopScript();
 
-      actArea = new int[]{105, 501}; 
+		}
 
-    } else {
+	}
 
-      System.out.println("Invalid input, script ended (params are \"buy\" and \"train\")");
 
-      stopScript();
+	public int main() {
 
-    }
+		if (train)
 
- }
+			return doTraining();
 
 
+		return doBuying();
 
- public int main() {
+	}
 
-    if(train)
 
-      return doTraining();
+	public int doBuying() {
 
-    
+		if (getInventoryCount(10) < 3) {
 
-    return doBuying();
+			System.out.println("out of gold. script ending...");
 
- }
+			stopScript();
 
+		}
 
 
- public int doBuying() {
+		if (!isQuestMenu() && System.currentTimeMillis() - talk < 3000) {
 
-    if(getInventoryCount(10) < 3) {
+			return 100;
 
-      System.out.println("out of gold. script ending...");
+		}
 
-      stopScript();
 
-    }
+		if (isQuestMenu()) {
 
+			String[] options = questMenuOptions();
 
+			for (int i = 0; i < options.length; i++) {
 
-    if(!isQuestMenu() && System.currentTimeMillis() - talk < 3000) {
+				if (options[i].indexOf("Asgarn") > 0) {
 
-      return 100;
+					answer(drinkID - 267);
 
-    }
+					return 500;
 
+				} else if (options[i].indexOf("bank") > 0) {
 
+					answer(i);
 
-    if(isQuestMenu()) {
+					return 500;
 
-      String[] options = questMenuOptions();
+				}
 
-      for(int i = 0; i < options.length; i++ ) {
+				talk = System.currentTimeMillis();
 
-        if(options[i].indexOf("Asgarn") > 0) {
+			}
 
-          answer(drinkID - 267);
+			return 1000;
 
-          return 500;
+		}
 
-        } else 
 
-        if(options[i].indexOf("bank") > 0) {
+		if (isBanking()) {
 
-          answer(i);
+			if (getInventoryCount(drinkID) == 0) {
 
-          return 500;
+				closeBank();
 
-        }
+				return 1000;
 
-        talk = System.currentTimeMillis();
+			}
 
-      }
+			deposit(drinkID, getInventoryCount(drinkID));
 
-      return 1000;
+			return 1000;
 
-    }
+		}
 
 
+		if (getInventoryCount() == 30) {
 
-    if(isBanking()) {
+			int[] closedDoor = getWallObjectById(2);
 
-      if(getInventoryCount(drinkID) == 0) {
+			if (closedDoor[0] != -1 && closedDoor[1] > 322 && distanceTo(closedDoor[1], closedDoor[2]) < 10) {
 
-        closeBank();
+				atWallObject(closedDoor[1], closedDoor[2]);
 
-        return 1000;
+				return random(400, 500);
 
-      } 
+			}
 
-      deposit(drinkID, getInventoryCount(drinkID));
 
-      return 1000;
+			if (getY() > 1000) {
 
-    }
+				int[] stairs = getObjectById(42);
 
+				if (stairs[0] != -1)
 
+					atObject(stairs[1], stairs[2]);
 
-    if(getInventoryCount() == 30) {
+				return 1000;
 
-      int[] closedDoor = getWallObjectById(2);
+			}
 
-      if(closedDoor[0] != -1 && closedDoor[1] > 322 && distanceTo(closedDoor[1], closedDoor[2]) < 10) {
 
-        atWallObject(closedDoor[1],closedDoor[2]);
+			if (distanceTo(bankArea[0], bankArea[1]) < 10) {
 
-      return random(400, 500);
+				int[] banker = getNpcByIdNotTalk(95);
 
-      }
+				if (banker[0] != -1) {
 
+					talkToNpc(banker[0]);
 
+					talk = System.currentTimeMillis();
 
-      if(getY() > 1000) {
+				}
 
-        int[] stairs = getObjectById(42);
+				return 1000;
 
-        if(stairs[0] != -1)
+			}
 
-          atObject(stairs[1], stairs[2]);
+			walkTo(bankArea[0], bankArea[1]);
 
-        return 1000;
+			return 1000;
 
-      }
+		}
 
 
+		if (upstairs) {
 
-      if(distanceTo(bankArea[0], bankArea[1]) < 10) {
+			actArea = new int[]{320, 1490};
 
-        int banker[] = getNpcByIdNotTalk(95);
+			if (getY() < 1000) {
 
-        if(banker[0] != -1) {
+				int[] stairs = getObjectById(41);
 
-          talkToNpc(banker[0]);
+				if (stairs[0] != -1)
 
-          talk = System.currentTimeMillis();
+					atObject(stairs[1], stairs[2]);
 
-        }
+				return 1000;
 
-        return 1000;
+			}
 
-      }
+		}
 
-      walkTo(bankArea[0], bankArea[1]);
 
-      return 1000;
+		if (distanceTo(actArea[0], actArea[1]) < 10) {
 
-    }
+			int[] barmaid = getNpcByIdNotTalk(142);
 
+			if (barmaid[0] != -1) {
 
+				talkToNpc(barmaid[0]);
 
-    if(upstairs) {
+				talk = System.currentTimeMillis();
 
-      actArea = new int[]{320, 1490};
+			} //else
 
-      if(getY() < 1000) {
+			//upstairs = true;
 
-        int[] stairs = getObjectById(41);
+			return 1000;
 
-        if(stairs[0] != -1)
+		}
 
-          atObject(stairs[1], stairs[2]);
+		walkTo(actArea[0], actArea[1]);
 
-          return 1000;
+		return 1000;
 
-      }
+	}
 
-    }
 
+	public int doTraining() {
 
+		if (getFatigue() > 90) {
 
-    if(distanceTo(actArea[0], actArea[1]) < 10) {
+			useSleepingBag();
 
-      int barmaid[] = getNpcByIdNotTalk(142);
+			return 1000;
 
-      if(barmaid[0] != -1) {
+		}
 
-        talkToNpc(barmaid[0]);
+		if (getY() >= 509) {
 
-        talk = System.currentTimeMillis();
+			int[] bankDoors = getObjectById(64);
 
-      } //else
+			if (bankDoors[0] != -1 && bankDoors[1] == 102 && bankDoors[2] == 509) {
 
-      //upstairs = true;
+				atObject(bankDoors[1], bankDoors[2]);
 
-      return 1000;
+				return random(500, 600);
 
-    }
+			}
 
-    walkTo(actArea[0], actArea[1]);
+		}
 
-    return 1000;
+		if (getY() >= 506) {
 
- }
+			int[] closedDoor = getWallObjectById(2);
 
+			if (closedDoor[0] != -1 && closedDoor[1] == 104 && closedDoor[2] == 506) {
 
+				atWallObject(closedDoor[1], closedDoor[2]);
 
- public int doTraining() {
+				return random(500, 600);
 
-    if(getFatigue() > 90) {
+			}
 
-      useSleepingBag();
+		}
 
-      return 1000;
+		if (getInventoryCount(glassID) > 0) {
 
-    }
+			int glassIDx = getInventoryIndex(glassID);
 
-    if(getY() >= 509) {
+			if (glassIDx != -1)
 
-      int[] bankDoors = getObjectById(64);
+				dropItem(glassIDx);
 
-      if(bankDoors[0] != -1 && bankDoors[1] == 102 && bankDoors[2] == 509) {
+			return 1000;
 
-        atObject(bankDoors[1], bankDoors[2]);
+		}
 
-        return random(500, 600);
 
-      }
+		if (isBanking()) {
 
-    }
+			if (getInventoryCount() == 30) {
 
-    if(getY() >= 506) {
+				closeBank();
 
-      int[] closedDoor = getWallObjectById(2);
+				return 1000;
 
-      if(closedDoor[0] != -1 && closedDoor[1] == 104 && closedDoor[2] == 506) {
+			}
 
-        atWallObject(closedDoor[1], closedDoor[2]);
+			withdraw(drinkID, 30 - getInventoryCount());
 
-        return random(500, 600);
+			return 1000;
 
-      }
+		}
 
-    }
 
-    if(getInventoryCount(glassID) > 0 ) {
+		if (isQuestMenu()) {
 
-      int glassIDx = getInventoryIndex(glassID);
+			answer(0);
 
-      if(glassIDx != -1)
+			return 1000;
 
-        dropItem(glassIDx);
+		}
 
-      return 1000;
 
-    }
+		if (getInventoryCount(drinkID) == 0) {
 
+			int[] closedDoor = getWallObjectById(2);
 
+			if (closedDoor[0] != -1 && closedDoor[1] == 104 && closedDoor[2] == 506) {
 
-    if(isBanking()) {
+				atWallObject(closedDoor[1], closedDoor[2]);
 
-      if(getInventoryCount() == 30) {
+				return random(500, 600);
 
-        closeBank();
+			}
 
-        return 1000;
+			int[] bankDoors = getObjectById(64);
 
-      } 
+			if (bankDoors[0] != -1 && bankDoors[1] == 102 && bankDoors[2] == 509) {
 
-      withdraw(drinkID, 30 - getInventoryCount());
+				atObject(bankDoors[1], bankDoors[2]);
 
-      return 1000;
+				return random(500, 600);
 
-    }
+			}
 
+			if (distanceTo(bankArea[0], bankArea[1]) < 10) {
 
+				int[] banker = getNpcByIdNotTalk(95);
 
-    if(isQuestMenu()) {
+				if (banker[0] != -1)
 
-      answer(0);
+					talkToNpc(banker[0]);
 
-      return 1000;
+				return 1000;
 
-    }
+			}
 
+			walkTo(bankArea[0], bankArea[1]);
 
+			return 1000;
 
-    if(getInventoryCount(drinkID) == 0) {
+		}
 
-      int[] closedDoor = getWallObjectById(2);
 
-      if(closedDoor[0] != -1 && closedDoor[1] == 104 && closedDoor[2] == 506) {
+		if (getCurrentLevel(0) > 7) {
 
-        atWallObject(closedDoor[1], closedDoor[2]);
+			int drinkIDx = getInventoryIndex(drinkID);
 
-        return random(500, 600);
+			if (drinkIDx == -1) {
 
-      }
+				return 1000;
 
-      int[] bankDoors = getObjectById(64);
+			}
 
-      if(bankDoors[0] != -1 && bankDoors[1] == 102 && bankDoors[2] == 509) {
+			useItem(drinkIDx);
 
-        atObject(bankDoors[1], bankDoors[2]);
+			return 1000;
 
-        return random(500, 600);
+		}
 
-      }
 
-      if(distanceTo(bankArea[0], bankArea[1]) < 10) {
+		if (distanceTo(actArea[0], actArea[1]) < 10) {
 
-        int banker[] = getNpcByIdNotTalk(95);
+			int[] dummy = getObjectById(49);
 
-        if(banker[0] != -1)
+			if (dummy[0] != -1) {
 
-          talkToNpc(banker[0]);
+				atObject(dummy[1], dummy[2]);
 
-        return 1000;
+			}
 
-      }
+			return 140;
 
-      walkTo(bankArea[0], bankArea[1]);
+		}
 
-      return 1000;
+		walkTo(actArea[0], actArea[1]);
 
-    }
+		return random(500, 1000);
 
-
-
-    if(getCurrentLevel(0) > 7) {
-
-      int drinkIDx = getInventoryIndex(drinkID);
-
-      if(drinkIDx == -1) {
-
-        return 1000;
-
-      }
-
-      useItem(drinkIDx);
-
-      return 1000;
-
-    }
-
-
-
-    if(distanceTo(actArea[0], actArea[1]) < 10) {
-
-      int[] dummy = getObjectById(49);
-
-      if( dummy[0] != -1 ) {
-
-        atObject(dummy[1], dummy[2]);
-
-      } 
-
-      return 140;
-
-    }
-
-    walkTo(actArea[0], actArea[1]);
-
-    return random(500, 1000);
-
- }
+	}
 
 }

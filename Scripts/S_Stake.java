@@ -1,17 +1,11 @@
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Choice;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
+import com.aposbot.Constants;
+import com.aposbot.StandardCloseHandler;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Locale;
-
-import com.aposbot.Constants;
-import com.aposbot.StandardCloseHandler;
 
 public final class S_Stake extends Script {
 
@@ -34,13 +28,13 @@ public final class S_Stake extends Script {
 	private static final int[] shields = {
 		1278, 404
 	};
-	private static final int[] helms =  {
+	private static final int[] helms = {
 		795, 112
 	};
-	private static final int[] body =  {
+	private static final int[] body = {
 		407, 401, CHAIN
 	};
-	private static final int[] legs =  {
+	private static final int[] legs = {
 		402, 406
 	};
 	private static final int[] capes = {
@@ -57,10 +51,10 @@ public final class S_Stake extends Script {
 	private boolean pray;
 	private boolean bare;
 	private boolean prayers_off;
-	
+
 	private boolean listen_input;
 	private StringBuilder input;
-	
+
 	private int hue;
 	private int ticks;
 	private boolean hue_dir;
@@ -68,7 +62,7 @@ public final class S_Stake extends Script {
 	private boolean cast;
 
 	private int set_mode = -1;
-	
+
 	private static final int AS_NONE = 0;
 	private static final int AS_ATTACK = 1;
 	private static final int AS_DEFENCE = 2;
@@ -245,31 +239,31 @@ public final class S_Stake extends Script {
 				}
 			}
 			switch (se_type) {
-			case SE_AMULET:
-				if (power) {
-					int index = getInventoryIndex(RUBY_AMULET);
+				case SE_AMULET:
+					if (power) {
+						int index = getInventoryIndex(RUBY_AMULET);
+						if (index != -1 && !isItemEquipped(index)) {
+							wearItem(index);
+							return random(50, 100);
+						}
+					} else {
+						if (equip(dstone_amulets, getInventoryCount())) {
+							return random(50, 100);
+						}
+					}
+					break;
+				case SE_PLATE:
+					if (equip(gauntlets, getInventoryCount())) {
+						return random(50, 100);
+					}
+					break;
+				case SE_KITE:
+					int index = getInventoryIndex(R2H);
 					if (index != -1 && !isItemEquipped(index)) {
 						wearItem(index);
 						return random(50, 100);
 					}
-				} else {
-					if (equip(dstone_amulets, getInventoryCount())) {
-						return random(50, 100);
-					}
-				}
-				break;
-			case SE_PLATE:
-				if (equip(gauntlets, getInventoryCount())) {
-					return random(50, 100);
-				}
-				break;
-			case SE_KITE:
-				int index = getInventoryIndex(R2H);
-				if (index != -1 && !isItemEquipped(index)) {
-					wearItem(index);
-					return random(50, 100);
-				}
-				break;
+					break;
 			}
 			as_type = AS_NONE;
 			return random(10, 20);
@@ -293,23 +287,23 @@ public final class S_Stake extends Script {
 				}
 			}
 			switch (se_type) {
-			case SE_AMULET:
-				int index = getInventoryIndex(GNOME_AMULET);
-				if (index != -1 && !isItemEquipped(index)) {
-					wearItem(index);
-					return random(50, 100);
-				}
-				break;
-			case SE_PLATE:
-				if (equip(body, getInventoryCount())) {
-					return random(50, 100);
-				}
-				break;
-			case SE_KITE:
-				if (equip(shields, getInventoryCount())) {
-					return random(50, 100);
-				}
-				break;
+				case SE_AMULET:
+					int index = getInventoryIndex(GNOME_AMULET);
+					if (index != -1 && !isItemEquipped(index)) {
+						wearItem(index);
+						return random(50, 100);
+					}
+					break;
+				case SE_PLATE:
+					if (equip(body, getInventoryCount())) {
+						return random(50, 100);
+					}
+					break;
+				case SE_KITE:
+					if (equip(shields, getInventoryCount())) {
+						return random(50, 100);
+					}
+					break;
 			}
 			as_type = AS_NONE;
 			return random(10, 20);
@@ -325,7 +319,7 @@ public final class S_Stake extends Script {
 		}
 		return 0;
 	}
-	
+
 	private void process_input() {
 		listen_input = false;
 		try {
@@ -336,22 +330,22 @@ public final class S_Stake extends Script {
 				bare = true;
 			} else if (input[0].equals("mode")) {
 				switch (input[1].charAt(0)) {
-				case '0':
-				case 'c':
-					set_mode = 0;
-					break;
-				case '1':
-				case 's':
-					set_mode = 1;
-					break;
-				case '2':
-				case 'a':
-					set_mode = 2;
-					break;
-				case '3':
-				case 'd':
-					set_mode = 3;
-					break;
+					case '0':
+					case 'c':
+						set_mode = 0;
+						break;
+					case '1':
+					case 's':
+						set_mode = 1;
+						break;
+					case '2':
+					case 'a':
+						set_mode = 2;
+						break;
+					case '3':
+					case 'd':
+						set_mode = 3;
+						break;
 				}
 			} else if (input[0].equals("switchpray")) {
 				switch_pray = input[1].charAt(0) != '0';
@@ -360,7 +354,7 @@ public final class S_Stake extends Script {
 		} catch (Throwable t) {
 		}
 	}
-	
+
 	@Override
 	public void onKeyPress(int keycode) {
 		if (listen_input) {
@@ -451,7 +445,7 @@ public final class S_Stake extends Script {
 				break;
 		}
 	}
-	
+
 	private String get_stat_string(int skill) {
 		int cur = getCurrentLevel(skill);
 		int level = getLevel(skill);
@@ -465,7 +459,7 @@ public final class S_Stake extends Script {
 		}
 		return col + cur + "  @whi@/  " + level;
 	}
-	
+
 	@Override
 	public void paint() {
 		++ticks;
@@ -484,7 +478,7 @@ public final class S_Stake extends Script {
 		int rgb = java.awt.Color.HSBtoRGB(hue / 255.0f, 0.9f, 0.9f);
 		int x = 395;
 		int y = 320;
-		
+
 		drawString("@mag@MAG:   " + get_stat_string(6), x, y, 1, 0);
 		y -= 15;
 		drawString("@whi@STR:   " + get_stat_string(2), x, y, 1, 0);
@@ -500,34 +494,34 @@ public final class S_Stake extends Script {
 				++pcount;
 			}
 		}
-		
+
 		if (pcount == 0) {
 			drawString("Prayers enabled: @red@" + pcount, x, y, 1, 0xFFFFFF);
 		} else {
 			drawString("Prayers enabled: @gre@" + pcount, x, y, 1, 0xFFFFFF);
 		}
 		y -= 15;
-		
+
 		if (!inCombat()) {
 			drawString("Style: " + FIGHTMODES[getFightMode()], x, y, 2, 0xFFFFFF);
 			y -= 15;
 		}
-		
+
 		if (equip) {
 			drawString("Equipping...", x, y, 1, rgb);
 			y -= 15;
 		}
-		
+
 		if (bare) {
 			drawString("Going bare...", x, y, 1, rgb);
 			y -= 15;
 		}
-		
+
 		if (cast) {
 			drawString("Autocasting", x, y, 1, rgb);
 			y -= 15;
 		}
-		
+
 		if (listen_input) {
 			drawString("Command@gre@:@whi@ " + input + ((ticks % 40) < 20 ? "" : "*"), 315, 50, 1, 0xFFFFFF);
 		}

@@ -1,24 +1,16 @@
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Panel;
-import java.awt.GridLayout;
-import java.awt.BorderLayout;
-import java.awt.Choice;
-import java.awt.Label;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.CheckboxGroup;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import com.aposbot.Constants;
+import com.aposbot.StandardCloseHandler;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.List;
-import java.util.ArrayList;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
-import com.aposbot.StandardCloseHandler;
-import com.aposbot.Constants;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public final class S_Shilo extends Script {
 
@@ -41,30 +33,30 @@ public final class S_Shilo extends Script {
 		@Override
 		public String toString() {
 			switch (id) {
-			case STAGE_FISH:
-				return "Fishing";
-			case STAGE_COOK:
-				return "Cooking";
-			case STAGE_DEPOSIT:
-				return "Depositing";
-			case STAGE_SELL:
-				return "Selling";
-			case STAGE_WITHDRAW:
-				return "Withdrawing";
-			case STAGE_BUY:
-				return "Buying";
-			default:
-				return "Invalid";
+				case STAGE_FISH:
+					return "Fishing";
+				case STAGE_COOK:
+					return "Cooking";
+				case STAGE_DEPOSIT:
+					return "Depositing";
+				case STAGE_SELL:
+					return "Selling";
+				case STAGE_WITHDRAW:
+					return "Withdrawing";
+				case STAGE_BUY:
+					return "Buying";
+				default:
+					return "Invalid";
 			}
 		}
 	}
 
-	private static final int STAGE_FISH	= 0;
-	private static final int STAGE_COOK	= 1;
-	private static final int STAGE_DEPOSIT	= 3;
-	private static final int STAGE_SELL	= 4;
-	private static final int STAGE_WITHDRAW	= 5;
-	private static final int STAGE_BUY	= 7;
+	private static final int STAGE_FISH = 0;
+	private static final int STAGE_COOK = 1;
+	private static final int STAGE_DEPOSIT = 3;
+	private static final int STAGE_SELL = 4;
+	private static final int STAGE_WITHDRAW = 5;
+	private static final int STAGE_BUY = 7;
 
 	// raw fish store
 	private static final int FERNAHEI = 616;
@@ -129,7 +121,7 @@ public final class S_Shilo extends Script {
 
 	private int box_bottom;
 
-	private PathWalker pw;
+	private final PathWalker pw;
 	private boolean pw_init;
 
 	private final List<Stage> stages = new ArrayList<>();
@@ -210,18 +202,18 @@ public final class S_Shilo extends Script {
 			return random(200, 300);
 		}
 		switch (stages.get(stage).id) {
-		case STAGE_FISH:
-			return fish();
-		case STAGE_COOK:
-			return cook();
-		case STAGE_DEPOSIT:
-			return deposit();
-		case STAGE_SELL:
-			return sell();
-		case STAGE_WITHDRAW:
-			return withdraw();
-		case STAGE_BUY:
-			return buy();
+			case STAGE_FISH:
+				return fish();
+			case STAGE_COOK:
+				return cook();
+			case STAGE_DEPOSIT:
+				return deposit();
+			case STAGE_SELL:
+				return sell();
+			case STAGE_WITHDRAW:
+				return withdraw();
+			case STAGE_BUY:
+				return buy();
 		}
 		stopScript();
 		throw new RuntimeException("invalid stage");
@@ -243,8 +235,7 @@ public final class S_Shilo extends Script {
 			System.out.println("Out of feathers");
 			setAutoLogin(false);
 			stopScript();
-		}
-		else if (str.contains("tired")) {
+		} else if (str.contains("tired")) {
 			should_sleep = true;
 		} else if (str.contains("you catch")) {
 			click_time = -1L;
@@ -267,12 +258,12 @@ public final class S_Shilo extends Script {
 			System.out.printf("Congrats on advancing your fishing level %d times since starting this script.\n", fishing_levels);
 			System.out.println("Stats for your last level:");
 			System.out.printf("Successful attempts: %s (%s/h)\n",
-			    iformat.format(cur_fish_success),
-			    per_hour(cur_fish_success, fish_level_up_time));
+				iformat.format(cur_fish_success),
+				per_hour(cur_fish_success, fish_level_up_time));
 			System.out.printf("Failed attempts: %s\n",
-			    iformat.format(cur_fish_fails));
+				iformat.format(cur_fish_fails));
 			System.out.printf("Fail rate: %f\n\n",
-			    (double)cur_fish_fails / (double)cur_fish_success);
+				(double) cur_fish_fails / (double) cur_fish_success);
 			fish_level_up_time = System.currentTimeMillis();
 			cur_fish_success = 0;
 			cur_fish_fails = 0;
@@ -281,47 +272,48 @@ public final class S_Shilo extends Script {
 			System.out.printf("Congrats on advancing your cooking level %d times since starting this script.\n", cooking_levels);
 			System.out.println("Stats for your last level:");
 			System.out.printf("Successful attempts: %s (%s/h)\n",
-			    iformat.format(cur_cook_success),
-			    per_hour(cur_cook_success, cook_level_up_time));
+				iformat.format(cur_cook_success),
+				per_hour(cur_cook_success, cook_level_up_time));
 			System.out.printf("Failed attempts: %s\n",
-			    iformat.format(cur_cook_fails));
+				iformat.format(cur_cook_fails));
 			System.out.printf("Fail rate: %f\n\n",
-			    (double)cur_cook_fails / (double)cur_cook_success);
+				(double) cur_cook_fails / (double) cur_cook_success);
 			cook_level_up_time = System.currentTimeMillis();
 			cur_cook_success = 0;
 			cur_cook_fails = 0;
 		} else if (str.contains("have been standing")) {
-			loop: do {
+			loop:
+			do {
 				int stage_id = stages.get(stage).id;
 				switch (stages.get(stage).id) {
-				case STAGE_FISH:
-					move_x = getX() + random(-2, 2);
-					move_y = getY() - random(0, 3);
-					break;
-				case STAGE_COOK:
-					move_x = getX() + 1;
-					move_y = getY() + random(-1, 1);
-					break;
-				case STAGE_BUY:
-				case STAGE_SELL:
-					int[] npc = getNpcById(FERNAHEI, OBLI);
-					if (npc[0] == FERNAHEI) {
-						move_x = FERNAHEI_SHOP_X;
-						move_y = FERNAHEI_SHOP_Y +
-						    random(0, 4);
-					} else if (npc[0] == OBLI) {
-						move_x = OBLI_SHOP_X +
-						    random(-1, 1);
-						move_y = OBLI_SHOP_Y -
-						    random(0, 3);
-					}
-					break;
-				default:
-					System.out.printf("WARNING: Idle here! (%d,%d). Please report this!\n", getX(), getY());
-					break loop;
+					case STAGE_FISH:
+						move_x = getX() + random(-2, 2);
+						move_y = getY() - random(0, 3);
+						break;
+					case STAGE_COOK:
+						move_x = getX() + 1;
+						move_y = getY() + random(-1, 1);
+						break;
+					case STAGE_BUY:
+					case STAGE_SELL:
+						int[] npc = getNpcById(FERNAHEI, OBLI);
+						if (npc[0] == FERNAHEI) {
+							move_x = FERNAHEI_SHOP_X;
+							move_y = FERNAHEI_SHOP_Y +
+								random(0, 4);
+						} else if (npc[0] == OBLI) {
+							move_x = OBLI_SHOP_X +
+								random(-1, 1);
+							move_y = OBLI_SHOP_Y -
+								random(0, 3);
+						}
+						break;
+					default:
+						System.out.printf("WARNING: Idle here! (%d,%d). Please report this!\n", getX(), getY());
+						break loop;
 				}
 			} while (!isReachable(move_x, move_y) ||
-			    (move_x == getX() && move_y == getY()));
+				(move_x == getX() && move_y == getY()));
 		}
 	}
 
@@ -335,63 +327,63 @@ public final class S_Shilo extends Script {
 		int x = (getGameWidth() / 2) - 125;
 		int y = 57;
 		if (getGameWidth() >= (512 + 7 + 100) &&
-		    getGameHeight() >= (346 + 84 + 25)) {
+			getGameHeight() >= (346 + 84 + 25)) {
 			/* bars are being displayed in corner */
 			x = 9;
 		}
 		drawBoxAlphaFill(x - 6, y - 17,
-		    260, box_bottom - 17, 120, 0x0);
+			260, box_bottom - 17, 120, 0x0);
 		drawString("Shilo Script - @whi@" +
-		    stages.get(stage).toString(),
-		    x, y, 2, orangey);
+				stages.get(stage).toString(),
+			x, y, 2, orangey);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time),
-		    x + 10, y, 2, white);
+			x + 10, y, 2, white);
 		y += 15;
 		if (have_stage(STAGE_FISH)) {
 			drawString(String.format(
-			    "Stats for current fishing level (%d gained)",
-			    fishing_levels),
-			    x, y, 2, orangey);
+					"Stats for current fishing level (%d gained)",
+					fishing_levels),
+				x, y, 2, orangey);
 			y += 15;
 			drawString(String.format(
-			    "Successful fishing attempts: %s (%s/h)",
-			    iformat.format(cur_fish_success),
-			    per_hour(cur_fish_success, fish_level_up_time)),
-			    x + 10, y, 2, white);
+					"Successful fishing attempts: %s (%s/h)",
+					iformat.format(cur_fish_success),
+					per_hour(cur_fish_success, fish_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString(String.format(
-			    "Failed fishing attempts: %s (%s/h)",
-			    iformat.format(cur_fish_fails),
-			    per_hour(cur_fish_fails, fish_level_up_time)),
-			    x + 10, y, 2, white);
+					"Failed fishing attempts: %s (%s/h)",
+					iformat.format(cur_fish_fails),
+					per_hour(cur_fish_fails, fish_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString("Fishing fail rate: " + (float)
-			    ((double)cur_fish_fails / (double)cur_fish_success),
-			    x + 10, y, 2, white);
+					((double) cur_fish_fails / (double) cur_fish_success),
+				x + 10, y, 2, white);
 			y += 15;
 		}
 		if (have_stage(STAGE_COOK)) {
 			drawString(String.format(
-			    "Stats for current cooking level (%d gained)",
-			    cooking_levels),
-			    x, y, 2, orangey);
+					"Stats for current cooking level (%d gained)",
+					cooking_levels),
+				x, y, 2, orangey);
 			y += 15;
 			drawString(String.format(
-			    "Successful cooking attempts: %s (%s/h)",
-			    iformat.format(cur_cook_success),
-			    per_hour(cur_cook_success, cook_level_up_time)),
-			    x + 10, y, 2, white);
+					"Successful cooking attempts: %s (%s/h)",
+					iformat.format(cur_cook_success),
+					per_hour(cur_cook_success, cook_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString(String.format(
-			    "Failed cooking attempts: %s (%s/h)",
-			    iformat.format(cur_cook_fails),
-			    per_hour(cur_cook_fails, cook_level_up_time)),
-			    x + 10, y, 2, white);
+					"Failed cooking attempts: %s (%s/h)",
+					iformat.format(cur_cook_fails),
+					per_hour(cur_cook_fails, cook_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString("Cooking fail rate: " + (float)
-			    ((double)cur_cook_fails / (double)cur_cook_success),
-			    x + 10, y, 2, white);
+					((double) cur_cook_fails / (double) cur_cook_success),
+				x + 10, y, 2, white);
 			y += 15;
 		}
 		if (fishing_levels > 0 || cooking_levels > 0) {
@@ -399,22 +391,22 @@ public final class S_Shilo extends Script {
 			y += 15;
 			if (fishing_levels > 0) {
 				drawString("Successful fishing attempts: " +
-				    iformat.format(total_fish_success),
-				    x + 10, y, 2, white);
+						iformat.format(total_fish_success),
+					x + 10, y, 2, white);
 				y += 15;
 				drawString("Failed fishing attempts: " +
-				    iformat.format(total_fish_fails),
-				    x + 10, y, 2, white);
+						iformat.format(total_fish_fails),
+					x + 10, y, 2, white);
 				y += 15;
 			}
 			if (cooking_levels > 0) {
 				drawString("Successful cooking attempts: " +
-				    iformat.format(total_cook_success),
-				    x + 10, y, 2, white);
+						iformat.format(total_cook_success),
+					x + 10, y, 2, white);
 				y += 15;
 				drawString("Failed cooking attempts: " +
-				    iformat.format(total_cook_fails),
-				    x + 10, y, 2, white);
+						iformat.format(total_cook_fails),
+					x + 10, y, 2, white);
 				y += 15;
 			}
 		}
@@ -423,10 +415,10 @@ public final class S_Shilo extends Script {
 			y += 15;
 			for (int i = 0; i < bank_ids.length; ++i) {
 				drawString(String.format("%s %s (%s/h)",
-				    iformat.format(banked_count[i]),
-				    getItemNameId(bank_ids[i]),
-				    per_hour(banked_count[i], start_time)),
-				    x + 10, y, 2, white);
+						iformat.format(banked_count[i]),
+						getItemNameId(bank_ids[i]),
+						per_hour(banked_count[i], start_time)),
+					x + 10, y, 2, white);
 				y += 15;
 			}
 		}
@@ -442,15 +434,15 @@ public final class S_Shilo extends Script {
 
 		if (day > 0L) {
 			return String.format("%02d days, %02d hrs, %02d mins",
-			    day, hour, minute);
+				day, hour, minute);
 		}
 		if (hour > 0L) {
 			return String.format("%02d hours, %02d mins, %02d secs",
-			    hour, minute, second);
+				hour, minute, second);
 		}
 		if (minute > 0L) {
 			return String.format("%02d minutes, %02d seconds",
-			    minute, second);
+				minute, second);
 		}
 		return String.format("%02d seconds", second);
 	}
@@ -466,7 +458,7 @@ public final class S_Shilo extends Script {
 
 	private void ingame_init() {
 		start_time = fish_level_up_time = cook_level_up_time =
-		    System.currentTimeMillis();
+			System.currentTimeMillis();
 
 		bank_time = -1L;
 		menu_time = -1L;
@@ -508,7 +500,7 @@ public final class S_Shilo extends Script {
 			return 0;
 		}
 		if (pickup.getState()) {
-			int[] item = { -1, -1, -1 };
+			int[] item = {-1, -1, -1};
 			if (item[0] == -1) {
 				item = getItemById(raw_ids);
 			}
@@ -542,7 +534,7 @@ public final class S_Shilo extends Script {
 				}
 			}
 			if (pickup.getState() &&
-			    getInventoryCount() < MAX_INV_SIZE) {
+				getInventoryCount() < MAX_INV_SIZE) {
 				int[] item;
 				item = getItemById(raw_ids);
 				if (item[1] == getX() && item[2] == getY()) {
@@ -696,7 +688,7 @@ public final class S_Shilo extends Script {
 		if (isBanking()) {
 			int[] withdraw_ids;
 			if (!Arrays.equals(Arrays.copyOf(bank_ids,
-			    raw_ids.length), raw_ids)) {
+				raw_ids.length), raw_ids)) {
 				withdraw_ids = raw_ids;
 			} else {
 				withdraw_ids = cooked_ids;
@@ -767,25 +759,25 @@ public final class S_Shilo extends Script {
 		boolean found = false;
 
 		switch (s.id) {
-		case STAGE_DEPOSIT:
-			for (int i = 0; i < bank_ids.length; ++i) {
-				int id = bank_ids[i];
-				if (getInventoryIndex(id) != -1) {
-					found = true;
-					break;
+			case STAGE_DEPOSIT:
+				for (int i = 0; i < bank_ids.length; ++i) {
+					int id = bank_ids[i];
+					if (getInventoryIndex(id) != -1) {
+						found = true;
+						break;
+					}
 				}
-			}
-			if (!found) {
-				next_stage();
-				return;
-			}
-			break;
-		case STAGE_SELL:
-			if (get_id_to_sell() == -1) {
-				next_stage();
-				return;
-			}
-			break;
+				if (!found) {
+					next_stage();
+					return;
+				}
+				break;
+			case STAGE_SELL:
+				if (get_id_to_sell() == -1) {
+					next_stage();
+					return;
+				}
+				break;
 		}
 		if (s.path_to != null) {
 			pw.setPath(s.path_to);
@@ -799,47 +791,47 @@ public final class S_Shilo extends Script {
 		final CheckboxGroup acquire_group = new CheckboxGroup();
 
 		final Checkbox fish = new Checkbox(
-		    "Fish raw fish",
-		    acquire_group, true);
+			"Fish raw fish",
+			acquire_group, true);
 		acquire_boxes.add(fish);
 
 		final Checkbox withdraw = new Checkbox(
-		    "Withdraw raw fish",
-		    acquire_group, false);
+			"Withdraw raw fish",
+			acquire_group, false);
 		acquire_boxes.add(withdraw);
 
 		final Checkbox buy_raw = new Checkbox(
-		    "Buy raw fish (Fernahei's Fishing Shop)",
-		    acquire_group, false);
+			"Buy raw fish (Fernahei's Fishing Shop)",
+			acquire_group, false);
 		acquire_boxes.add(buy_raw);
 
 		final Checkbox buy_cooked = new Checkbox(
-		    "Buy cooked fish (Obli's General Store)",
-		    acquire_group, false);
+			"Buy cooked fish (Obli's General Store)",
+			acquire_group, false);
 		acquire_boxes.add(buy_cooked);
 
 		final CheckboxGroup dispose_group = new CheckboxGroup();
 		final List<Checkbox> dispose_boxes = new ArrayList<>();
 
 		final Checkbox deposit = new Checkbox(
-		    "Deposit fish",
-		    dispose_group, true);
+			"Deposit fish",
+			dispose_group, true);
 		dispose_boxes.add(deposit);
 
 		final Checkbox sell_cooked = new Checkbox(
-		    "Sell cooked fish (Obli's General Store)",
-		    dispose_group, false);
+			"Sell cooked fish (Obli's General Store)",
+			dispose_group, false);
 		dispose_boxes.add(sell_cooked);
 		sell_cooked.setEnabled(false);
 
 		final Checkbox sell_raw = new Checkbox(
-		    "Sell raw fish (Fernahei's Fishing Shop)",
-		    dispose_group, false);
+			"Sell raw fish (Fernahei's Fishing Shop)",
+			dispose_group, false);
 		dispose_boxes.add(sell_raw);
 
 		final Checkbox power = new Checkbox(
-		    "Power fish or eat cooked fish",
-		    dispose_group, false);
+			"Power fish or eat cooked fish",
+			dispose_group, false);
 		dispose_boxes.add(power);
 
 		pickup = new Checkbox("Pick up raw fish", false);
@@ -850,15 +842,15 @@ public final class S_Shilo extends Script {
 			public void itemStateChanged(ItemEvent e) {
 				acquire_group.setSelectedCheckbox(fish);
 				acquire_box_listener
-				    .itemStateChanged(new ItemEvent(fish,
-				    ItemEvent.ITEM_FIRST, fish,
-				    ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(fish,
+						ItemEvent.ITEM_FIRST, fish,
+						ItemEvent.SELECTED));
 
 				dispose_group.setSelectedCheckbox(deposit);
 				dispose_box_listener
-				    .itemStateChanged(new ItemEvent(deposit,
-				    ItemEvent.ITEM_FIRST, deposit,
-				    ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(deposit,
+						ItemEvent.ITEM_FIRST, deposit,
+						ItemEvent.SELECTED));
 
 				int change = e.getStateChange();
 				if (change == ItemEvent.SELECTED) {
@@ -877,19 +869,15 @@ public final class S_Shilo extends Script {
 			public void itemStateChanged(ItemEvent e) {
 				dispose_group.setSelectedCheckbox(deposit);
 				dispose_box_listener
-				    .itemStateChanged(new ItemEvent(deposit,
-				    ItemEvent.ITEM_FIRST, deposit,
-				    ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(deposit,
+						ItemEvent.ITEM_FIRST, deposit,
+						ItemEvent.SELECTED));
 
 				int change = e.getStateChange();
 				if (change != ItemEvent.SELECTED) {
 					return;
 				}
-				if (cook.getState() || e.getSource() == fish) {
-					power.setEnabled(true);
-				} else {
-					power.setEnabled(false);
-				}
+				power.setEnabled(cook.getState() || e.getSource() == fish);
 				if (e.getSource() == buy_raw) {
 					sell_raw.setEnabled(false);
 					cook.setEnabled(true);
@@ -939,11 +927,11 @@ public final class S_Shilo extends Script {
 		Font bold_title = new Font(Font.SANS_SERIF, Font.BOLD, 14);
 
 		Label acquire_label = new Label("Fish acquisition method",
-		    Label.CENTER);
+			Label.CENTER);
 		acquire_label.setFont(bold_title);
 
 		Label dispose_label = new Label("Fish disposition method",
-		    Label.CENTER);
+			Label.CENTER);
 		dispose_label.setFont(bold_title);
 
 		final Label space_saver_a = new Label();
@@ -987,15 +975,15 @@ public final class S_Shilo extends Script {
 
 				acquire_group.setSelectedCheckbox(fish);
 				acquire_box_listener
-				    .itemStateChanged(new ItemEvent(fish,
-				    ItemEvent.ITEM_FIRST, fish,
-				    ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(fish,
+						ItemEvent.ITEM_FIRST, fish,
+						ItemEvent.SELECTED));
 
 				dispose_group.setSelectedCheckbox(deposit);
 				dispose_box_listener
-				    .itemStateChanged(new ItemEvent(deposit,
-				    ItemEvent.ITEM_FIRST, deposit,
-				    ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(deposit,
+						ItemEvent.ITEM_FIRST, deposit,
+						ItemEvent.SELECTED));
 
 				checkboxes.add(space_saver_a);
 				checkboxes.add(space_saver_b);
@@ -1008,40 +996,38 @@ public final class S_Shilo extends Script {
 		ok.addActionListener(new ActionListener() {
 			private void set_ids() {
 				switch (list.getSelectedItem()) {
-				case "Salmon/trout":
-					// prefer the spot "near" the fire when cooking
-					if (cook.getState()) {
-						fish_x = 396;
-						fish_y = 833;
-					}
-					else {
-						fish_x = 399;
-						fish_y = 836;
-					}
-					click1 = true;
-					raw_ids = new int[] { 356, 358 };
-					cooked_ids = new int[] { 357, 359 };
-					burnt_ids = new int[] { 360 };
-					discard_ids = new int[] {};
-					break;
-				case "Pike":
-					// prefer the spot "near" the fire when cooking
-					if (cook.getState()) {
-						fish_x = 396;
-						fish_y = 833;
-					}
-					else {
-						fish_x = 399;
-						fish_y = 836;
-					}
-					click1 = false;
-					raw_ids = new int[] { 363 };
-					cooked_ids = new int[] { 364 };
-					burnt_ids = new int[] { 365 };
-					discard_ids = new int[] {};
-					break;
-				default:
-					throw new Error("unknown fish");
+					case "Salmon/trout":
+						// prefer the spot "near" the fire when cooking
+						if (cook.getState()) {
+							fish_x = 396;
+							fish_y = 833;
+						} else {
+							fish_x = 399;
+							fish_y = 836;
+						}
+						click1 = true;
+						raw_ids = new int[]{356, 358};
+						cooked_ids = new int[]{357, 359};
+						burnt_ids = new int[]{360};
+						discard_ids = new int[]{};
+						break;
+					case "Pike":
+						// prefer the spot "near" the fire when cooking
+						if (cook.getState()) {
+							fish_x = 396;
+							fish_y = 833;
+						} else {
+							fish_x = 399;
+							fish_y = 836;
+						}
+						click1 = false;
+						raw_ids = new int[]{363};
+						cooked_ids = new int[]{364};
+						burnt_ids = new int[]{365};
+						discard_ids = new int[]{};
+						break;
+					default:
+						throw new Error("unknown fish");
 				}
 
 			}
@@ -1081,41 +1067,41 @@ public final class S_Shilo extends Script {
 				}
 				if (cook.getState()) {
 					stages.add(new Stage(STAGE_COOK,
-					    calc_path(x, y, COOK_X, COOK_Y)));
+						calc_path(x, y, COOK_X, COOK_Y)));
 					x = COOK_X;
 					y = COOK_Y;
 				}
 				if (do_not_sell == null) {
-					do_not_sell = new int[] {};
+					do_not_sell = new int[]{};
 				}
 				has_banked = new boolean[bank_ids.length];
 				banked_count = new int[bank_ids.length];
 				if (deposit.getState()) {
 					stages.add(new Stage(STAGE_DEPOSIT,
-					    calc_path(x, y, BANK_X, BANK_Y)));
+						calc_path(x, y, BANK_X, BANK_Y)));
 					if (stages.get(0).id != STAGE_WITHDRAW) {
 						stages.get(0).path_to = calc_path(
-						    BANK_X, BANK_Y,
-						    start_x, start_y);
+							BANK_X, BANK_Y,
+							start_x, start_y);
 					}
 				} else if (sell_raw.getState()) {
 					stages.add(new Stage(STAGE_SELL,
-					    calc_path(x, y,
-					    FERNAHEI_SHOP_X, FERNAHEI_SHOP_Y)));
+						calc_path(x, y,
+							FERNAHEI_SHOP_X, FERNAHEI_SHOP_Y)));
 					stages.get(0).path_to = calc_path(
-					    FERNAHEI_SHOP_X, FERNAHEI_SHOP_Y,
-					    start_x, start_y);
+						FERNAHEI_SHOP_X, FERNAHEI_SHOP_Y,
+						start_x, start_y);
 				} else if (sell_cooked.getState()) {
 					stages.add(new Stage(STAGE_SELL,
-					    calc_path(x, y,
-					    OBLI_SHOP_X, OBLI_SHOP_Y)));
+						calc_path(x, y,
+							OBLI_SHOP_X, OBLI_SHOP_Y)));
 					stages.get(0).path_to = calc_path(
-					    OBLI_SHOP_X, OBLI_SHOP_Y,
-					    start_x, start_y);
+						OBLI_SHOP_X, OBLI_SHOP_Y,
+						start_x, start_y);
 				} else if (cook.getState()) {
 					stages.get(0).path_to = calc_path(
-					    COOK_X, COOK_Y,
-					    start_x, start_y);
+						COOK_X, COOK_Y,
+						start_x, start_y);
 				}
 
 				System.out.println(stages);
@@ -1141,7 +1127,7 @@ public final class S_Shilo extends Script {
 
 		frame = new Frame(getClass().getSimpleName());
 		frame.addWindowListener(new StandardCloseHandler(frame,
-		    StandardCloseHandler.HIDE));
+			StandardCloseHandler.HIDE));
 		frame.setIconImages(Constants.ICONS);
 		frame.add(middle, BorderLayout.CENTER);
 		frame.add(buttons, BorderLayout.SOUTH);

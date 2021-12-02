@@ -6,20 +6,17 @@ public final class S_ArdArrowBuyer extends Script {
 	private long menu_time;
 	private long shop_time;
 
-	public S_ArdArrowBuyer(Extension ex)
-	{
+	public S_ArdArrowBuyer(Extension ex) {
 		super(ex);
 	}
 
 	@Override
-	public void init(String params)
-	{
+	public void init(String params) {
 		next_hop = System.currentTimeMillis() + 20000L;
 	}
 
 	@Override
-	public int main()
-	{
+	public int main() {
 		if (getFightMode() != 1) {
 			setFightMode(1);
 			return random(600, 800);
@@ -48,7 +45,7 @@ public final class S_ArdArrowBuyer extends Script {
 			menu_time = -1L;
 			shop_time = System.currentTimeMillis();
 			next_hop = System.currentTimeMillis() +
-			    random(30000, 60000);
+				random(30000, 60000);
 			return random(600, 800);
 		} else if (menu_time != -1) {
 			if (System.currentTimeMillis() > (menu_time + 8000L)) {
@@ -59,7 +56,7 @@ public final class S_ArdArrowBuyer extends Script {
 		if (System.currentTimeMillis() > next_hop) {
 			autohop(false);
 			next_hop = System.currentTimeMillis() +
-			    random(30000, 60000);
+				random(30000, 60000);
 			return random(1000, 1500);
 		}
 		int[] npc = getNpcByIdNotTalk(661);
@@ -71,13 +68,11 @@ public final class S_ArdArrowBuyer extends Script {
 	}
 
 	@Override
-	public void paint()
-	{
+	public void paint() {
 	}
 
 	@Override
-	public void onServerMessage(String str)
-	{
+	public void onServerMessage(String str) {
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("busy")) {
 			menu_time = -1L;

@@ -1,28 +1,19 @@
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Panel;
-import java.awt.GridLayout;
-import java.awt.BorderLayout;
-import java.awt.Choice;
-import java.awt.Label;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.CheckboxGroup;
+import com.aposbot.Constants;
+import com.aposbot.StandardCloseHandler;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
 import java.text.DecimalFormat;
-import com.aposbot.StandardCloseHandler;
-import com.aposbot.Constants;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public final class S_CatherbyBNet extends Script {
 
@@ -45,38 +36,38 @@ public final class S_CatherbyBNet extends Script {
 		@Override
 		public String toString() {
 			switch (id) {
-			case STAGE_FISH:
-				return "Fishing";
-			case STAGE_COOK:
-				return "Cooking";
-			case STAGE_CERT:
-				return "Certing";
-			case STAGE_DEPOSIT:
-				return "Depositing";
-			case STAGE_SELL:
-				return "Selling";
-			case STAGE_WITHDRAW:
-				return "Withdrawing";
-			case STAGE_UNCERT:
-				return "Uncerting";
-			case STAGE_BUY:
-				return "Buying";
-			default:
-				return "Invalid";
+				case STAGE_FISH:
+					return "Fishing";
+				case STAGE_COOK:
+					return "Cooking";
+				case STAGE_CERT:
+					return "Certing";
+				case STAGE_DEPOSIT:
+					return "Depositing";
+				case STAGE_SELL:
+					return "Selling";
+				case STAGE_WITHDRAW:
+					return "Withdrawing";
+				case STAGE_UNCERT:
+					return "Uncerting";
+				case STAGE_BUY:
+					return "Buying";
+				default:
+					return "Invalid";
 			}
 		}
 	}
 
 	// id of the possible combined fishes
 	public static final int[][] fish_spots_ids = {
-			// mackerel/cod/bass
-			{ 552, 550, 554 } };
+		// mackerel/cod/bass
+		{552, 550, 554}};
 
-	public static final String[][] fish_spots_names = { { "mackerel", "cod", "bass" } };
+	public static final String[][] fish_spots_names = {{"mackerel", "cod", "bass"}};
 
-	public static final String[] combined_fish_spots = { "Mackerel/cod/bass" };
+	public static final String[] combined_fish_spots = {"Mackerel/cod/bass"};
 
-	public static final String[] other_loot_names = { "seaweed", "gloves", "boots", "oyster", "casket" };
+	public static final String[] other_loot_names = {"seaweed", "gloves", "boots", "oyster", "casket"};
 
 	public static int fish_cursor;
 
@@ -92,18 +83,18 @@ public final class S_CatherbyBNet extends Script {
 	private static final int UNOPENED_OYSTER = 793;
 	private static final int CASKET = 549;
 
-	private static final int[] pearl_loot_ids = { 779, 792, 791 };
-	private static final int[] casket_loot_ids = { 160, 159, 158, 157, 527, 526, 1277 };
+	private static final int[] pearl_loot_ids = {779, 792, 791};
+	private static final int[] casket_loot_ids = {160, 159, 158, 157, 527, 526, 1277};
 
 	private static final long[] pearl_loot_count = new long[4];
 	// coins is two, how many times coins were received and total coins
 	private static final long[] casket_loot_count = new long[10];
 
-	private static final int[] non_fish_net_loot = { 779, 792, /* oysters */
-			157, 158, 159, 160, 526, 527, 1277 /* casket stuff */
+	private static final int[] non_fish_net_loot = {779, 792, /* oysters */
+		157, 158, 159, 160, 526, 527, 1277 /* casket stuff */
 	};
 
-	private static final int[] bass = { 554, 555 };
+	private static final int[] bass = {554, 555};
 
 	private static final int STAGE_FISH = 0;
 	private static final int STAGE_COOK = 1;
@@ -195,7 +186,7 @@ public final class S_CatherbyBNet extends Script {
 
 	private int box_bottom;
 
-	private PathWalker pw;
+	private final PathWalker pw;
 	private boolean pw_init;
 
 	private final List<Stage> stages = new ArrayList<>();
@@ -264,7 +255,7 @@ public final class S_CatherbyBNet extends Script {
 			casketlootcsv = new FileWriter(createCsv, true);
 			if (fileCreated) {
 				casketlootcsv.write(
-						"casket_count,num_times_coins,total_coins,sapphire,emerald,ruby,diamond,loop_half,tooth_half,shield_half\n");
+					"casket_count,num_times_coins,total_coins,sapphire,emerald,ruby,diamond,loop_half,tooth_half,shield_half\n");
 				casketlootcsv.flush();
 			}
 		} catch (IOException e) {
@@ -336,22 +327,22 @@ public final class S_CatherbyBNet extends Script {
 			return random(200, 300);
 		}
 		switch (stages.get(stage).id) {
-		case STAGE_FISH:
-			return fish();
-		case STAGE_COOK:
-			return cook();
-		case STAGE_CERT:
-			return cert();
-		case STAGE_DEPOSIT:
-			return deposit();
-		case STAGE_SELL:
-			return sell();
-		case STAGE_WITHDRAW:
-			return withdraw();
-		case STAGE_UNCERT:
-			return uncert();
-		case STAGE_BUY:
-			return buy();
+			case STAGE_FISH:
+				return fish();
+			case STAGE_COOK:
+				return cook();
+			case STAGE_CERT:
+				return cert();
+			case STAGE_DEPOSIT:
+				return deposit();
+			case STAGE_SELL:
+				return sell();
+			case STAGE_WITHDRAW:
+				return withdraw();
+			case STAGE_UNCERT:
+				return uncert();
+			case STAGE_BUY:
+				return buy();
 		}
 		stopScript();
 		throw new RuntimeException("invalid stage");
@@ -441,10 +432,10 @@ public final class S_CatherbyBNet extends Script {
 		} else if (str.contains("advanced 1 fishing")) {
 			++fishing_levels;
 			System.out.printf("Congrats on advancing your fishing level %d times since starting this script.\n",
-					fishing_levels);
+				fishing_levels);
 			System.out.println("Stats for your last level:");
 			System.out.printf("Successful attempts: %s (%s/h)\n", iformat.format(cur_fish_success),
-					per_hour(cur_fish_success, fish_level_up_time));
+				per_hour(cur_fish_success, fish_level_up_time));
 			System.out.printf("Failed attempts: %s\n", iformat.format(cur_fish_fails));
 			System.out.printf("Fail rate: %f\n\n", (double) cur_fish_fails / (double) cur_fish_success);
 			_fishCsvOut();
@@ -454,10 +445,10 @@ public final class S_CatherbyBNet extends Script {
 		} else if (str.contains("advanced 1 cooking")) {
 			++cooking_levels;
 			System.out.printf("Congrats on advancing your cooking level %d times since starting this script.\n",
-					cooking_levels);
+				cooking_levels);
 			System.out.println("Stats for your last level:");
 			System.out.printf("Successful attempts: %s (%s/h)\n", iformat.format(cur_cook_success),
-					per_hour(cur_cook_success, cook_level_up_time));
+				per_hour(cur_cook_success, cook_level_up_time));
 			System.out.printf("Failed attempts: %s\n", iformat.format(cur_cook_fails));
 			System.out.printf("Fail rate: %f\n\n", (double) cur_cook_fails / (double) cur_cook_success);
 			_cookCsvOut();
@@ -465,31 +456,32 @@ public final class S_CatherbyBNet extends Script {
 			cur_cook_success = 0;
 			cur_cook_fails = 0;
 		} else if (str.contains("have been standing")) {
-			loop: do {
+			loop:
+			do {
 				int stage_id = stages.get(stage).id;
 				switch (stages.get(stage).id) {
-				case STAGE_FISH:
-					move_x = getX() + random(-2, 2);
-					move_y = getY() - random(0, 3);
-					break;
-				case STAGE_COOK:
-					move_x = getX() + 1;
-					move_y = getY() + random(-1, 1);
-					break;
-				case STAGE_BUY:
-				case STAGE_SELL:
-					int[] npc = getNpcById(ARHEIN, HARRY);
-					if (npc[0] == ARHEIN) {
-						move_x = ARHEIN_SHOP_X;
-						move_y = ARHEIN_SHOP_Y + random(0, 4);
-					} else if (npc[0] == HARRY) {
-						move_x = HARRY_SHOP_X + random(-1, 1);
-						move_y = HARRY_SHOP_Y - random(0, 3);
-					}
-					break;
-				default:
-					System.out.printf("WARNING: Idle here! (%d,%d). Please report this!\n", getX(), getY());
-					break loop;
+					case STAGE_FISH:
+						move_x = getX() + random(-2, 2);
+						move_y = getY() - random(0, 3);
+						break;
+					case STAGE_COOK:
+						move_x = getX() + 1;
+						move_y = getY() + random(-1, 1);
+						break;
+					case STAGE_BUY:
+					case STAGE_SELL:
+						int[] npc = getNpcById(ARHEIN, HARRY);
+						if (npc[0] == ARHEIN) {
+							move_x = ARHEIN_SHOP_X;
+							move_y = ARHEIN_SHOP_Y + random(0, 4);
+						} else if (npc[0] == HARRY) {
+							move_x = HARRY_SHOP_X + random(-1, 1);
+							move_y = HARRY_SHOP_Y - random(0, 3);
+						}
+						break;
+					default:
+						System.out.printf("WARNING: Idle here! (%d,%d). Please report this!\n", getX(), getY());
+						break loop;
 				}
 			} while (!isReachable(move_x, move_y) || (move_x == getX() && move_y == getY()));
 		}
@@ -499,8 +491,8 @@ public final class S_CatherbyBNet extends Script {
 	private void _fishCsvOut() {
 		try {
 			fishcsv.write(combined_fish_spots[fish_cursor] + "," + getLevel(LEVEL_FISHING) + "," + cur_attempts + ","
-					+ fish_success[0] + "," + fish_success[1] + "," + fish_success[2] + "," + other_catch[0] + ","
-					+ other_catch[1] + "," + other_catch[2] + "," + other_catch[3] + "," + other_catch[4] + "\n");
+				+ fish_success[0] + "," + fish_success[1] + "," + fish_success[2] + "," + other_catch[0] + ","
+				+ other_catch[1] + "," + other_catch[2] + "," + other_catch[3] + "," + other_catch[4] + "\n");
 			fishcsv.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -514,17 +506,17 @@ public final class S_CatherbyBNet extends Script {
 	private void _cookCsvOut() {
 		try {
 			cookcsv.write(fish_spots_ids[fish_cursor][0] + "," + fish_spots_names[fish_cursor][0] + ","
-					+ getLevel(LEVEL_COOKING) + "," + (cook_success[0] + cook_failure[0]) + "," + cook_success[0] + ","
-					+ cook_failure[0] + "\n");
+				+ getLevel(LEVEL_COOKING) + "," + (cook_success[0] + cook_failure[0]) + "," + cook_success[0] + ","
+				+ cook_failure[0] + "\n");
 			if (fish_spots_ids[fish_cursor].length > 1) {
 				cookcsv.write(fish_spots_ids[fish_cursor][1] + "," + fish_spots_names[fish_cursor][1] + ","
-						+ getLevel(LEVEL_COOKING) + "," + (cook_success[1] + cook_failure[1]) + "," + cook_success[1]
-						+ "," + cook_failure[1] + "\n");
+					+ getLevel(LEVEL_COOKING) + "," + (cook_success[1] + cook_failure[1]) + "," + cook_success[1]
+					+ "," + cook_failure[1] + "\n");
 			}
 			if (fish_spots_ids[fish_cursor].length > 2) {
 				cookcsv.write(fish_spots_ids[fish_cursor][2] + "," + fish_spots_names[fish_cursor][2] + ","
-						+ getLevel(LEVEL_COOKING) + "," + (cook_success[2] + cook_failure[2]) + "," + cook_success[2]
-						+ "," + cook_failure[2] + "\n");
+					+ getLevel(LEVEL_COOKING) + "," + (cook_success[2] + cook_failure[2]) + "," + cook_success[2]
+					+ "," + cook_failure[2] + "\n");
 			}
 			cookcsv.flush();
 		} catch (IOException e) {
@@ -539,7 +531,7 @@ public final class S_CatherbyBNet extends Script {
 	private void _pearlCsvOut() {
 		try {
 			pearllootcsv.write(pearl_loot_count[0] + "," + pearl_loot_count[1] + "," + pearl_loot_count[2] + ","
-					+ pearl_loot_count[3] + "\n");
+				+ pearl_loot_count[3] + "\n");
 			pearllootcsv.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -551,9 +543,9 @@ public final class S_CatherbyBNet extends Script {
 	private void _casketCsvOut() {
 		try {
 			casketlootcsv.write(casket_loot_count[0] + "," + casket_loot_count[1] + "," + casket_loot_count[2] + ","
-					+ casket_loot_count[3] + "," + casket_loot_count[4] + "," + casket_loot_count[5] + ","
-					+ casket_loot_count[6] + "," + casket_loot_count[7] + "," + casket_loot_count[8] + ","
-					+ casket_loot_count[9] + "\n");
+				+ casket_loot_count[3] + "," + casket_loot_count[4] + "," + casket_loot_count[5] + ","
+				+ casket_loot_count[6] + "," + casket_loot_count[7] + "," + casket_loot_count[8] + ","
+				+ casket_loot_count[9] + "\n");
 			casketlootcsv.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -586,41 +578,41 @@ public final class S_CatherbyBNet extends Script {
 			drawString(String.format("Stats for current fishing level (%d gained)", fishing_levels), x, y, 2, orangey);
 			y += 15;
 			drawString(
-					String.format("Successful fishing attempts: %s (%s/h), %s (%s/h), %s (%s/h), %s (%s/h)",
-							iformat.format(cur_fish_success), per_hour(cur_fish_success, fish_level_up_time),
-							iformat.format(fish_success[0]), per_hour(fish_success[0], fish_level_up_time),
-							iformat.format(fish_success[1]), per_hour(fish_success[1], fish_level_up_time),
-							iformat.format(fish_success[2]), per_hour(fish_success[2], fish_level_up_time)),
-					x + 10, y, 2, white);
+				String.format("Successful fishing attempts: %s (%s/h), %s (%s/h), %s (%s/h), %s (%s/h)",
+					iformat.format(cur_fish_success), per_hour(cur_fish_success, fish_level_up_time),
+					iformat.format(fish_success[0]), per_hour(fish_success[0], fish_level_up_time),
+					iformat.format(fish_success[1]), per_hour(fish_success[1], fish_level_up_time),
+					iformat.format(fish_success[2]), per_hour(fish_success[2], fish_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString(String.format("Failed fishing attempts: %s (%s/h)", iformat.format(cur_fish_fails),
-					per_hour(cur_fish_fails, fish_level_up_time)), x + 10, y, 2, white);
+				per_hour(cur_fish_fails, fish_level_up_time)), x + 10, y, 2, white);
 			y += 15;
 			drawString("Fishing fail rate: " + (float) ((double) cur_fish_fails / (double) cur_fish_success), x + 10, y,
-					2, white);
+				2, white);
 			y += 15;
 		}
 		if (have_stage(STAGE_COOK)) {
 			drawString(String.format("Stats for current cooking level (%d gained)", cooking_levels), x, y, 2, orangey);
 			y += 15;
 			drawString(
-					String.format("Successful cooking attempts: %s (%s/h), %s (%s/h), %s (%s/h), %s (%s/h)",
-							iformat.format(cur_cook_success), per_hour(cur_cook_success, cook_level_up_time),
-							iformat.format(cook_success[0]), per_hour(cook_success[0], cook_level_up_time),
-							iformat.format(cook_success[1]), per_hour(cook_success[1], cook_level_up_time),
-							iformat.format(cook_success[2]), per_hour(cook_success[2], cook_level_up_time)),
-					x + 10, y, 2, white);
+				String.format("Successful cooking attempts: %s (%s/h), %s (%s/h), %s (%s/h), %s (%s/h)",
+					iformat.format(cur_cook_success), per_hour(cur_cook_success, cook_level_up_time),
+					iformat.format(cook_success[0]), per_hour(cook_success[0], cook_level_up_time),
+					iformat.format(cook_success[1]), per_hour(cook_success[1], cook_level_up_time),
+					iformat.format(cook_success[2]), per_hour(cook_success[2], cook_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString(
-					String.format("Failed cooking attempts: %s (%s/h), %s (%s/h), %s (%s/h), %s (%s/h)",
-							iformat.format(cur_cook_fails), per_hour(cur_cook_fails, cook_level_up_time),
-							iformat.format(cook_failure[0]), per_hour(cook_failure[0], cook_level_up_time),
-							iformat.format(cook_failure[1]), per_hour(cook_failure[1], cook_level_up_time),
-							iformat.format(cook_failure[2]), per_hour(cook_failure[2], cook_level_up_time)),
-					x + 10, y, 2, white);
+				String.format("Failed cooking attempts: %s (%s/h), %s (%s/h), %s (%s/h), %s (%s/h)",
+					iformat.format(cur_cook_fails), per_hour(cur_cook_fails, cook_level_up_time),
+					iformat.format(cook_failure[0]), per_hour(cook_failure[0], cook_level_up_time),
+					iformat.format(cook_failure[1]), per_hour(cook_failure[1], cook_level_up_time),
+					iformat.format(cook_failure[2]), per_hour(cook_failure[2], cook_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString("Cooking fail rate: " + (float) ((double) cur_cook_fails / (double) cur_cook_success), x + 10, y,
-					2, white);
+				2, white);
 			y += 15;
 		}
 		if (fishing_levels > 0 || cooking_levels > 0) {
@@ -644,17 +636,17 @@ public final class S_CatherbyBNet extends Script {
 			y += 15;
 			for (int i = 0; i < bank_ids.length; ++i) {
 				drawString(String.format("%s %s (%s/h)", iformat.format(banked_count[i]), getItemNameId(bank_ids[i]),
-						per_hour(banked_count[i], start_time)), x + 10, y, 2, white);
+					per_hour(banked_count[i], start_time)), x + 10, y, 2, white);
 				y += 15;
 			}
 		}
 		drawString("Opened items:", x, y, 1, orangey);
 		y += 15;
 		drawString(String.format("%s %s", iformat.format(pearl_loot_count[0]), "Oyster")
-				, x + 10, y, 2, white);
+			, x + 10, y, 2, white);
 		y += 15;
 		drawString(String.format("%s %s", iformat.format(casket_loot_count[0]), "Casket")
-				, x + 10, y, 2, white);
+			, x + 10, y, 2, white);
 		y += 15;
 		box_bottom = y - 15;
 	}
@@ -738,35 +730,35 @@ public final class S_CatherbyBNet extends Script {
 			}
 			discarding = false;
 		}
-		if(looting) {
+		if (looting) {
 			int index = getInventoryIndex(pearl_loot_ids);
-			if(index != -1) {
+			if (index != -1) {
 				pearl_loot_count[0]++;
-				for(int i=0; i<pearl_loot_ids.length; i++) {
+				for (int i = 0; i < pearl_loot_ids.length; i++) {
 					int count = getInventoryCount(pearl_loot_ids[i]);
-		            if (count > 0) {
-		            	++pearl_loot_count[i+1];
-		            	break;
-		            }
+					if (count > 0) {
+						++pearl_loot_count[i + 1];
+						break;
+					}
 				}
 				dropItem(index);
 				return random(1000, 1500);
 			}
 			index = getInventoryIndex(casket_loot_ids);
-			if(index != -1) {
+			if (index != -1) {
 				casket_loot_count[0]++;
-				for(int i=0; i<casket_loot_ids.length; i++) {
+				for (int i = 0; i < casket_loot_ids.length; i++) {
 					int count = getInventoryCount(casket_loot_ids[i]);
-		            if (count > 0) {
-		            	++casket_loot_count[i+3];
-		            	break;
-		            }
+					if (count > 0) {
+						++casket_loot_count[i + 3];
+						break;
+					}
 				}
 				dropItem(index);
 				return random(1000, 1500);
 			}
 			index = getInventoryIndex(10);
-			if(index != -1) {
+			if (index != -1) {
 				casket_loot_count[0]++;
 				++casket_loot_count[1];
 				int coinsStack = getInventoryStack(index);
@@ -776,7 +768,7 @@ public final class S_CatherbyBNet extends Script {
 			}
 			looting = false;
 		}
-		if(opening) {
+		if (opening) {
 			int index = getInventoryIndex(UNOPENED_OYSTER);
 			if (index != -1) {
 				looting = true;
@@ -796,7 +788,7 @@ public final class S_CatherbyBNet extends Script {
 				discarding = true;
 				return random(1000, 1500);
 			}
-			if(getInventoryIndex(CASKET, UNOPENED_OYSTER) != -1) {
+			if (getInventoryIndex(CASKET, UNOPENED_OYSTER) != -1) {
 				opening = true;
 				return random(1000, 1500);
 			}
@@ -808,7 +800,7 @@ public final class S_CatherbyBNet extends Script {
 			if (casket_loot_count[0] >= 3) {
 				_casketCsvOut();
 			}
-			
+
 			int[] casket = getItemById(CASKET, UNOPENED_OYSTER);
 			int index;
 			if (casket[1] == getX() && casket[2] == getY()) {
@@ -832,7 +824,7 @@ public final class S_CatherbyBNet extends Script {
 			return 0;
 		}
 		if (pickup.getState()) {
-			int[] item = { -1, -1, -1 };
+			int[] item = {-1, -1, -1};
 			if (big_netting) {
 				item = getItemById(CASKET, UNOPENED_OYSTER);
 			}
@@ -1203,34 +1195,34 @@ public final class S_CatherbyBNet extends Script {
 		boolean found = false;
 
 		switch (s.id) {
-		case STAGE_DEPOSIT:
-			for (int i = 0; i < bank_ids.length; ++i) {
-				int id = bank_ids[i];
-				if (inArray(bass, id) && big_netting && have_stage(STAGE_CERT)) {
-					continue;
+			case STAGE_DEPOSIT:
+				for (int i = 0; i < bank_ids.length; ++i) {
+					int id = bank_ids[i];
+					if (inArray(bass, id) && big_netting && have_stage(STAGE_CERT)) {
+						continue;
+					}
+					if (getInventoryIndex(id) != -1) {
+						found = true;
+						break;
+					}
 				}
-				if (getInventoryIndex(id) != -1) {
-					found = true;
-					break;
+				if (!found) {
+					next_stage();
+					return;
 				}
-			}
-			if (!found) {
-				next_stage();
-				return;
-			}
-			break;
-		case STAGE_CERT:
-			if (getInventoryCount(s.cert_input_id) < 5) {
-				next_stage();
-				return;
-			}
-			break;
-		case STAGE_SELL:
-			if (get_id_to_sell() == -1) {
-				next_stage();
-				return;
-			}
-			break;
+				break;
+			case STAGE_CERT:
+				if (getInventoryCount(s.cert_input_id) < 5) {
+					next_stage();
+					return;
+				}
+				break;
+			case STAGE_SELL:
+				if (get_id_to_sell() == -1) {
+					next_stage();
+					return;
+				}
+				break;
 		}
 		if (s.path_to != null) {
 			pw.setPath(s.path_to);
@@ -1282,12 +1274,12 @@ public final class S_CatherbyBNet extends Script {
 		final CheckboxGroup big_net_specials = new CheckboxGroup();
 
 		final Checkbox drop_raw_non_bass = new Checkbox("Special: Exclude non-bass fish / drop after fishing",
-				big_net_specials, false);
+			big_net_specials, false);
 
 		final Checkbox sell_raw_non_bass = new Checkbox("Special: Sell raw non-bass fish", big_net_specials, false);
 
 		final Checkbox sell_cooked_non_bass = new Checkbox("Special: Sell cooked non-bass fish", big_net_specials,
-				false);
+			false);
 		sell_cooked_non_bass.setEnabled(false);
 
 		pickup = new Checkbox("Pick up raw fish", false);
@@ -1298,11 +1290,11 @@ public final class S_CatherbyBNet extends Script {
 			public void itemStateChanged(ItemEvent e) {
 				acquire_group.setSelectedCheckbox(fish);
 				acquire_box_listener
-						.itemStateChanged(new ItemEvent(fish, ItemEvent.ITEM_FIRST, fish, ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(fish, ItemEvent.ITEM_FIRST, fish, ItemEvent.SELECTED));
 
 				dispose_group.setSelectedCheckbox(deposit);
 				dispose_box_listener
-						.itemStateChanged(new ItemEvent(deposit, ItemEvent.ITEM_FIRST, deposit, ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(deposit, ItemEvent.ITEM_FIRST, deposit, ItemEvent.SELECTED));
 
 				int change = e.getStateChange();
 				if (change == ItemEvent.SELECTED) {
@@ -1323,17 +1315,13 @@ public final class S_CatherbyBNet extends Script {
 			public void itemStateChanged(ItemEvent e) {
 				dispose_group.setSelectedCheckbox(deposit);
 				dispose_box_listener
-						.itemStateChanged(new ItemEvent(deposit, ItemEvent.ITEM_FIRST, deposit, ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(deposit, ItemEvent.ITEM_FIRST, deposit, ItemEvent.SELECTED));
 
 				int change = e.getStateChange();
 				if (change != ItemEvent.SELECTED) {
 					return;
 				}
-				if (cook.getState() || e.getSource() == fish) {
-					power.setEnabled(true);
-				} else {
-					power.setEnabled(false);
-				}
+				power.setEnabled(cook.getState() || e.getSource() == fish);
 				if (e.getSource() == buy_raw) {
 					sell_raw_non_bass.setEnabled(false);
 					sell_raw.setEnabled(false);
@@ -1454,25 +1442,25 @@ public final class S_CatherbyBNet extends Script {
 
 				acquire_group.setSelectedCheckbox(fish);
 				acquire_box_listener
-						.itemStateChanged(new ItemEvent(fish, ItemEvent.ITEM_FIRST, fish, ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(fish, ItemEvent.ITEM_FIRST, fish, ItemEvent.SELECTED));
 
 				dispose_group.setSelectedCheckbox(deposit);
 				dispose_box_listener
-						.itemStateChanged(new ItemEvent(deposit, ItemEvent.ITEM_FIRST, deposit, ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(deposit, ItemEvent.ITEM_FIRST, deposit, ItemEvent.SELECTED));
 
 				switch (list.getSelectedItem()) {
-				case "Big net":
-					checkboxes.add(drop_raw_non_bass);
-					checkboxes.add(sell_raw_non_bass);
-					checkboxes.add(sell_cooked_non_bass);
-					sell_cooked.setEnabled(false);
-					uncert.setEnabled(true);
-					cert.setEnabled(true);
-					pickup.setState(true);
-					pickup.setEnabled(false);
-					big_netting = true;
-					checkboxes.validate();
-					return;
+					case "Big net":
+						checkboxes.add(drop_raw_non_bass);
+						checkboxes.add(sell_raw_non_bass);
+						checkboxes.add(sell_cooked_non_bass);
+						sell_cooked.setEnabled(false);
+						uncert.setEnabled(true);
+						cert.setEnabled(true);
+						pickup.setState(true);
+						pickup.setEnabled(false);
+						big_netting = true;
+						checkboxes.validate();
+						return;
 				}
 				checkboxes.add(space_saver_a);
 				checkboxes.add(space_saver_b);
@@ -1485,25 +1473,25 @@ public final class S_CatherbyBNet extends Script {
 		ok.addActionListener(new ActionListener() {
 			private void set_ids() {
 				switch (list.getSelectedItem()) {
-				case "Big net":
-					fish_cursor = 0;
-					fish_x = 406;
-					fish_y = 505;
-					click1 = true;
-					if (drop_raw_non_bass.getState()) {
-						raw_ids = new int[] { 554 };
-						cooked_ids = new int[] { 555 };
-						burnt_ids = new int[] { 368 };
-						discard_ids = new int[] { 552, 550, 16, 17, 622 };
-					} else {
-						raw_ids = new int[] { 552, 550, 554 };
-						cooked_ids = new int[] { 553, 551, 555 };
-						burnt_ids = new int[] { 360, 365, 368 };
-						discard_ids = new int[] { 16, 17, 622 };
-					}
-					break;
-				default:
-					throw new Error("unknown fish");
+					case "Big net":
+						fish_cursor = 0;
+						fish_x = 406;
+						fish_y = 505;
+						click1 = true;
+						if (drop_raw_non_bass.getState()) {
+							raw_ids = new int[]{554};
+							cooked_ids = new int[]{555};
+							burnt_ids = new int[]{368};
+							discard_ids = new int[]{552, 550, 16, 17, 622};
+						} else {
+							raw_ids = new int[]{552, 550, 554};
+							cooked_ids = new int[]{553, 551, 555};
+							burnt_ids = new int[]{360, 365, 368};
+							discard_ids = new int[]{16, 17, 622};
+						}
+						break;
+					default:
+						throw new Error("unknown fish");
 				}
 
 			}
@@ -1571,7 +1559,7 @@ public final class S_CatherbyBNet extends Script {
 					y = ARHEIN_SHOP_Y;
 				}
 				if (do_not_sell == null) {
-					do_not_sell = new int[] {};
+					do_not_sell = new int[]{};
 				}
 				if (big_netting) {
 					int old_len = bank_ids.length;
@@ -1615,10 +1603,10 @@ public final class S_CatherbyBNet extends Script {
 				if (big_netting) {
 					if (cert.getState()) {
 						System.out.println(
-								"NOTE: Big netting is a special case. When certing, everything (that doesn't get sold) other than bass will be banked.");
+							"NOTE: Big netting is a special case. When certing, everything (that doesn't get sold) other than bass will be banked.");
 					} else if (sell_raw.getState()) {
 						System.out.println(
-								"NOTE: Big netting is a special case. When selling raw fish, casket loot and pearls (if any) will be banked.");
+							"NOTE: Big netting is a special case. When selling raw fish, casket loot and pearls (if any) will be banked.");
 					}
 				}
 

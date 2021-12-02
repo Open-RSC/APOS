@@ -1,26 +1,23 @@
+import com.aposbot.Constants;
+import com.aposbot.StandardCloseHandler;
+
+import javax.imageio.ImageIO;
+import java.awt.List;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 
-import javax.imageio.ImageIO;
-
-import com.aposbot.Constants;
-import com.aposbot.StandardCloseHandler;
-
 public class PathWalker_Wild extends Script
-    implements ActionListener, ItemListener {
+	implements ActionListener, ItemListener {
 
 	/*
 	 * - Features, etc.
@@ -29,24 +26,26 @@ public class PathWalker_Wild extends Script
 	 * Prefers road over ground.
 	 * Can open many doors. Extra IDs and specifics like which key needs to
 	 * be used are appreciated.
-	 * 
+	 *
 	 * - Limitations, etc.
 	 * Can't change levels (with ladders, etc) or use any kind of
 	 * teleportation point.
 	 * No proper handling of direction with bounds.
 	 * Object information in the default loaded map may be inaccurate.
-	 * 
+	 *
 	 * - Credits
 	 * Stormy
 	 * Wikipedia
 	 * Xueqiao Xu <xueqiaoxu@gmail.com>
-	 * 
+	 *
 	 * Contributions are appreciated.
 	 */
-	 /**kRiStOf's edits:
-	 /** added paint
-	 /** added runtime to paint
-	 /** added gate handling for both tav's, gnome tree, memb wild, and karajammin p2p
+
+	/**
+	 * kRiStOf's edits:
+	 * /** added paint
+	 * /** added runtime to paint
+	 * /** added gate handling for both tav's, gnome tree, memb wild, and karajammin p2p
 	 */
 
 	// class for encapsulation
@@ -100,8 +99,8 @@ public class PathWalker_Wild extends Script
 			// manhattan
 			if (h == -1) {
 				h = (short) ((2 - walkable) *
-				    (Math.abs(this.x - n.x) +
-				     Math.abs(this.y - n.y)));
+					(Math.abs(this.x - n.x) +
+						Math.abs(this.y - n.y)));
 			}
 			return h;
 		}
@@ -115,9 +114,9 @@ public class PathWalker_Wild extends Script
 			final boolean dontCrossCorners = true;
 
 			boolean s0 = false, d0 = false,
-			    s1 = false, d1 = false,
-			    s2 = false, d2 = false,
-			    s3 = false, d3 = false;
+				s1 = false, d1 = false,
+				s2 = false, d2 = false,
+				s3 = false, d3 = false;
 
 			final int x = this.x;
 			final int y = this.y;
@@ -209,10 +208,10 @@ public class PathWalker_Wild extends Script
 		}
 	}
 
-	public static final Location[] locations = new Location[] {
-	    new Location("Edgeville", 215, 450, true),
-	    new Location("Varrock East", 102, 511, true),
-	    new Location("Caslte", 271, 352, false),
+	public static final Location[] locations = new Location[]{
+		new Location("Edgeville", 215, 450, true),
+		new Location("Varrock East", 102, 511, true),
+		new Location("Caslte", 271, 352, false),
 		new Location("Lvl 11 Alter", 115, 357, false),
 		new Location("Graveyard", 162, 311, false),
 		new Location("Black Unicorns", 120, 302, false),
@@ -243,10 +242,10 @@ public class PathWalker_Wild extends Script
 	private List choice;
 	private TextField field_start;
 	private TextField field_end;
-	private static final int[] objects_1 = new int[] {
+	private static final int[] objects_1 = new int[]{
 		64, 60, 137, 138, 93
 	};
-	private static final int[] bounds_1 = new int[] {
+	private static final int[] bounds_1 = new int[]{
 		2, 8, 55, 68, 44, 74, 117
 	};
 	private long start_time;
@@ -271,7 +270,7 @@ public class PathWalker_Wild extends Script
 	public void init(String params) {
 		start_time = -1L;
 		File dir = new File(
-		    "." + File.separator + "Map" + File.separator);
+			"." + File.separator + "Map" + File.separator);
 		dir.mkdir();
 
 		if (nodes == null) {
@@ -283,8 +282,8 @@ public class PathWalker_Wild extends Script
 			GZIPInputStream in = null;
 			try {
 				in = new GZIPInputStream(
-				    new BufferedInputStream(
-				    new FileInputStream(file)));
+					new BufferedInputStream(
+						new FileInputStream(file)));
 				for (int i = 0; i < WORLD_W; ++i) {
 					int read = 0;
 					do {
@@ -334,7 +333,7 @@ public class PathWalker_Wild extends Script
 	@Override
 	public int main() {
 		if (start_time == -1L) {
-		start_time = System.currentTimeMillis();
+			start_time = System.currentTimeMillis();
 		}
 		if (inCombat()) {
 			resetWait();
@@ -357,7 +356,7 @@ public class PathWalker_Wild extends Script
 
 	private BufferedImage getMapImage() {
 		File file = new File(
-		    "." + File.separator + "Map" + File.separator + "map.png");
+			"." + File.separator + "Map" + File.separator + "map.png");
 
 		System.out.print("Reading map image... ");
 		try {
@@ -396,14 +395,14 @@ public class PathWalker_Wild extends Script
 			Panel pp = new Panel();
 			pp.setLayout(new BorderLayout());
 			pp.add(new Label("Preset targets", Label.CENTER),
-			    BorderLayout.NORTH);
+				BorderLayout.NORTH);
 			pp.add(choice, BorderLayout.CENTER);
 
 			field_end.setText("0,0");
 
 			frame = new Frame(getClass().getSimpleName());
 			frame.addWindowListener(
-			    new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
+				new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
 			);
 			frame.setIconImages(Constants.ICONS);
 			frame.add(tp, BorderLayout.NORTH);
@@ -442,58 +441,48 @@ public class PathWalker_Wild extends Script
 			if (n == null) return true;
 			int x = n.x;
 			int y = n.y;
-			if (isAtApproxCoords(331,487,10) && (n.x > 341)) {
-				atObject(341,487);
+			if (isAtApproxCoords(331, 487, 10) && (n.x > 341)) {
+				atObject(341, 487);
 				System.out.println("doing a gate to tav, line 448");
 				wait_time = c_time + 8000;
 
-			}
-			else if (isAtApproxCoords(352,487,10) && (n.x <= 341)) {
-				atObject(341,487);
+			} else if (isAtApproxCoords(352, 487, 10) && (n.x <= 341)) {
+				atObject(341, 487);
 				System.out.println("doing a gate to fally");
 				wait_time = c_time + 8000;
-			}
-			else if (isAtApproxCoords(343,591,10) && (n.y < 581)) {
-				atObject(343,581);
+			} else if (isAtApproxCoords(343, 591, 10) && (n.y < 581)) {
+				atObject(343, 581);
 				System.out.println("doing a gate to tav");
 				wait_time = c_time + 8000;
-			}
-			else if (isAtApproxCoords(343,570,10) && (n.y >= 581)) {
-				atObject(343,581);
+			} else if (isAtApproxCoords(343, 570, 10) && (n.y >= 581)) {
+				atObject(343, 581);
 				System.out.println("doing a gate to fally");
 				wait_time = c_time + 8000;
-			}
-			else if (isAtApproxCoords(703,542,10) && (n.y <= 531)) {
-				atObject(703,531);
+			} else if (isAtApproxCoords(703, 542, 10) && (n.y <= 531)) {
+				atObject(703, 531);
 				System.out.println("doing a gate to gnome tree");
 				wait_time = c_time + 8000;
-			}
-			else if (isAtApproxCoords(703,521,10) && (n.y > 531)) {
-				atObject(703,531);
+			} else if (isAtApproxCoords(703, 521, 10) && (n.y > 531)) {
+				atObject(703, 531);
 				System.out.println("doing a gate from gnome tree");
 				wait_time = c_time + 8000;
-			}
-			else if (isAtApproxCoords(445,682,10) && (n.x < 435)) {
-				atObject(434,682);
+			} else if (isAtApproxCoords(445, 682, 10) && (n.x < 435)) {
+				atObject(434, 682);
 				System.out.println("doing a gate to f2p karajammin");
 				wait_time = c_time + 8000;
-			}
-			else if (isAtApproxCoords(424,521,10) && (n.x >= 435)) {
-				atObject(434,682);
+			} else if (isAtApproxCoords(424, 521, 10) && (n.x >= 435)) {
+				atObject(434, 682);
 				System.out.println("doing a gate to p2p karajammin");
 				wait_time = c_time + 8000;
-			}
-			else if (isAtApproxCoords(111,152,10) && (n.y < 142)) {
-				atObject(111,142);
+			} else if (isAtApproxCoords(111, 152, 10) && (n.y < 142)) {
+				atObject(111, 142);
 				System.out.println("doing a gate to p2p wild");
 				c_time = wait_time;
-			}
-			else if (isAtApproxCoords(117,131,10) && (n.y >= 142)) {
-				atObject(111,142);
+			} else if (isAtApproxCoords(117, 131, 10) && (n.y >= 142)) {
+				atObject(111, 142);
 				System.out.println("doing a gate to f2p wild");
 				c_time = wait_time;
-			}			
-			else {
+			} else {
 				walkTo(x, y);
 			}
 			int d = distanceTo(x, y);
@@ -502,7 +491,7 @@ public class PathWalker_Wild extends Script
 			} else {
 				wait_time = c_time + random(600, 800);
 			}
-		}		
+		}
 		return true;
 	}
 
@@ -512,7 +501,7 @@ public class PathWalker_Wild extends Script
 
 	private Node getCurrentDest() {
 		long c_time = System.currentTimeMillis();
-		int ptr  = path_ptr;
+		int ptr = path_ptr;
 		int x, y;
 		int orig = ptr;
 		do {
@@ -577,8 +566,7 @@ public class PathWalker_Wild extends Script
 		if (handleObject(x - 1, y - 1)) return true;
 		if (handleObject(x + 1, y + 1)) return true;
 		if (handleObject(x - 1, y + 1)) return true;
-		if (handleObject(x + 1, y - 1)) return true;
-		return false;
+		return handleObject(x + 1, y - 1);
 	}
 
 	private boolean handleObject(int x, int y) {
@@ -668,8 +656,8 @@ public class PathWalker_Wild extends Script
 	private Node[] astar(Node start, Node goal) {
 		if (DEBUG) {
 			System.out.print(
-			    "Calculating path from " + start +
-			    " to " + goal + "... ");
+				"Calculating path from " + start +
+					" to " + goal + "... ");
 		}
 
 		long start_ms = System.currentTimeMillis();
@@ -734,7 +722,7 @@ public class PathWalker_Wild extends Script
 	}
 
 	private static Node[] constructPath(
-	    Map<Node, Node> came_from, Node start, Node goal) {
+		Map<Node, Node> came_from, Node start, Node goal) {
 
 		Deque<Node> path = new ArrayDeque<Node>();
 		Node p = came_from.get(goal);
@@ -805,14 +793,16 @@ public class PathWalker_Wild extends Script
 
 			if (start == null) {
 				System.out.println("Failed: invalid start position.");
-				frame.setVisible(false); return;
+				frame.setVisible(false);
+				return;
 			}
 
 			Node end = getNode(nodes, x2, y2);
 
 			if (end == null) {
 				System.out.println("Failed: invalid end position.");
-				frame.setVisible(false); return;
+				frame.setVisible(false);
+				return;
 			}
 
 			Node[] path = astar(start, end);
@@ -845,8 +835,8 @@ public class PathWalker_Wild extends Script
 			System.out.print("Writing path image... ");
 			try {
 				ImageIO.write(image, "PNG", new File(
-				    "." + File.separator + "Map" +
-				    File.separator + "path.png"));
+					"." + File.separator + "Map" +
+						File.separator + "path.png"));
 				System.out.println("done.");
 			} catch (Throwable t) {
 				System.out.println("failed: " + t);
@@ -859,18 +849,20 @@ public class PathWalker_Wild extends Script
 			System.out.println("Ready to run.");
 		}
 	}
+
 	@Override
-    public void paint() {
+	public void paint() {
 		int x = 320;
-        int y = 46;
-        drawString("Storm's Path Walker (Wild)", x - 1, y, 4, 0x1E90FF);
+		int y = 46;
+		drawString("Storm's Path Walker (Wild)", x - 1, y, 4, 0x1E90FF);
 		y += 15;
 		drawString("Gate Support by kRiStOf", x - 1, y, 4, 0x1E90FF);
 		y += 15;
-        drawString("Runtime: " + get_time_since(start_time), x, y, 1, 0xFFFFFF);
-		drawVLine(x-7, 36, y - 32, 0x1E90FF);
-		drawHLine(x-7, y + 3, 196, 0x1E90FF);
-    }
+		drawString("Runtime: " + get_time_since(start_time), x, y, 1, 0xFFFFFF);
+		drawVLine(x - 7, 36, y - 32, 0x1E90FF);
+		drawHLine(x - 7, y + 3, 196, 0x1E90FF);
+	}
+
 	private static String get_time_since(long t) {
 		long millis = (System.currentTimeMillis() - t) / 1000;
 		long second = millis % 60;

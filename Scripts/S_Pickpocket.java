@@ -1,11 +1,8 @@
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Choice;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.TextField;
+import com.aposbot.Constants;
+import com.aposbot.StandardCloseHandler;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -14,23 +11,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
-
-import javax.swing.BoxLayout;
-
-import com.aposbot.Constants;
-import com.aposbot.StandardCloseHandler;
+import java.util.*;
+import java.util.Map.Entry;
 
 public final class S_Pickpocket extends Script
-    implements ActionListener, ItemListener {
+	implements ActionListener, ItemListener {
 
 	private final DecimalFormat iformat = new DecimalFormat("#,##0");
 
@@ -50,41 +36,41 @@ public final class S_Pickpocket extends Script
 
 	static {
 		map_npcs = new LinkedHashMap<>();
-		map_npcs.put("Men (level 1)", new int[] { 11, 72, 318, 750 });
-		map_npcs.put("Farmers (level 10)", new int[] { 63, 319 });
-		map_npcs.put("Warriors (level 25)", new int[] { 86, 320 });
-		map_npcs.put("Rogues (level 32)", new int[] { 342 });
-		map_npcs.put("Guards (level 40)", new int[] { 65, 321, 376 });
-		map_npcs.put("Knights (level 55)", new int[] { 322 });
-		map_npcs.put("Paladins (level 70)", new int[] { 323 });
-		map_npcs.put("Gnomes (level 75)", new int[] { 593, 592, 591 });
-		map_npcs.put("Heroes (level 80)", new int[] { 324 });
+		map_npcs.put("Men (level 1)", new int[]{11, 72, 318, 750});
+		map_npcs.put("Farmers (level 10)", new int[]{63, 319});
+		map_npcs.put("Warriors (level 25)", new int[]{86, 320});
+		map_npcs.put("Rogues (level 32)", new int[]{342});
+		map_npcs.put("Guards (level 40)", new int[]{65, 321, 376});
+		map_npcs.put("Knights (level 55)", new int[]{322});
+		map_npcs.put("Paladins (level 70)", new int[]{323});
+		map_npcs.put("Gnomes (level 75)", new int[]{593, 592, 591});
+		map_npcs.put("Heroes (level 80)", new int[]{324});
 
 		map_food = new TreeMap<>();
-		map_food.put("Shrimp", new int[] { 350 });
-		map_food.put("Anchovy", new int[] { 352 });
-		map_food.put("Sardine", new int[] { 355 });
-		map_food.put("Salmon", new int[] { 357 });
-		map_food.put("Trout", new int[] { 359 });
-		map_food.put("Herring", new int[] { 362 });
-		map_food.put("Pike", new int[] { 364 });
-		map_food.put("Tuna", new int[] { 367 });
-		map_food.put("Swordfish", new int[] { 370 });
-		map_food.put("Lobster", new int[] { 373 });
-		map_food.put("Bass", new int[] { 555 });
-		map_food.put("Shark", new int[] { 546 });
-		map_food.put("Manta ray", new int[] { 1191 });
-		map_food.put("Sea turtle", new int[] { 1193 });
-		map_food.put("Kebab", new int[] { 210 });
-		map_food.put("Cake", new int[] { 330, 333, 335 });
-		map_food.put("Chocolate cake", new int[] { 332, 334, 336 });
-		map_food.put("Meat pizza", new int[] { 326, 328 });
-		map_food.put("Anchovy pizza", new int[] { 327, 329 });
+		map_food.put("Shrimp", new int[]{350});
+		map_food.put("Anchovy", new int[]{352});
+		map_food.put("Sardine", new int[]{355});
+		map_food.put("Salmon", new int[]{357});
+		map_food.put("Trout", new int[]{359});
+		map_food.put("Herring", new int[]{362});
+		map_food.put("Pike", new int[]{364});
+		map_food.put("Tuna", new int[]{367});
+		map_food.put("Swordfish", new int[]{370});
+		map_food.put("Lobster", new int[]{373});
+		map_food.put("Bass", new int[]{555});
+		map_food.put("Shark", new int[]{546});
+		map_food.put("Manta ray", new int[]{1191});
+		map_food.put("Sea turtle", new int[]{1193});
+		map_food.put("Kebab", new int[]{210});
+		map_food.put("Cake", new int[]{330, 333, 335});
+		map_food.put("Chocolate cake", new int[]{332, 334, 336});
+		map_food.put("Meat pizza", new int[]{326, 328});
+		map_food.put("Anchovy pizza", new int[]{327, 329});
 	}
 
 	private static final int[] ids_bank = {
-	    COINS, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 41, 42, 46, 619,
-	    152, 142, 612, 619, 161, DSQ, BONES
+		COINS, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 41, 42, 46, 619,
+		152, 142, 612, 619, 161, DSQ, BONES
 	};
 
 	private int last_combat_x;
@@ -101,8 +87,8 @@ public final class S_Pickpocket extends Script
 	private int withdraw_food;
 	private boolean bury_bones;
 
-	private int[] bank_counts = new int[ids_bank.length];
-	private boolean[] has_banked = new boolean[ids_bank.length];
+	private final int[] bank_counts = new int[ids_bank.length];
+	private final boolean[] has_banked = new boolean[ids_bank.length];
 
 	private Frame frame;
 	private Choice ch_fm;
@@ -114,7 +100,7 @@ public final class S_Pickpocket extends Script
 	private TextField tf_eat;
 	private TextField tf_sleep;
 
-	private PathWalker pw;
+	private final PathWalker pw;
 	private PathWalker.Path to_bank;
 	private PathWalker.Path from_bank;
 	private PathWalker.Location bank;
@@ -126,9 +112,9 @@ public final class S_Pickpocket extends Script
 	private long cur_fails;
 	private int levels_gained;
 	private int total_withdraw;
-	
+
 	private FileWriter csv;
-    private long cur_attempts;
+	private long cur_attempts;
 
 	private int start_x;
 	private int start_y;
@@ -139,26 +125,22 @@ public final class S_Pickpocket extends Script
 	public S_Pickpocket(Extension ex) {
 		super(ex);
 		pw = new PathWalker(ex);
-		
-		try{
-			String fileName	= "pickpocketting_exp.csv";
+
+		try {
+			String fileName = "pickpocketting_exp.csv";
 			boolean fileCreated = false;
 			File createCsv = new File(fileName);
-			if (!createCsv.exists())
-			{
+			if (!createCsv.exists()) {
 				createCsv.createNewFile();
 				fileCreated = true;
 			}
 
-			csv	= new FileWriter(createCsv, true);
-			if(fileCreated)
-			{
+			csv = new FileWriter(createCsv, true);
+			if (fileCreated) {
 				csv.write("npc_id,level,attempts,success_count,fail_count\n");
 				csv.flush();
 			}
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -173,7 +155,7 @@ public final class S_Pickpocket extends Script
 		Arrays.fill(has_banked, false);
 		Arrays.fill(bank_counts, 0);
 		walked_in_bank = false;
-		total_withdraw  = 0;
+		total_withdraw = 0;
 		levels_gained = 0;
 		cur_success = 0;
 		cur_fails = 0;
@@ -249,7 +231,7 @@ public final class S_Pickpocket extends Script
 			frame = new Frame(getClass().getSimpleName());
 			frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
 			frame.addWindowListener(
-			    new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
+				new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
 			);
 			frame.setIconImages(Constants.ICONS);
 			frame.add(pInput, BorderLayout.NORTH);
@@ -328,11 +310,13 @@ public final class S_Pickpocket extends Script
 				System.out.println("Nearest bank: " + bank.name);
 				to_bank = pw.calcPath(start_x, start_y, bank.x, bank.y);
 				if (to_bank == null) {
-					stopScript(); return 0;
+					stopScript();
+					return 0;
 				}
 				from_bank = pw.calcPath(bank.x, bank.y, start_x, start_y);
 				if (from_bank == null) {
-					stopScript(); return 0;
+					stopScript();
+					return 0;
 				}
 				init_path = true;
 			}
@@ -373,7 +357,8 @@ public final class S_Pickpocket extends Script
 						return random(1000, 2000);
 					}
 					System.out.println("ERROR: Out of food!");
-					stopScript(); setAutoLogin(false);
+					stopScript();
+					setAutoLogin(false);
 					return 0;
 				}
 				if (food_count > withdraw_food) {
@@ -421,10 +406,10 @@ public final class S_Pickpocket extends Script
 		}
 		int[] item = getItemById(ids_bank);
 		if ((item[1] == getX() && item[2] == getY()) ||
-		    (item[1] == last_combat_x && item[2] == last_combat_y)) {
+			(item[1] == last_combat_x && item[2] == last_combat_y)) {
 			if (getInventoryCount() < MAX_INV_SIZE ||
-			    (getInventoryIndex(item[0]) != -1 &&
-			    isItemStackableId(item[0]))) {
+				(getInventoryIndex(item[0]) != -1 &&
+					isItemStackableId(item[0]))) {
 				if (item[0] == BONES) {
 					if (bury_bones) {
 						pickupItem(item[0], item[1], item[2]);
@@ -458,7 +443,7 @@ public final class S_Pickpocket extends Script
 	}
 
 	private int[] get_npc_reachable(int... ids) {
-		int[] npc = new int[] {
+		int[] npc = new int[]{
 			-1, -1, -1
 		};
 		int max_dist = Integer.MAX_VALUE;
@@ -490,36 +475,36 @@ public final class S_Pickpocket extends Script
 		drawString("S Pickpocket", x, y, 1, orangey);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time),
-		    x + 10, y, 1, white);
+			x + 10, y, 1, white);
 		y += 15;
 		drawString(String.format("Stats for current level (%d gained)",
-		    levels_gained),
-		    x, y, 1, orangey);
+				levels_gained),
+			x, y, 1, orangey);
 		y += 15;
 		drawString(String.format("Successful attempts: %s (%s/h)",
-		    iformat.format(cur_success),
-		    per_hour(cur_success, level_time)),
-		    x + 10, y, 1, white);
+				iformat.format(cur_success),
+				per_hour(cur_success, level_time)),
+			x + 10, y, 1, white);
 		y += 15;
 		drawString(String.format("Failed attempts: %s (%s/h)",
-		    iformat.format(cur_fails),
-		    per_hour(cur_fails, level_time)),
-		    x + 10, y, 1, white);
+				iformat.format(cur_fails),
+				per_hour(cur_fails, level_time)),
+			x + 10, y, 1, white);
 		y += 15;
 		drawString("Fail rate: " + (float)
-		    ((double) cur_fails / (double) cur_success),
-		    x + 10, y, 1, white);
+				((double) cur_fails / (double) cur_success),
+			x + 10, y, 1, white);
 		if (levels_gained > 0) {
 			y += 15;
 			drawString("Total:", x, y, 1, orangey);
 			y += 15;
 			drawString("Successful attempts: " +
-			    iformat.format(total_success),
-			    x + 10, y, 1, white);
+					iformat.format(total_success),
+				x + 10, y, 1, white);
 			y += 15;
 			drawString("Failed attempts: " +
-			    iformat.format(total_fails),
-			    x + 10, y, 1, white);
+					iformat.format(total_fails),
+				x + 10, y, 1, white);
 		}
 		if (ch_bank.getSelectedIndex() == BANK_NEVER) return;
 		y += 15;
@@ -527,9 +512,9 @@ public final class S_Pickpocket extends Script
 		y += 15;
 		if (withdraw_food != 0) {
 			drawString(String.format("%s food withdrawn (%s trips)",
-			    iformat.format(total_withdraw),
-			    iformat.format(total_withdraw / withdraw_food)),
-			    x + 10, y, 1, white);
+					iformat.format(total_withdraw),
+					iformat.format(total_withdraw / withdraw_food)),
+				x + 10, y, 1, white);
 			y += 15;
 		}
 		int len = ids_bank.length;
@@ -537,9 +522,9 @@ public final class S_Pickpocket extends Script
 			int count = bank_counts[i];
 			if (count <= 0) continue;
 			drawString(String.format("%s %s",
-			    iformat.format(count),
-			    getItemNameId(ids_bank[i])),
-			    x + 10, y, 1, white);
+					iformat.format(count),
+					getItemNameId(ids_bank[i])),
+				x + 10, y, 1, white);
 			y += 15;
 		}
 	}
@@ -590,8 +575,8 @@ public final class S_Pickpocket extends Script
 			++cur_success;
 			++total_success;
 			++cur_attempts;
-			
-			if(cur_attempts >= 1000)
+
+			if (cur_attempts >= 1000)
 				_csvOut();
 		} else if (str.contains("advanced")) {
 			System.out.println("You just advanced a level.");
@@ -614,31 +599,29 @@ public final class S_Pickpocket extends Script
 			++levels_gained;
 		}
 	}
-	
+
 	private void _csvOut() {
-    	int cursor = ch_npc.getSelectedIndex();
-    	List<Entry<String, int[]>> indexedList = new ArrayList<Map.Entry<String, int[]>>(map_npcs.entrySet());
-    	// fullname = non_spaced_npc + " " + (level)
-    	String fullName = indexedList.get(cursor).getKey();
-    	String npcname = fullName.substring(0, fullName.indexOf(' '));
-    	
-    	try{
+		int cursor = ch_npc.getSelectedIndex();
+		List<Entry<String, int[]>> indexedList = new ArrayList<Map.Entry<String, int[]>>(map_npcs.entrySet());
+		// fullname = non_spaced_npc + " " + (level)
+		String fullName = indexedList.get(cursor).getKey();
+		String npcname = fullName.substring(0, fullName.indexOf(' '));
+
+		try {
 			csv.write(
 				"\"" + npcname + "\"," +
-				getLevel(17) + "," +
-				cur_attempts + "," +
-				cur_success + "," +
-				cur_fails + "\n"
+					getLevel(17) + "," +
+					cur_attempts + "," +
+					cur_success + "," +
+					cur_fails + "\n"
 			);
 			csv.flush();
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-        cur_attempts	= 0;
-    }
+
+		cur_attempts = 0;
+	}
 
 	private boolean shouldBank() {
 		switch (ch_bank.getSelectedIndex()) {
@@ -648,7 +631,7 @@ public final class S_Pickpocket extends Script
 				return getFoodSlot() == -1;
 			default:
 				return getFoodSlot() == -1 ||
-				   getInventoryCount() == MAX_INV_SIZE;
+					getInventoryCount() == MAX_INV_SIZE;
 		}
 	}
 
@@ -660,7 +643,7 @@ public final class S_Pickpocket extends Script
 			dy = y + random(-1, 1);
 			if ((++loop) > 500) return;
 		} while (!isReachable(dx, dy) ||
-		    (dx == getX() && dy == getY()));
+			(dx == getX() && dy == getY()));
 		walkTo(dx, dy);
 	}
 

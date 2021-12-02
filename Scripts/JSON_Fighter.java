@@ -1,21 +1,22 @@
 // Imports required by the settings creator.
+
 import com.aposbot.JSONgui;
 
 public final class JSON_Fighter extends Script {
-	
+
 	// THIS IS RELEVANT.
 	// stores the configuration of the script.
 	// defaults are specified here. please make them sensible.
 	// Settings cannot be "final".
 	public static final class Config {
-		public int[] npcs = { 1, 2 };
+		public int[] npcs = {1, 2};
 		public int food_id = 546;
 		public boolean sleep = true;
 	}
-	
+
 	// THIS IS RELEVANT. This has to be here. It is used to access your settings.
 	private final Config config = new Config();
-	
+
 	// THIS IS RELEVANT. Displayed when the user clicks the "Help" button.
 	private static final String[] help_contents = {
 		"- Example script (JSON Fighter) by S -",
@@ -26,7 +27,7 @@ public final class JSON_Fighter extends Script {
 		"",
 		"IDs can be found with the debugger, or inside the APOS \"ids\" folder."
 	};
-	
+
 	public static void main(String[] argv) {
 		new JSON_Fighter(null).init(null);
 	}
@@ -34,19 +35,19 @@ public final class JSON_Fighter extends Script {
 	public JSON_Fighter(Extension ex) {
 		super(ex);
 	}
-	
+
 	@Override
 	public void init(String params) {
 		// THIS IS RELEVANT. Required line.
 		new JSONgui(getClass().getSimpleName(),
-				config, help_contents, new Runnable() {
-		public void run() {
-			// THIS IS RELEVANT. Will be executed when the user
-			// presses "ok". You can do post-processing here
-			// if need be.
-			System.out.println("Press \"start script\" to begin.");
-		}
-	}).showFrame();
+			config, help_contents, new Runnable() {
+			public void run() {
+				// THIS IS RELEVANT. Will be executed when the user
+				// presses "ok". You can do post-processing here
+				// if need be.
+				System.out.println("Press \"start script\" to begin.");
+			}
+		}).showFrame();
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public final class JSON_Fighter extends Script {
 	@Override
 	public void paint() {
 	}
-	
+
 	@Override
 	public void onServerMessage(String str) {
 	}

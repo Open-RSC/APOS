@@ -1,4 +1,4 @@
-import java.awt.Point;
+import java.awt.*;
 import java.util.HashMap;
 
 public final class S_JailRanged extends Script {
@@ -24,29 +24,29 @@ public final class S_JailRanged extends Script {
 	static {
 		// aim spots for the various npcs
 		tiles = new HashMap<Integer, Point[]>();
-		tiles.put(ID_PIRATE, new Point[] {
+		tiles.put(ID_PIRATE, new Point[]{
 			new Point(285, 658),
 			new Point(285, 659),
 			new Point(285, 661)
 		});
-		tiles.put(ID_THIEF, new Point[] {
+		tiles.put(ID_THIEF, new Point[]{
 			new Point(285, 655),
 			new Point(285, 657)
 		});
-		tiles.put(ID_WORMBRAIN, new Point[] {
+		tiles.put(ID_WORMBRAIN, new Point[]{
 			new Point(285, 662),
 			new Point(285, 663),
 			new Point(285, 664),
 			new Point(284, 665),
 			new Point(282, 665)
 		});
-		tiles.put(ID_MUGGER, new Point[] {
+		tiles.put(ID_MUGGER, new Point[]{
 			new Point(281, 665),
 			new Point(285, 662),
 			new Point(285, 663),
 			new Point(285, 664)
 		});
-		tiles.put(ID_KNIGHT, new Point[] {
+		tiles.put(ID_KNIGHT, new Point[]{
 			new Point(281, 665),
 			new Point(281, 667)
 		});
@@ -89,7 +89,7 @@ public final class S_JailRanged extends Script {
 			return random(1500, 2000);
 		}
 
-		if (sleep_time != -1L){
+		if (sleep_time != -1L) {
 			if (System.currentTimeMillis() >= sleep_time) {
 				useSleepingBag();
 				sleep_time = -1L;
@@ -207,12 +207,12 @@ public final class S_JailRanged extends Script {
 		long secs = ((System.currentTimeMillis() - start_time) / 1000);
 		if (secs >= 3600) {
 			return (secs / 3600) + " hours, " +
-					((secs % 3600) / 60) + " mins, " +
-					(secs % 60) + " secs.";
+				((secs % 3600) / 60) + " mins, " +
+				(secs % 60) + " secs.";
 		}
 		if (secs >= 60) {
 			return secs / 60 + " mins, " +
-					(secs % 60) + " secs.";
+				(secs % 60) + " secs.";
 		}
 		return secs + " secs.";
 	}

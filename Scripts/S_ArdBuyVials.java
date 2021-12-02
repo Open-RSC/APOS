@@ -147,8 +147,8 @@ public final class S_ArdBuyVials extends Script {
 		int y = 18;
 		int count = getInventoryCount(VIAL) + banked;
 		drawString(String.format(
-			"S Filled Vial Buyer | Bought: %s (%s/h)",
-			iformat.format(count), per_hour(count)),
+				"S Filled Vial Buyer | Bought: %s (%s/h)",
+				iformat.format(count), per_hour(count)),
 			x, y, 2, 0xFFFFFF);
 		y += 15;
 		drawString("Runtime: " + get_runtime(), x, y, 2, 0xFFFFFF);

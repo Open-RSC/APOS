@@ -1,38 +1,29 @@
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Panel;
-import java.awt.GridLayout;
-import java.awt.BorderLayout;
-import java.awt.Choice;
-import java.awt.Label;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.CheckboxGroup;
+import com.aposbot.Constants;
+import com.aposbot.StandardCloseHandler;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.List;
-import java.util.ArrayList;
 import java.text.DecimalFormat;
-import com.aposbot.StandardCloseHandler;
-import com.aposbot.Constants;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public final class S_Barbarian extends Script {
 
 	private static final int ID_TINDERBOX = 166;
-    private static final int ID_FIRE = 97;
-    private static final int ID_LOGS = 14;
-    private static final int ID_TREE = 0;
-    private static final int[] ids_axe = {
-        12, 87, 88, 203, 204, 405
-    };
-	
+	private static final int ID_FIRE = 97;
+	private static final int ID_LOGS = 14;
+	private static final int ID_TREE = 0;
+	private static final int[] ids_axe = {
+		12, 87, 88, 203, 204, 405
+	};
+
 	private static final class Stage {
 		int id;
 		PathWalker.Path path_to;
@@ -52,47 +43,47 @@ public final class S_Barbarian extends Script {
 		@Override
 		public String toString() {
 			switch (id) {
-			case STAGE_FISH:
-				return "Fishing";
-			case STAGE_COOK:
-				return "Cooking";
-			default:
-				return "Invalid";
+				case STAGE_FISH:
+					return "Fishing";
+				case STAGE_COOK:
+					return "Cooking";
+				default:
+					return "Invalid";
 			}
 		}
 	}
-	
-	// id of the possible combined fishes
-		public static final int[][] fish_spots_ids = {
-				// trout/salmon
-				{358, 356},
-				// pike
-				{363}
-		};
-			
-		public static final String[][] fish_spots_names = {
-				{"trout", "salmon"},
-				{"pike"}
-		};
-		
-		public static final String[] combined_fish_spots = {
-				"Trout/salmon",
-				"Pike"
-		};
-		
-		public static int fish_cursor;
-			
-		// fish spots shared on at most 2
-		public static final long[] fish_success = new long[2];
-		public static final long[] cook_success = new long[2];
-		public static final long[] cook_failure = new long[2];
-		private static final int LEVEL_COOKING = 7;
-		private static final int LEVEL_FISHING = 10;
-		private static final int LEVEL_WOODCUTTING = 8;
-		private static final int LEVEL_FIREMAKING = 11;
 
-	private static final int STAGE_FISH	= 0;
-	private static final int STAGE_COOK	= 1;
+	// id of the possible combined fishes
+	public static final int[][] fish_spots_ids = {
+		// trout/salmon
+		{358, 356},
+		// pike
+		{363}
+	};
+
+	public static final String[][] fish_spots_names = {
+		{"trout", "salmon"},
+		{"pike"}
+	};
+
+	public static final String[] combined_fish_spots = {
+		"Trout/salmon",
+		"Pike"
+	};
+
+	public static int fish_cursor;
+
+	// fish spots shared on at most 2
+	public static final long[] fish_success = new long[2];
+	public static final long[] cook_success = new long[2];
+	public static final long[] cook_failure = new long[2];
+	private static final int LEVEL_COOKING = 7;
+	private static final int LEVEL_FISHING = 10;
+	private static final int LEVEL_WOODCUTTING = 8;
+	private static final int LEVEL_FIREMAKING = 11;
+
+	private static final int STAGE_FISH = 0;
+	private static final int STAGE_COOK = 1;
 
 	private final DecimalFormat iformat = new DecimalFormat("#,##0");
 
@@ -128,12 +119,12 @@ public final class S_Barbarian extends Script {
 	private long total_cook_success;
 	private long total_cook_fails;
 	private int cooking_levels;
-	
+
 	private FileWriter fishcsv;
 	private FileWriter cookcsv;
 	private FileWriter woodcsv;
 	private FileWriter firecsv;
-	
+
 	private long cur_logs;
 	private long cur_logsburn;
 	private long cur_attempts;
@@ -143,7 +134,7 @@ public final class S_Barbarian extends Script {
 
 	private int box_bottom;
 
-	private PathWalker pw;
+	private final PathWalker pw;
 	private boolean pw_init;
 
 	private final List<Stage> stages = new ArrayList<>();
@@ -158,77 +149,67 @@ public final class S_Barbarian extends Script {
 	public S_Barbarian(Extension ex) {
 		super(ex);
 		pw = new PathWalker(ex);
-		
-		try{
-			String fileName	= "fishing_exp.csv";
+
+		try {
+			String fileName = "fishing_exp.csv";
 			boolean fileCreated = false;
 			File createCsv = new File(fileName);
-			if (!createCsv.exists())
-			{
+			if (!createCsv.exists()) {
 				createCsv.createNewFile();
 				fileCreated = true;
 			}
 
-			fishcsv	= new FileWriter(createCsv, true);
-			if(fileCreated)
-			{
+			fishcsv = new FileWriter(createCsv, true);
+			if (fileCreated) {
 				// barbarian just gets max 2 fish but big netting does 3 since both may save to same
 				// file i add dummy third column so csv readers dont have troubles
 				fishcsv.write("fish_spot,level,attempts,fish1_count,fish2_count,fish3_count\n");
 				fishcsv.flush();
 			}
-			
+
 			fileName = "cooking_exp.csv";
 			fileCreated = false;
 			createCsv = new File(fileName);
-			if (!createCsv.exists())
-			{
+			if (!createCsv.exists()) {
 				createCsv.createNewFile();
 				fileCreated = true;
 			}
 
-			cookcsv	= new FileWriter(createCsv, true);
-			if(fileCreated)
-			{
+			cookcsv = new FileWriter(createCsv, true);
+			if (fileCreated) {
 				cookcsv.write("raw_fish_id,fish_name,level,attempts,success,fails\n");
 				cookcsv.flush();
 			}
-			
-			fileName	= "woodcutting_exp.csv";
+
+			fileName = "woodcutting_exp.csv";
 			fileCreated = false;
 			createCsv = new File(fileName);
-			if (!createCsv.exists())
-			{
+			if (!createCsv.exists()) {
 				createCsv.createNewFile();
 				fileCreated = true;
 			}
 
-			woodcsv	= new FileWriter(createCsv, true);
-			if(fileCreated)
-			{
+			woodcsv = new FileWriter(createCsv, true);
+			if (fileCreated) {
 				woodcsv.write("tree_id,level,attempts,log_count,fail_count\n");
 				woodcsv.flush();
 			}
-			
-			fileName	= "firemaking_exp.csv";
+
+			fileName = "firemaking_exp.csv";
 			fileCreated = false;
 			createCsv = new File(fileName);
-			if (!createCsv.exists())
-			{
+			if (!createCsv.exists()) {
 				createCsv.createNewFile();
 				fileCreated = true;
 			}
 
 			// altough in classic only regular logs can be burned just for file consistency i add it
-			firecsv	= new FileWriter(createCsv, true);
-			if(fileCreated)
-			{
+			firecsv = new FileWriter(createCsv, true);
+			if (fileCreated) {
 				firecsv.write("log_type,level,attempts,success_count,fail_count\n");
 				firecsv.flush();
 			}
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -293,10 +274,10 @@ public final class S_Barbarian extends Script {
 			return random(200, 300);
 		}
 		switch (stages.get(stage).id) {
-		case STAGE_FISH:
-			return fish();
-		case STAGE_COOK:
-			return cook();
+			case STAGE_FISH:
+				return fish();
+			case STAGE_COOK:
+				return cook();
 		}
 		stopScript();
 		throw new RuntimeException("invalid stage");
@@ -315,10 +296,10 @@ public final class S_Barbarian extends Script {
 			stopScript();
 		}
 		// jump to drop here since bank is far
-		else if(str.contains("need a cooking level")) {
+		else if (str.contains("need a cooking level")) {
 			int id;
 			boolean dropped = false;
-			if(raw_ids.length > 1) {
+			if (raw_ids.length > 1) {
 				id = raw_ids[1];
 				int index = getInventoryIndex(id);
 				if (index != -1) {
@@ -327,7 +308,7 @@ public final class S_Barbarian extends Script {
 					random(1000, 1500);
 				}
 			}
-			if(!dropped) {
+			if (!dropped) {
 				id = raw_ids[0];
 				int index = getInventoryIndex(id);
 				if (index != -1) {
@@ -336,13 +317,12 @@ public final class S_Barbarian extends Script {
 					random(1000, 1500);
 				}
 			}
-		}
-		else if (str.contains("tired")) {
+		} else if (str.contains("tired")) {
 			should_sleep = true;
 		} else if (str.contains("you catch")) {
 			click_time = -1L;
 			String fish;
-			for(int i=0; i<fish_spots_names[fish_cursor].length; i++) {
+			for (int i = 0; i < fish_spots_names[fish_cursor].length; i++) {
 				fish = fish_spots_names[fish_cursor][i];
 				if (str.contains(fish)) {
 					++fish_success[i];
@@ -352,8 +332,8 @@ public final class S_Barbarian extends Script {
 			++cur_fish_success;
 			++total_fish_success;
 			++cur_attempts;
-			
-			if(cur_attempts >= 1000)
+
+			if (cur_attempts >= 1000)
 				_fishCsvOut();
 		} else if (str.contains("you fail to catch")) {
 			click_time = -1L;
@@ -363,7 +343,7 @@ public final class S_Barbarian extends Script {
 		} else if (str.contains("nicely cooked")) {
 			click_time = -1L;
 			String fish;
-			for(int i=0; i<fish_spots_names[fish_cursor].length; i++) {
+			for (int i = 0; i < fish_spots_names[fish_cursor].length; i++) {
 				fish = fish_spots_names[fish_cursor][i];
 				if (str.contains(fish)) {
 					++cook_success[i];
@@ -373,13 +353,13 @@ public final class S_Barbarian extends Script {
 			++cur_cook_success;
 			++total_cook_success;
 			++cur_cattempts;
-			
-			if(cur_cattempts >= 1000)
+
+			if (cur_cattempts >= 1000)
 				_cookCsvOut();
 		} else if (str.contains("accidentally burn")) {
 			click_time = -1L;
 			String fish;
-			for(int i=0; i<fish_spots_names[fish_cursor].length; i++) {
+			for (int i = 0; i < fish_spots_names[fish_cursor].length; i++) {
 				fish = fish_spots_names[fish_cursor][i];
 				if (str.contains(fish)) {
 					++cook_failure[i];
@@ -391,40 +371,40 @@ public final class S_Barbarian extends Script {
 			++cur_cattempts;
 		} else if (str.contains("slip and fail")) {
 			click_time = -1L;
-            // woodcut fail
-            ++cur_wcattempts;
-        } else if (str.contains("get some wood")) {
-        	click_time = -1L;
-        	++cur_logs;
-            ++cur_wcattempts;
-            
-            // set to 35 since once the wc level is adequate for constant
-            // failure rate of almost 0 on regular trees, it equals to about 1000 fish
-            if(cur_wcattempts >= 35)
+			// woodcut fail
+			++cur_wcattempts;
+		} else if (str.contains("get some wood")) {
+			click_time = -1L;
+			++cur_logs;
+			++cur_wcattempts;
+
+			// set to 35 since once the wc level is adequate for constant
+			// failure rate of almost 0 on regular trees, it equals to about 1000 fish
+			if (cur_wcattempts >= 35)
 				_woodcutCsvOut();
-        } else if (str.contains("fail to light")) {
-        	click_time = -1L;
-            // firemake fail
-            ++cur_fmattempts;
-        } else if (str.contains("logs begin to burn")) {
-        	click_time = -1L;
-        	++cur_logsburn;
-            ++cur_fmattempts;
-            
-            // same here as wc logic
-            if(cur_fmattempts >= 35)
+		} else if (str.contains("fail to light")) {
+			click_time = -1L;
+			// firemake fail
+			++cur_fmattempts;
+		} else if (str.contains("logs begin to burn")) {
+			click_time = -1L;
+			++cur_logsburn;
+			++cur_fmattempts;
+
+			// same here as wc logic
+			if (cur_fmattempts >= 35)
 				_firemakeCsvOut();
-        } else if (str.contains("advanced 1 fishing")) {
+		} else if (str.contains("advanced 1 fishing")) {
 			++fishing_levels;
 			System.out.printf("Congrats on advancing your fishing level %d times since starting this script.\n", fishing_levels);
 			System.out.println("Stats for your last level:");
 			System.out.printf("Successful attempts: %s (%s/h)\n",
-			    iformat.format(cur_fish_success),
-			    per_hour(cur_fish_success, fish_level_up_time));
+				iformat.format(cur_fish_success),
+				per_hour(cur_fish_success, fish_level_up_time));
 			System.out.printf("Failed attempts: %s\n",
-			    iformat.format(cur_fish_fails));
+				iformat.format(cur_fish_fails));
 			System.out.printf("Fail rate: %f\n\n",
-			    (double)cur_fish_fails / (double)cur_fish_success);
+				(double) cur_fish_fails / (double) cur_fish_success);
 			_fishCsvOut();
 			fish_level_up_time = System.currentTimeMillis();
 			cur_fish_success = 0;
@@ -434,12 +414,12 @@ public final class S_Barbarian extends Script {
 			System.out.printf("Congrats on advancing your cooking level %d times since starting this script.\n", cooking_levels);
 			System.out.println("Stats for your last level:");
 			System.out.printf("Successful attempts: %s (%s/h)\n",
-			    iformat.format(cur_cook_success),
-			    per_hour(cur_cook_success, cook_level_up_time));
+				iformat.format(cur_cook_success),
+				per_hour(cur_cook_success, cook_level_up_time));
 			System.out.printf("Failed attempts: %s\n",
-			    iformat.format(cur_cook_fails));
+				iformat.format(cur_cook_fails));
 			System.out.printf("Fail rate: %f\n\n",
-			    (double)cur_cook_fails / (double)cur_cook_success);
+				(double) cur_cook_fails / (double) cur_cook_success);
 			_cookCsvOut();
 			cook_level_up_time = System.currentTimeMillis();
 			cur_cook_success = 0;
@@ -449,114 +429,107 @@ public final class S_Barbarian extends Script {
 		} else if (str.contains("advanced 1 firemaking")) {
 			_firemakeCsvOut();
 		} else if (str.contains("have been standing")) {
-			loop: do {
+			loop:
+			do {
 				int stage_id = stages.get(stage).id;
 				switch (stages.get(stage).id) {
-				case STAGE_FISH:
-					move_x = getX() + random(-2, 2);
-					move_y = getY() - random(0, 3);
-					break;
-				case STAGE_COOK:
-					move_x = getX() + 1;
-					move_y = getY() + random(-1, 1);
-					break;
-				default:
-					System.out.printf("WARNING: Idle here! (%d,%d). Please report this!\n", getX(), getY());
-					break loop;
+					case STAGE_FISH:
+						move_x = getX() + random(-2, 2);
+						move_y = getY() - random(0, 3);
+						break;
+					case STAGE_COOK:
+						move_x = getX() + 1;
+						move_y = getY() + random(-1, 1);
+						break;
+					default:
+						System.out.printf("WARNING: Idle here! (%d,%d). Please report this!\n", getX(), getY());
+						break loop;
 				}
 			} while (!isReachable(move_x, move_y) ||
-			    (move_x == getX() && move_y == getY()));
+				(move_x == getX() && move_y == getY()));
 		}
 	}
-	
+
 	private void _fishCsvOut() {
-		try{
+		try {
 			fishcsv.write(
 				combined_fish_spots[fish_cursor] + "," +
-				getLevel(LEVEL_FISHING) + "," +
-				cur_attempts + "," +
-				fish_success[0] + "," + fish_success[1] + "," + "0" + "\n"
+					getLevel(LEVEL_FISHING) + "," +
+					cur_attempts + "," +
+					fish_success[0] + "," + fish_success[1] + "," + "0" + "\n"
 			);
 			fishcsv.flush();
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		cur_attempts = 0;
 		fish_success[0] = fish_success[1] = 0;
-    }
-	
+	}
+
 	private void _cookCsvOut() {
-		try{
+		try {
 			cookcsv.write(
-					fish_spots_ids[fish_cursor][0] + "," +
+				fish_spots_ids[fish_cursor][0] + "," +
 					fish_spots_names[fish_cursor][0] + "," +
 					getLevel(LEVEL_COOKING) + "," +
-					(cook_success[0]+cook_failure[0]) + "," +
+					(cook_success[0] + cook_failure[0]) + "," +
 					cook_success[0] + "," + cook_failure[0] + "\n"
+			);
+			if (fish_spots_ids[fish_cursor].length > 1) {
+				cookcsv.write(
+					fish_spots_ids[fish_cursor][1] + "," +
+						fish_spots_names[fish_cursor][1] + "," +
+						getLevel(LEVEL_COOKING) + "," +
+						(cook_success[1] + cook_failure[1]) + "," +
+						cook_success[1] + "," + cook_failure[1] + "\n"
 				);
-				if(fish_spots_ids[fish_cursor].length > 1) {
-					cookcsv.write(
-							fish_spots_ids[fish_cursor][1] + "," +
-							fish_spots_names[fish_cursor][1] + "," +
-							getLevel(LEVEL_COOKING) + "," +
-							(cook_success[1]+cook_failure[1]) + "," +
-							cook_success[1] + "," + cook_failure[1] + "\n"
-						);
-				}
+			}
 			cookcsv.flush();
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		cur_cattempts = 0;
 		cook_success[0] = cook_success[1] = 0;
 		cook_failure[0] = cook_failure[1] = 0;
-    }
-	
+	}
+
 	private void _woodcutCsvOut() {
-		try{
+		try {
 			woodcsv.write(
-					"\"Normal\"," +
+				"\"Normal\"," +
 					getLevel(LEVEL_WOODCUTTING) + "," +
 					cur_wcattempts + "," +
 					cur_logs + "," +
-					(cur_wcattempts-cur_logs) + "\n"
+					(cur_wcattempts - cur_logs) + "\n"
 			);
 			woodcsv.flush();
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		cur_wcattempts = 0;
 		cur_logs = 0;
-    }
-	
+	}
+
 	private void _firemakeCsvOut() {
-		try{
+		try {
 			firecsv.write(
-					"\"Normal\"," +
+				"\"Normal\"," +
 					getLevel(LEVEL_FIREMAKING) + "," +
 					cur_fmattempts + "," +
 					cur_logsburn + "," +
-					(cur_fmattempts-cur_logsburn) + "\n"
+					(cur_fmattempts - cur_logsburn) + "\n"
 			);
 			firecsv.flush();
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		cur_fmattempts = 0;
 		cur_logsburn = 0;
-    }
+	}
 
 	@Override
 	public void paint() {
@@ -568,75 +541,75 @@ public final class S_Barbarian extends Script {
 		int x = (getGameWidth() / 2) - 125;
 		int y = 57;
 		if (getGameWidth() >= (512 + 7 + 100) &&
-		    getGameHeight() >= (346 + 84 + 25)) {
+			getGameHeight() >= (346 + 84 + 25)) {
 			/* bars are being displayed in corner */
 			x = 9;
 		}
 		drawBoxAlphaFill(x - 6, y - 17,
-		    260, box_bottom - 17, 120, 0x0);
+			260, box_bottom - 17, 120, 0x0);
 		drawString("Barbarian Script - @whi@" +
-		    stages.get(stage).toString(),
-		    x, y, 2, orangey);
+				stages.get(stage).toString(),
+			x, y, 2, orangey);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time),
-		    x + 10, y, 2, white);
+			x + 10, y, 2, white);
 		y += 15;
 		if (have_stage(STAGE_FISH)) {
 			drawString(String.format(
-			    "Stats for current fishing level (%d gained)",
-			    fishing_levels),
-			    x, y, 2, orangey);
+					"Stats for current fishing level (%d gained)",
+					fishing_levels),
+				x, y, 2, orangey);
 			y += 15;
 			drawString(String.format(
 					"Successful fishing attempts: %s (%s/h), %s (%s/h), %s (%s/h)",
-				    iformat.format(cur_fish_success),
-				    per_hour(cur_fish_success, fish_level_up_time),
-				    iformat.format(fish_success[0]),
-				    per_hour(fish_success[0], fish_level_up_time),
-				    iformat.format(fish_success[1]),
-				    per_hour(fish_success[1], fish_level_up_time)),
-				    x + 10, y, 2, white);
+					iformat.format(cur_fish_success),
+					per_hour(cur_fish_success, fish_level_up_time),
+					iformat.format(fish_success[0]),
+					per_hour(fish_success[0], fish_level_up_time),
+					iformat.format(fish_success[1]),
+					per_hour(fish_success[1], fish_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString(String.format(
-			    "Failed fishing attempts: %s (%s/h)",
-			    iformat.format(cur_fish_fails),
-			    per_hour(cur_fish_fails, fish_level_up_time)),
-			    x + 10, y, 2, white);
+					"Failed fishing attempts: %s (%s/h)",
+					iformat.format(cur_fish_fails),
+					per_hour(cur_fish_fails, fish_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString("Fishing fail rate: " + (float)
-			    ((double)cur_fish_fails / (double)cur_fish_success),
-			    x + 10, y, 2, white);
+					((double) cur_fish_fails / (double) cur_fish_success),
+				x + 10, y, 2, white);
 			y += 15;
 		}
 		if (have_stage(STAGE_COOK)) {
 			drawString(String.format(
-			    "Stats for current cooking level (%d gained)",
-			    cooking_levels),
-			    x, y, 2, orangey);
+					"Stats for current cooking level (%d gained)",
+					cooking_levels),
+				x, y, 2, orangey);
 			y += 15;
 			drawString(String.format(
 					"Successful cooking attempts: %s (%s/h), %s (%s/h), %s (%s/h)",
-				    iformat.format(cur_cook_success),
-				    per_hour(cur_cook_success, cook_level_up_time),
-				    iformat.format(cook_success[0]),
-				    per_hour(cook_success[0], cook_level_up_time),
-				    iformat.format(cook_success[1]),
-				    per_hour(cook_success[1], cook_level_up_time)),
-				    x + 10, y, 2, white);
+					iformat.format(cur_cook_success),
+					per_hour(cur_cook_success, cook_level_up_time),
+					iformat.format(cook_success[0]),
+					per_hour(cook_success[0], cook_level_up_time),
+					iformat.format(cook_success[1]),
+					per_hour(cook_success[1], cook_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString(String.format(
 					"Failed cooking attempts: %s (%s/h), %s (%s/h), %s (%s/h)",
-				    iformat.format(cur_cook_fails),
-				    per_hour(cur_cook_fails, cook_level_up_time),
-				    iformat.format(cook_failure[0]),
-				    per_hour(cook_failure[0], cook_level_up_time),
-				    iformat.format(cook_failure[1]),
-				    per_hour(cook_failure[1], cook_level_up_time)),
-				    x + 10, y, 2, white);
+					iformat.format(cur_cook_fails),
+					per_hour(cur_cook_fails, cook_level_up_time),
+					iformat.format(cook_failure[0]),
+					per_hour(cook_failure[0], cook_level_up_time),
+					iformat.format(cook_failure[1]),
+					per_hour(cook_failure[1], cook_level_up_time)),
+				x + 10, y, 2, white);
 			y += 15;
 			drawString("Cooking fail rate: " + (float)
-			    ((double)cur_cook_fails / (double)cur_cook_success),
-			    x + 10, y, 2, white);
+					((double) cur_cook_fails / (double) cur_cook_success),
+				x + 10, y, 2, white);
 			y += 15;
 		}
 		if (fishing_levels > 0 || cooking_levels > 0) {
@@ -644,22 +617,22 @@ public final class S_Barbarian extends Script {
 			y += 15;
 			if (fishing_levels > 0) {
 				drawString("Successful fishing attempts: " +
-				    iformat.format(total_fish_success),
-				    x + 10, y, 2, white);
+						iformat.format(total_fish_success),
+					x + 10, y, 2, white);
 				y += 15;
 				drawString("Failed fishing attempts: " +
-				    iformat.format(total_fish_fails),
-				    x + 10, y, 2, white);
+						iformat.format(total_fish_fails),
+					x + 10, y, 2, white);
 				y += 15;
 			}
 			if (cooking_levels > 0) {
 				drawString("Successful cooking attempts: " +
-				    iformat.format(total_cook_success),
-				    x + 10, y, 2, white);
+						iformat.format(total_cook_success),
+					x + 10, y, 2, white);
 				y += 15;
 				drawString("Failed cooking attempts: " +
-				    iformat.format(total_cook_fails),
-				    x + 10, y, 2, white);
+						iformat.format(total_cook_fails),
+					x + 10, y, 2, white);
 				y += 15;
 			}
 		}
@@ -675,15 +648,15 @@ public final class S_Barbarian extends Script {
 
 		if (day > 0L) {
 			return String.format("%02d days, %02d hrs, %02d mins",
-			    day, hour, minute);
+				day, hour, minute);
 		}
 		if (hour > 0L) {
 			return String.format("%02d hours, %02d mins, %02d secs",
-			    hour, minute, second);
+				hour, minute, second);
 		}
 		if (minute > 0L) {
 			return String.format("%02d minutes, %02d seconds",
-			    minute, second);
+				minute, second);
 		}
 		return String.format("%02d seconds", second);
 	}
@@ -699,7 +672,7 @@ public final class S_Barbarian extends Script {
 
 	private void ingame_init() {
 		start_time = fish_level_up_time = cook_level_up_time =
-		    System.currentTimeMillis();
+			System.currentTimeMillis();
 
 		click_time = -1L;
 
@@ -708,7 +681,7 @@ public final class S_Barbarian extends Script {
 		total_fish_success = 0;
 		total_fish_fails = 0;
 		fishing_levels = 0;
-		
+
 		fish_success[0] = fish_success[1] = 0;
 
 		cur_cook_success = 0;
@@ -716,13 +689,13 @@ public final class S_Barbarian extends Script {
 		total_cook_success = 0;
 		total_cook_fails = 0;
 		cooking_levels = 0;
-		
+
 		cook_success[0] = cook_success[1] = 0;
 		cook_failure[0] = cook_failure[1] = 0;
-		
+
 		cur_logs = 0;
 		cur_logsburn = 0;
-		
+
 		cur_attempts = 0;
 		cur_cattempts = 0;
 		cur_wcattempts = 0;
@@ -751,7 +724,7 @@ public final class S_Barbarian extends Script {
 			return 0;
 		}
 		if (pickup.getState()) {
-			int[] item = { -1, -1, -1 };
+			int[] item = {-1, -1, -1};
 			if (item[0] == -1) {
 				item = getItemById(raw_ids);
 			}
@@ -785,7 +758,7 @@ public final class S_Barbarian extends Script {
 				}
 			}
 			if (pickup.getState() &&
-			    getInventoryCount() < MAX_INV_SIZE) {
+				getInventoryCount() < MAX_INV_SIZE) {
 				int[] item;
 				item = getItemById(raw_ids);
 				if (item[1] == getX() && item[2] == getY()) {
@@ -802,46 +775,48 @@ public final class S_Barbarian extends Script {
 			return 0;
 		}
 		int id = -1;
-        for (int i = 0; i < raw_ids.length; ++i) {
-            if (getInventoryCount(raw_ids[i]) > 0) {
-                id = raw_ids[i];    
-                break;
-            }
-        }
-        int x = getX();
-        int y = getY();
-        if (getObjectIdFromCoords(x, y) == ID_FIRE) {
-        	useItemOnObject(id, x, y);
-            return random(600, 800);
-        }
-        int logs[] = getItemById(ID_LOGS);
-        if (logs[1] == x && logs[2] == y) {
-            int box_slot = getInventoryIndex(ID_TINDERBOX);
-            if (box_slot == -1) {
-                System.out.println("ERROR: No tinderbox!");
-                setAutoLogin(false);
-                stopScript(); return 0;
-            }
-            useItemOnGroundItem(box_slot, ID_LOGS, x, y);
-            return random(600, 800);
-        }
-        if (getX() < 223) {
-            if (!isWalking()) {
-                walkTo(224 + random(-1, 1), 486 + random(-1, 1));
-            }
-            return random(800, 1200);
-        }
-        if (getInventoryIndex(ids_axe) == -1) {
-            System.out.println("ERROR: No axe!");
-            setAutoLogin(false);
-            stopScript(); return 0;
-        }
-        int tree[] = getObjectById(ID_TREE);
-        if (distanceTo(tree[1], tree[2]) < 5) {
-            atObject(tree[1], tree[2]);
-            return random(1000, 1500);
-        }
-        return random(5, 10);
+		for (int i = 0; i < raw_ids.length; ++i) {
+			if (getInventoryCount(raw_ids[i]) > 0) {
+				id = raw_ids[i];
+				break;
+			}
+		}
+		int x = getX();
+		int y = getY();
+		if (getObjectIdFromCoords(x, y) == ID_FIRE) {
+			useItemOnObject(id, x, y);
+			return random(600, 800);
+		}
+		int[] logs = getItemById(ID_LOGS);
+		if (logs[1] == x && logs[2] == y) {
+			int box_slot = getInventoryIndex(ID_TINDERBOX);
+			if (box_slot == -1) {
+				System.out.println("ERROR: No tinderbox!");
+				setAutoLogin(false);
+				stopScript();
+				return 0;
+			}
+			useItemOnGroundItem(box_slot, ID_LOGS, x, y);
+			return random(600, 800);
+		}
+		if (getX() < 223) {
+			if (!isWalking()) {
+				walkTo(224 + random(-1, 1), 486 + random(-1, 1));
+			}
+			return random(800, 1200);
+		}
+		if (getInventoryIndex(ids_axe) == -1) {
+			System.out.println("ERROR: No axe!");
+			setAutoLogin(false);
+			stopScript();
+			return 0;
+		}
+		int[] tree = getObjectById(ID_TREE);
+		if (distanceTo(tree[1], tree[2]) < 5) {
+			atObject(tree[1], tree[2]);
+			return random(1000, 1500);
+		}
+		return random(5, 10);
 	}
 
 	private void next_stage() {
@@ -866,16 +841,16 @@ public final class S_Barbarian extends Script {
 		final CheckboxGroup acquire_group = new CheckboxGroup();
 
 		final Checkbox fish = new Checkbox(
-		    "Fish raw fish",
-		    acquire_group, true);
+			"Fish raw fish",
+			acquire_group, true);
 		acquire_boxes.add(fish);
 
 		final CheckboxGroup dispose_group = new CheckboxGroup();
 		final List<Checkbox> dispose_boxes = new ArrayList<>();
 
 		final Checkbox power = new Checkbox(
-		    "Power fish or eat cooked fish",
-		    dispose_group, true);
+			"Power fish or eat cooked fish",
+			dispose_group, true);
 		dispose_boxes.add(power);
 
 		pickup = new Checkbox("Pick up raw fish", false);
@@ -886,9 +861,9 @@ public final class S_Barbarian extends Script {
 			public void itemStateChanged(ItemEvent e) {
 				acquire_group.setSelectedCheckbox(fish);
 				acquire_box_listener
-				    .itemStateChanged(new ItemEvent(fish,
-				    ItemEvent.ITEM_FIRST, fish,
-				    ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(fish,
+						ItemEvent.ITEM_FIRST, fish,
+						ItemEvent.SELECTED));
 
 				int change = e.getStateChange();
 				if (change == ItemEvent.SELECTED) {
@@ -905,11 +880,7 @@ public final class S_Barbarian extends Script {
 				if (change != ItemEvent.SELECTED) {
 					return;
 				}
-				if (cook.getState() || e.getSource() == fish) {
-					power.setEnabled(true);
-				} else {
-					power.setEnabled(false);
-				}
+				power.setEnabled(cook.getState() || e.getSource() == fish);
 			}
 		};
 
@@ -947,11 +918,11 @@ public final class S_Barbarian extends Script {
 		Font bold_title = new Font(Font.SANS_SERIF, Font.BOLD, 14);
 
 		Label acquire_label = new Label("Fish acquisition method",
-		    Label.CENTER);
+			Label.CENTER);
 		acquire_label.setFont(bold_title);
 
 		Label dispose_label = new Label("Fish disposition method",
-		    Label.CENTER);
+			Label.CENTER);
 		dispose_label.setFont(bold_title);
 
 		final Label space_saver_a = new Label();
@@ -986,9 +957,9 @@ public final class S_Barbarian extends Script {
 
 				acquire_group.setSelectedCheckbox(fish);
 				acquire_box_listener
-				    .itemStateChanged(new ItemEvent(fish,
-				    ItemEvent.ITEM_FIRST, fish,
-				    ItemEvent.SELECTED));
+					.itemStateChanged(new ItemEvent(fish,
+						ItemEvent.ITEM_FIRST, fish,
+						ItemEvent.SELECTED));
 
 				checkboxes.add(space_saver_a);
 				checkboxes.add(space_saver_b);
@@ -1001,28 +972,28 @@ public final class S_Barbarian extends Script {
 		ok.addActionListener(new ActionListener() {
 			private void set_ids() {
 				switch (list.getSelectedItem()) {
-				case "Trout/salmon":
-					fish_cursor = 0;
-					fish_x = 208;
-					fish_y = 501;
-					click1 = true;
-					raw_ids = new int[] { 358, 356 };
-					cooked_ids = new int[] { 359, 357 };
-					burnt_ids = new int[] { 360 };
-					discard_ids = new int[] {};
-					break;
-				case "Pike":
-					fish_cursor = 1;
-					fish_x = 208;
-					fish_y = 501;
-					click1 = false;
-					raw_ids = new int[] { 363 };
-					cooked_ids = new int[] { 364 };
-					burnt_ids = new int[] { 365 };
-					discard_ids = new int[] {};
-					break;
-				default:
-					throw new Error("unknown fish");
+					case "Trout/salmon":
+						fish_cursor = 0;
+						fish_x = 208;
+						fish_y = 501;
+						click1 = true;
+						raw_ids = new int[]{358, 356};
+						cooked_ids = new int[]{359, 357};
+						burnt_ids = new int[]{360};
+						discard_ids = new int[]{};
+						break;
+					case "Pike":
+						fish_cursor = 1;
+						fish_x = 208;
+						fish_y = 501;
+						click1 = false;
+						raw_ids = new int[]{363};
+						cooked_ids = new int[]{364};
+						burnt_ids = new int[]{365};
+						discard_ids = new int[]{};
+						break;
+					default:
+						throw new Error("unknown fish");
 				}
 
 			}
@@ -1047,7 +1018,7 @@ public final class S_Barbarian extends Script {
 					stages.add(new Stage(STAGE_COOK));
 				}
 				if (do_not_sell == null) {
-					do_not_sell = new int[] {};
+					do_not_sell = new int[]{};
 				}
 
 				System.out.println(stages);
@@ -1073,7 +1044,7 @@ public final class S_Barbarian extends Script {
 
 		frame = new Frame(getClass().getSimpleName());
 		frame.addWindowListener(new StandardCloseHandler(frame,
-		    StandardCloseHandler.HIDE));
+			StandardCloseHandler.HIDE));
 		frame.setIconImages(Constants.ICONS);
 		frame.add(middle, BorderLayout.CENTER);
 		frame.add(buttons, BorderLayout.SOUTH);

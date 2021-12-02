@@ -1,20 +1,11 @@
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Locale;
-import java.util.Set;
-
-import javax.swing.BoxLayout;
-
-import com.aposbot.Constants;
-import com.aposbot.StandardCloseHandler;
+import java.util.Map;
 
 public final class Just_CoalTrucks extends Script {
-   
+
 
 	/* rock selection improvements inspired by aero */
 
@@ -34,12 +25,12 @@ public final class Just_CoalTrucks extends Script {
 
 	private static final int[] bank_ids = {
 		149, 383, 152, 155, 202, 150, 151, 153, 154, 409,
-		160, 159, 158, 157, 542, 889, 890, 891, 
-		161, 162, 163, 164, 523, 892, 893, 894, 
+		160, 159, 158, 157, 542, 889, 890, 891,
+		161, 162, 163, 164, 523, 892, 893, 894,
 	};
 
-	private static final int[] gems = { 
-		160, 159, 158, 157, 542, 889, 890, 891, 
+	private static final int[] gems = {
+		160, 159, 158, 157, 542, 889, 890, 891,
 	};
 
 	private static final Map<String, int[]> map_rocks = new HashMap<>();
@@ -64,7 +55,7 @@ public final class Just_CoalTrucks extends Script {
 	private boolean truck_ready;
 
 	private PathWalker.Location bank;
-	private PathWalker pw;
+	private final PathWalker pw;
 	private PathWalker.Path from_bank_to_mine;
 	private PathWalker.Path to_bank_from_mine;
 	private PathWalker.Path from_bank_to_trucks;
@@ -103,7 +94,7 @@ public final class Just_CoalTrucks extends Script {
 		public final static int COAL_TRUCK = 383;
 		public final static int COAL_ITEM = 155;
 		public final static int MOVE_TIMEOUT = 10000;
-    }
+	}
 
 	@Override
 	public void init(String params) {
@@ -120,7 +111,7 @@ public final class Just_CoalTrucks extends Script {
 		last_x = -1;
 		last_y = -1;
 		last_bat_check_passed = System.currentTimeMillis();
-		coal_rocks = new int[] {110, 111};
+		coal_rocks = new int[]{110, 111};
 		pw.init(null);
 		from_bank_to_mine = pw.calcPath(Config.BANK_X, Config.BANK_Y, Config.MINE_X, Config.MINE_Y);
 		to_bank_from_mine = pw.calcPath(Config.MINE_X, Config.MINE_Y, Config.BANK_X, Config.BANK_Y);
@@ -194,13 +185,13 @@ public final class Just_CoalTrucks extends Script {
 			if (getInventoryCount() == 30) {
 				if (!truck_ready) {
 					can_mine = false;
-					return random (600,800);
+					return random(600, 800);
 				}
 				int coal_index = getInventoryIndex(Config.COAL_ITEM);
 				int[] coal_truck = getObjectById(Config.COAL_TRUCK);
 				if (coal_index != -1 && coal_truck[0] != -1) {
 					useItemOnObject(Config.COAL_ITEM, Config.COAL_TRUCK); //Must listen for "full" truck message
-					return random(2500,3000);
+					return random(2500, 3000);
 				}
 				//Load coal onto truck here
 				//Note: Must "use" coal onto truck. One use loads all coal from inventory at once.
@@ -214,12 +205,12 @@ public final class Just_CoalTrucks extends Script {
 				// System.out.println("Near log");
 				if (isAtApproxCoords(592, 458, 1)) {
 					atObject(593, 458);
-					return random(5000,6000);
+					return random(5000, 6000);
 				} else {
 					walkTo(592, 458);
-					return random(500,600);
+					return random(500, 600);
 				}
-				
+
 			}
 			if (isWithinBounds(getX(), getY(), Config.X_MIN_BANK, Config.X_MAX_BANK, Config.Y_MIN_BANK, Config.Y_MAX_BANK)) { //Should only happen if starting script with coal in inventory
 				// System.out.println("Inside bank");
@@ -234,7 +225,7 @@ public final class Just_CoalTrucks extends Script {
 				} else {
 					pw.setPath(from_bank_to_mine);
 					System.out.println("Starting script in bank!");
-					
+
 				}
 			}
 		} else {
@@ -260,12 +251,12 @@ public final class Just_CoalTrucks extends Script {
 			if (getX() >= 598) {
 				if (isAtApproxCoords(598, 458, 1)) {
 					atObject(597, 458);
-					return random(5000,6000);
+					return random(5000, 6000);
 				} else {
-					walkTo(598,458);
-					return random(500,600);
+					walkTo(598, 458);
+					return random(500, 600);
 				}
-				
+
 			}
 			if (getX() >= 588) {
 				pw.setPath(to_bank_from_mine);
@@ -273,9 +264,8 @@ public final class Just_CoalTrucks extends Script {
 		}
 		return random(800, 1000);
 	}
-	
-	
-	
+
+
 	private int talk_to_banker() {
 		int[] banker = getNpcByIdNotTalk(BANKERS);
 		if (banker[0] != -1) {
@@ -288,7 +278,7 @@ public final class Just_CoalTrucks extends Script {
 		}
 		return -1;
 	}
-	
+
 	private int take_from_truck() {
 		int[] truck = getObjectById(Config.COAL_TRUCK);
 		if (truck[0] != -1) {
@@ -337,7 +327,7 @@ public final class Just_CoalTrucks extends Script {
 			}
 			return 0;
 		}
-		
+
 		if (move_time != -1L) {
 			if (System.currentTimeMillis() >= move_time) {
 				System.out.println("Forcing movement...");
@@ -347,7 +337,7 @@ public final class Just_CoalTrucks extends Script {
 			}
 			return 0;
 		}
-		
+
 		int cur_x = getX();
 		int cur_y = getY();
 		if (is_giantbat_beside(cur_x, cur_y) && cur_x == last_x && cur_y == last_y) {
@@ -359,7 +349,7 @@ public final class Just_CoalTrucks extends Script {
 			last_y = cur_y;
 			last_bat_check_passed = System.currentTimeMillis();
 		}
-		
+
 		int chisel = getInventoryIndex(CHISEL);
 		if (chisel != -1) {
 			int gem = getInventoryIndex(gems);
@@ -383,12 +373,12 @@ public final class Just_CoalTrucks extends Script {
 		int[] bat = getNpcInRadius(43, x, y, 1);
 		return bat[0] != -1;
 	}
-	
+
 	private boolean is_player_beside(int x, int y) {
 		int count = countPlayers();
 		for (int i = 1; i < count; ++i) {
 			int dist = Math.abs(getPlayerX(i) - x) +
-			    Math.abs(getPlayerY(i) - y);
+				Math.abs(getPlayerY(i) - y);
 			if (dist <= 1) {
 				return true;
 			}
@@ -397,7 +387,7 @@ public final class Just_CoalTrucks extends Script {
 	}
 
 	private int[] get_closest_rock(int... ids) {
-		int[] rock = new int[] { -1, -1, -1 };
+		int[] rock = new int[]{-1, -1, -1};
 		int best_dist = Integer.MAX_VALUE;
 		int count = getObjectCount();
 		int my_x = getX();
@@ -410,15 +400,15 @@ public final class Just_CoalTrucks extends Script {
 			int rock_x = getObjectX(i);
 			int rock_y = getObjectY(i);
 			if (last_mined[0] == rock_x &&
-			    last_mined[1] == rock_y &&
-			    System.currentTimeMillis() < dont_remine) {
+				last_mined[1] == rock_y &&
+				System.currentTimeMillis() < dont_remine) {
 				continue;
 			}
 			if (is_player_beside(rock_x, rock_y)) {
 				continue;
 			}
 			int dist = Math.abs(rock_x - my_x) +
-			    Math.abs(rock_y - my_y);
+				Math.abs(rock_y - my_y);
 			if (dist < 30 && dist < best_dist) {
 				best_dist = dist;
 				rock[0] = rock_id;
@@ -436,12 +426,12 @@ public final class Just_CoalTrucks extends Script {
 				int rock_x = getObjectX(i);
 				int rock_y = getObjectY(i);
 				if (last_mined[0] == rock_x &&
-				    last_mined[1] == rock_y &&
-				    System.currentTimeMillis() < dont_remine) {
+					last_mined[1] == rock_y &&
+					System.currentTimeMillis() < dont_remine) {
 					continue;
 				}
 				int dist = Math.abs(rock_x - my_x) +
-				    Math.abs(rock_y - my_y);
+					Math.abs(rock_y - my_y);
 				if (dist < 30 && dist < best_dist) {
 					best_dist = dist;
 					rock[0] = rock_id;
@@ -480,10 +470,7 @@ public final class Just_CoalTrucks extends Script {
 		if (getInventoryIndex(pickaxes) == -1) {
 			return true;
 		}
-		if (getInventoryIndex(SLEEPING_BAG) == -1) {
-			return true;
-		}
-		return false;
+		return getInventoryIndex(SLEEPING_BAG) == -1;
 	}
 
 	private void walk_approx(int x, int y) {
@@ -494,7 +481,7 @@ public final class Just_CoalTrucks extends Script {
 			dy = y + random(-1, 1);
 			if ((++loop) > 100) return;
 		} while (!isReachable(dx, dy) ||
-		    (dx == getX() && dy == getY()));
+			(dx == getX() && dy == getY()));
 		walkTo(dx, dy);
 	}
 
@@ -510,35 +497,35 @@ public final class Just_CoalTrucks extends Script {
 		drawString("Just_CoalTrucks", x, y, 1, orangey);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time),
-		    x + 10, y, 1, white);
+			x + 10, y, 1, white);
 		y += 15;
 		drawString(String.format("Stats for current level (%d gained):",
-		    levels_gained), x, y, 1, orangey);
+			levels_gained), x, y, 1, orangey);
 		y += 15;
 		drawString(String.format("Successful attempts: %s (%s/h)",
-		    iformat.format(cur_success),
-		    per_hour(cur_success, level_time)),
-		    x + 10, y, 1, white);
+				iformat.format(cur_success),
+				per_hour(cur_success, level_time)),
+			x + 10, y, 1, white);
 		y += 15;
 		drawString(String.format("Failed attempts: %s (%s/h)",
-		    iformat.format(cur_fails),
-		    per_hour(cur_fails, level_time)),
-		    x + 10, y, 1, white);
+				iformat.format(cur_fails),
+				per_hour(cur_fails, level_time)),
+			x + 10, y, 1, white);
 		y += 15;
 		drawString("Fail rate: " + (float)
-		    ((double) cur_fails / (double) cur_success),
-		    x + 10, y, 1, white);
+				((double) cur_fails / (double) cur_success),
+			x + 10, y, 1, white);
 		y += 15;
 		if (levels_gained > 0) {
 			drawString("Total:", x, y, 1, orangey);
 			y += 15;
 			drawString(String.format("Successful attempts: %s",
-			    iformat.format(total_success)),
-			    x + 10, y, 1, white);
+					iformat.format(total_success)),
+				x + 10, y, 1, white);
 			y += 15;
 			drawString(String.format("Failed attempts: %s",
-			    iformat.format(total_fails)),
-			    x + 10, y, 1, white);
+					iformat.format(total_fails)),
+				x + 10, y, 1, white);
 			y += 15;
 		}
 		// if (!cb_bank.getState()) return;
@@ -554,9 +541,9 @@ public final class Just_CoalTrucks extends Script {
 				header = true;
 			}
 			drawString(String.format("%s %s",
-			    iformat.format(banked_count[i]),
-			    getItemNameId(bank_ids[i])),
-			    x + 10, y, 1, white);
+					iformat.format(banked_count[i]),
+					getItemNameId(bank_ids[i])),
+				x + 10, y, 1, white);
 			y += 15;
 		}
 	}
@@ -597,15 +584,15 @@ public final class Just_CoalTrucks extends Script {
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("standing here")) {
 			move_time = System.currentTimeMillis() +
-			    random(1500, 1800);
+				random(1500, 1800);
 		} else if (str.contains("swing")) {
 			click_time = System.currentTimeMillis() +
-			    random(5000, 7000);
+				random(5000, 7000);
 			last_mining_action = System.currentTimeMillis();
 		} else if (str.contains("scratch") ||
-		    str.contains("fail") || str.contains("no ore")) {
+			str.contains("fail") || str.contains("no ore")) {
 			click_time = System.currentTimeMillis() +
-			    random(100, 200);
+				random(100, 200);
 			++cur_fails;
 			++total_fails;
 		} else if (str.contains("advanced")) {
@@ -616,9 +603,9 @@ public final class Just_CoalTrucks extends Script {
 			cur_success = 0;
 			++levels_gained;
 		} else if (str.contains("manage") || str.contains("gem") ||
-		    str.contains("just mined")) {
+			str.contains("just mined")) {
 			click_time = System.currentTimeMillis() +
-			    random(100, 200);
+				random(100, 200);
 			++cur_success;
 			++total_success;
 			last_mined[0] = last_used[0];
@@ -626,14 +613,14 @@ public final class Just_CoalTrucks extends Script {
 			dont_remine = System.currentTimeMillis() + 5000L;
 		} else if (str.contains("found")) {
 			click_time = System.currentTimeMillis() +
-			    random(100, 200);
+				random(100, 200);
 			++cur_success;
 			++total_success;
 			last_mined[0] = last_used[0];
 			last_mined[1] = last_used[1];
 		} else if (str.contains("tired")) {
 			sleep_time = System.currentTimeMillis() +
-			    random(800, 2500);
+				random(800, 2500);
 		} else if (str.contains("full")) {
 			truck_ready = false;
 		} else if (str.contains("no coal")) {
@@ -655,7 +642,7 @@ public final class Just_CoalTrucks extends Script {
 		System.out.print("Success total: ");
 		System.out.println(total_success);
 		if (true) {
-		// if (cb_bank.getState()) {
+			// if (cb_bank.getState()) {
 			for (int i = 0; i < bank_ids.length; ++i) {
 				if (banked_count[i] <= 0) continue;
 				System.out.println("Banked " + getItemNameId(bank_ids[i]) + ": " + banked_count[i]);
@@ -666,18 +653,18 @@ public final class Just_CoalTrucks extends Script {
 	private int _end(String reason) {
 		print_out();
 		System.out.println(reason);
-		stopScript(); setAutoLogin(false);
+		stopScript();
+		setAutoLogin(false);
 		return 0;
 	}
-	
-	private boolean isWithinBounds (int x_test, int y_test, int x_min, int x_max, int y_min, int y_max)
-	{
+
+	private boolean isWithinBounds(int x_test, int y_test, int x_min, int x_max, int y_min, int y_max) {
 		if (x_test >= x_min &&
 			x_test <= x_max &&
 			y_test >= y_min &&
 			y_test <= y_max) {
 			return true;
-		};
+		}
 		return false;
 	}
 }

@@ -3,7 +3,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * Blue Dragon Killer 
+ * Blue Dragon Killer
  * [2014-03-28]
  * adjusted wait time for dragon visibility
  * [2014-03-26]
@@ -22,9 +22,10 @@ import java.util.Locale;
  * attempted fix for bugs in gate check, death check related to game loading time
  * more drops from rsclassics.org. those not useful for any skill or alching have been left out. modify if you want.
  * alching
- * paint 
+ * paint
  * [2012-07-29]
  * released
+ *
  * @author Storm
  */
 public final class S_HeroesBlueDragon extends Script
@@ -52,11 +53,11 @@ public final class S_HeroesBlueDragon extends Script
 		// you may keep a fire staff in your inventory or use the dropped fire
 		// runes.
 		public boolean do_alch = false;
-	
+
 		public int combat_style = 2; // attack
-	
+
 		public int food_id = 546; // sharks
-	
+
 		public long min_hop_time = 14000L;
 	}
 
@@ -65,45 +66,45 @@ public final class S_HeroesBlueDragon extends Script
 	private final JSONgui gui = new JSONgui(getClass().getSimpleName(), cfg, null, this);
 
 	private static final int
-	GATE_CLOSED = 57,
-	GATE_OPEN = 58,
-	SLEEPING_BAG = 1263,
-	PARALYZE_PRAYER = 12,
-	FIRE_STAFF = 197,
-	HIGH_ALCH = 28,
-	LEVEL_PRAYER = 5,
-	LEVEL_HITS = 3,
-	BANK_DOOR = 64,
-	FALADOR_TELEPORT = 18,
-	BLUE_DRAGON = 202,
+		GATE_CLOSED = 57,
+		GATE_OPEN = 58,
+		SLEEPING_BAG = 1263,
+		PARALYZE_PRAYER = 12,
+		FIRE_STAFF = 197,
+		HIGH_ALCH = 28,
+		LEVEL_PRAYER = 5,
+		LEVEL_HITS = 3,
+		BANK_DOOR = 64,
+		FALADOR_TELEPORT = 18,
+		BLUE_DRAGON = 202,
 
 	DRAGON_BONES = 814,
-	LAW_RUNE = 42,
-	WATER_RUNE = 32,
-	AIR_RUNE = 33,
-	DRAGON_MED = 795,
+		LAW_RUNE = 42,
+		WATER_RUNE = 32,
+		AIR_RUNE = 33,
+		DRAGON_MED = 795,
 
 	DRAGON_LEFT_HALF = 1277,
-	LOOP_HALF_1 = 526,
-	LOOP_HALF_2 = 527,
-	NATURE_RUNE = 40,
-	FIRE_RUNE = 31,
-	RUNE_SQ = 403,
-	MITHRIL_KITE = 130,
-	ADAM_LARGE = 111,
-	RUNE_DAGGER = 396,
-	RUNE_BATTLE = 93,
-	STEEL_LEGS = 121,
-	MITHRIL_BATTLE = 91,
-	ADAM_ORE = 154,
-	ADAM_BAR = 174,
-	UNCUT_SAPPHIRE = 160,
-	UNCUT_EMERALD = 159,
-	UNCUT_RUBY = 158,
-	UNCUT_DIAMOND = 157,
-	COINS = 10,
-	DRAGON_SWORD = 593,
-	DRAGON_AXE = 594;
+		LOOP_HALF_1 = 526,
+		LOOP_HALF_2 = 527,
+		NATURE_RUNE = 40,
+		FIRE_RUNE = 31,
+		RUNE_SQ = 403,
+		MITHRIL_KITE = 130,
+		ADAM_LARGE = 111,
+		RUNE_DAGGER = 396,
+		RUNE_BATTLE = 93,
+		STEEL_LEGS = 121,
+		MITHRIL_BATTLE = 91,
+		ADAM_ORE = 154,
+		ADAM_BAR = 174,
+		UNCUT_SAPPHIRE = 160,
+		UNCUT_EMERALD = 159,
+		UNCUT_RUBY = 158,
+		UNCUT_DIAMOND = 157,
+		COINS = 10,
+		DRAGON_SWORD = 593,
+		DRAGON_AXE = 594;
 
 	private static final int[] drops = {
 		DRAGON_BONES, DRAGON_MED, LOOP_HALF_1, LOOP_HALF_2, DRAGON_LEFT_HALF,
@@ -141,36 +142,33 @@ public final class S_HeroesBlueDragon extends Script
 	private int prayer_xp;
 	private int start_prayer;
 
-	private PathWalker pw;
+	private final PathWalker pw;
 	private PathWalker.Path gate_to_guild;
 	private PathWalker.Path bank_to_gate;
 
 	private static final int
-	BANK_X = 328,
-	BANK_Y = 552,
+		BANK_X = 328,
+		BANK_Y = 552,
 	// gate, bank side
 	GATE_B_X = 341,
-	GATE_B_Y = 488,
-	GUILD_X = 372,
-	GUILD_Y = 441,
+		GATE_B_Y = 488,
+		GUILD_X = 372,
+		GUILD_Y = 441,
 	// gate, guild side
 	GATE_G_X = 342,
-	GATE_G_Y = 488;
+		GATE_G_Y = 488;
 
-	public static void main(String[] argv)
-	{
+	public static void main(String[] argv) {
 		new S_HeroesBlueDragon(null).init(null);
 	}
 
-	public S_HeroesBlueDragon(Extension ex)
-	{
+	public S_HeroesBlueDragon(Extension ex) {
 		super(ex);
 		pw = new PathWalker(ex);
 	}
 
 	@Override
-	public void init(String params)
-	{
+	public void init(String params) {
 		//gui.showFrame();
 		run();
 		System.out.println();
@@ -181,8 +179,7 @@ public final class S_HeroesBlueDragon extends Script
 	}
 
 	@Override
-	public void run()
-	{
+	public void run() {
 		menu_time = -1L;
 		bank_time = -1L;
 		start_time = -1L;
@@ -196,8 +193,7 @@ public final class S_HeroesBlueDragon extends Script
 	}
 
 	@Override
-	public int main()
-	{
+	public int main() {
 		if (start_time == -1L) {
 			start_time = System.currentTimeMillis();
 			if (cfg.autobury) {
@@ -393,8 +389,7 @@ public final class S_HeroesBlueDragon extends Script
 		return random(800, 1200);
 	}
 
-	private void addBankedCount(int id, int count)
-	{
+	private void addBankedCount(int id, int count) {
 		for (int i = 0; i < drops.length; ++i) {
 			if (drops[i] == id) {
 				banked_counts[i] += count;
@@ -406,8 +401,7 @@ public final class S_HeroesBlueDragon extends Script
 	/**
 	 * Kill dragons
 	 */
-	private int handle_underground()
-	{
+	private int handle_underground() {
 		// Open that gate if it is closed
 		int[] closed_gate = getObjectById(GATE_CLOSED);
 		if (closed_gate[0] != -1) {
@@ -426,7 +420,7 @@ public final class S_HeroesBlueDragon extends Script
 		}
 		// Go upstairs if we need to recharge or bank
 		if ((getFatigue() >= cfg.sleep_at && hasInventoryItem(SLEEPING_BAG)) ||
-				get_prayer() <= cfg.min_prayer || should_bank()) {
+			get_prayer() <= cfg.min_prayer || should_bank()) {
 			atObject(368, 3270);
 			return random(1000, 1500);
 		}
@@ -464,8 +458,7 @@ public final class S_HeroesBlueDragon extends Script
 	/**
 	 * Recharge prayer at altar
 	 */
-	private int handle_restore()
-	{
+	private int handle_restore() {
 		if (isPrayerEnabled(PARALYZE_PRAYER)) {
 			disablePrayer(PARALYZE_PRAYER);
 			return random(600, 700);
@@ -493,8 +486,7 @@ public final class S_HeroesBlueDragon extends Script
 	/**
 	 * Do things on the ground level of the guild
 	 */
-	private int handle_guild_entry()
-	{
+	private int handle_guild_entry() {
 		if (isPrayerEnabled(PARALYZE_PRAYER)) {
 			disablePrayer(PARALYZE_PRAYER);
 			return random(600, 700);
@@ -525,8 +517,7 @@ public final class S_HeroesBlueDragon extends Script
 		return random(2700, 3300);
 	}
 
-	private int handle_bank()
-	{
+	private int handle_bank() {
 		if (isPrayerEnabled(PARALYZE_PRAYER)) {
 			disablePrayer(PARALYZE_PRAYER);
 			return random(600, 700);
@@ -557,36 +548,30 @@ public final class S_HeroesBlueDragon extends Script
 		return random(600, 800);
 	}
 
-	private boolean should_bank()
-	{
+	private boolean should_bank() {
 		return getInventoryCount() == MAX_INV_SIZE || !hasInventoryItem(cfg.food_id);
 	}
 
-	private int get_prayer()
-	{
+	private int get_prayer() {
 		return getCurrentLevel(LEVEL_PRAYER);
 	}
 
-	private boolean is_prayer_full()
-	{
+	private boolean is_prayer_full() {
 		return getCurrentLevel(LEVEL_PRAYER) == getLevel(LEVEL_PRAYER);
 	}
 
-	private int get_hits()
-	{
+	private int get_hits() {
 		return getCurrentLevel(LEVEL_HITS);
 	}
 
-	private int _end(String reason)
-	{
+	private int _end(String reason) {
 		System.out.println(reason);
 		setAutoLogin(false);
 		stopScript();
 		return 0;
 	}
 
-	private void _hop()
-	{
+	private void _hop() {
 		switch (getWorld()) {
 			case 1:
 				hop(2);
@@ -604,8 +589,7 @@ public final class S_HeroesBlueDragon extends Script
 		last_hop = System.currentTimeMillis();
 	}
 
-	private int _alch()
-	{
+	private int _alch() {
 		if (isPrayerEnabled(PARALYZE_PRAYER)) {
 			disablePrayer(PARALYZE_PRAYER);
 			return random(600, 700);
@@ -633,8 +617,7 @@ public final class S_HeroesBlueDragon extends Script
 		return random(1200, 1600);
 	}
 
-	private int equip_weapon()
-	{
+	private int equip_weapon() {
 		for (int id : weapons) {
 			int index = getInventoryIndex(id);
 			if (index == -1) continue;
@@ -647,8 +630,7 @@ public final class S_HeroesBlueDragon extends Script
 		return -1;
 	}
 
-	private static int index_of(int[] haystack, int needle)
-	{
+	private static int index_of(int[] haystack, int needle) {
 		for (int i = 0; i < haystack.length; ++i) {
 			if (needle == haystack[i]) {
 				return i;
@@ -658,8 +640,7 @@ public final class S_HeroesBlueDragon extends Script
 	}
 
 	@Override
-	public void onServerMessage(String str)
-	{
+	public void onServerMessage(String str) {
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("busy")) {
 			menu_time = -1L;
@@ -667,8 +648,7 @@ public final class S_HeroesBlueDragon extends Script
 	}
 
 	@Override
-	public void paint()
-	{
+	public void paint() {
 		int x = 25;
 		int y = 25;
 		final int white = 0xFFFFFF;
@@ -677,7 +657,7 @@ public final class S_HeroesBlueDragon extends Script
 		drawString("Runtime: " + get_runtime(), x, y, 1, white);
 		y += 15;
 		if (cfg.autobury) {
-			int dif = prayer_xp - start_prayer; 
+			int dif = prayer_xp - start_prayer;
 			drawString("Prayer XP gained: " + int_format(dif), x, y, 1, white);
 			y += 15;
 			drawString(per_hour(dif) + " XP per hour", x, y, 1, white);
@@ -690,28 +670,25 @@ public final class S_HeroesBlueDragon extends Script
 			int count = banked_counts[i];
 			if (count <= 0) continue;
 			drawString(getItemNameId(drops[i]) + ": " +
-				int_format(count) +
-				" (" + per_hour(banked_counts[i]) + "/h)",
+					int_format(count) +
+					" (" + per_hour(banked_counts[i]) + "/h)",
 				x, y, 1, white);
 			y += 15;
 		}
 	}
 
-	private String per_hour(int total)
-	{
+	private String per_hour(int total) {
 		if (total == 0) return "0";
 		double amount = total * 60.0 * 60.0;
 		double secs = (System.currentTimeMillis() - start_time) / 1000.0;
 		return int_format((long) (amount / secs));
 	}
 
-	private String int_format(long l)
-	{
+	private String int_format(long l) {
 		return int_format.format(l);
 	}
 
-	private String get_runtime()
-	{
+	private String get_runtime() {
 		long millis = (System.currentTimeMillis() - start_time) / 1000;
 		long second = millis % 60;
 		long minute = (millis / 60) % 60;

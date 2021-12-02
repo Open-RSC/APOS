@@ -1,22 +1,21 @@
-import java.awt.Point;
+import javax.swing.*;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.Locale;
-
-import javax.swing.JOptionPane;
 
 public final class S_OgreFatigue extends Script {
 
 	private static final int[][] trees = {
-		{ 621, 791 },
-		{ 609, 781 },
-		{ 609, 776 },
-		{ 605, 776 },
-		{ 606, 775 },
-		{ 598, 776 },
-		{ 598, 771 },
-		{ 596, 770 },
-		{ 592, 774 },
-		{ 589, 771 },
+		{621, 791},
+		{609, 781},
+		{609, 776},
+		{605, 776},
+		{606, 775},
+		{598, 776},
+		{598, 771},
+		{596, 770},
+		{592, 774},
+		{589, 771},
 	};
 	private static final int[] weapons = {
 		593, 594
@@ -28,23 +27,21 @@ public final class S_OgreFatigue extends Script {
 	private PathWalker.Path to_bank;
 	private PathWalker.Path from_bank;
 	private long
-	click_time,
-	bank_time,
-	menu_time,
-	start_time;
-	private int[] start_xp = new int[4];
+		click_time,
+		bank_time,
+		menu_time,
+		start_time;
+	private final int[] start_xp = new int[4];
 	private final DecimalFormat iformat = new DecimalFormat("#,##0");
 	private boolean lighting;
 
-	public S_OgreFatigue(Extension ex)
-	{
+	public S_OgreFatigue(Extension ex) {
 		super(ex);
 		pw = new PathWalker(ex);
 	}
 
 	@Override
-	public void init(String params)
-	{
+	public void init(String params) {
 		setTrickMode(true);
 		click_time = bank_time = menu_time = start_time = -1L;
 		lighting = false;
@@ -62,16 +59,16 @@ public final class S_OgreFatigue extends Script {
 			return;
 		}
 
-		switch ((String)sfood) {
-		case "Lobster":
-			food_id = 373;
-			break;
-		case "Swordfish":
-			food_id = 370;
-			break;
-		case "Shark":
-			food_id = 546;
-			break;
+		switch ((String) sfood) {
+			case "Lobster":
+				food_id = 373;
+				break;
+			case "Swordfish":
+				food_id = 370;
+				break;
+			case "Shark":
+				food_id = 546;
+				break;
 		}
 
 		Object smode = JOptionPane.showInputDialog(null,
@@ -112,8 +109,7 @@ public final class S_OgreFatigue extends Script {
 	}
 
 	@Override
-	public int main()
-	{
+	public int main() {
 		if (start_time == -1L) {
 			start_time = System.currentTimeMillis();
 			for (int i = 0; i < start_xp.length; ++i) {
@@ -370,8 +366,7 @@ public final class S_OgreFatigue extends Script {
 	}
 
 	@Override
-	public void paint()
-	{
+	public void paint() {
 		int x = 10;
 		int y = 215;
 		drawString("S Ogre Fatigue", x, y, 2, 0xFFD900);
@@ -382,15 +377,14 @@ public final class S_OgreFatigue extends Script {
 			int gained = getXpForLevel(i) - start_xp[i];
 			if (gained == 0) continue;
 			drawString(String.format("%s XP gained: %s (%s/h)",
-				SKILL[i], iformat.format(gained), per_hour(gained)),
+					SKILL[i], iformat.format(gained), per_hour(gained)),
 				x, y, 2, 0xFFD900);
 			y += 15;
 		}
 	}
 
 	@Override
-	public void onServerMessage(String str)
-	{
+	public void onServerMessage(String str) {
 		debug_println(str);
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("get some wood") ||
@@ -402,13 +396,13 @@ public final class S_OgreFatigue extends Script {
 		}
 	}
 
-	private Point get_walk_point(int tree_x, int tree_y)
-	{
+	private Point get_walk_point(int tree_x, int tree_y) {
 		Point best_point = null;
 		int best_dist = Integer.MAX_VALUE;
 		// try to find a spot around a tree where a fire can be lit
 		for (int x = -1; x <= 1; ++x) {
-			ly: for (int y = -1; y <= 1; ++y) {
+			ly:
+			for (int y = -1; y <= 1; ++y) {
 				if (x == 0 && y == 0) {
 					continue;
 				}
@@ -436,7 +430,8 @@ public final class S_OgreFatigue extends Script {
 		}
 		// fall back to checking diagonals
 		for (int x = -1; x <= 1; ++x) {
-			ly: for (int y = -1; y <= 1; ++y) {
+			ly:
+			for (int y = -1; y <= 1; ++y) {
 				int wx = tree_x + x;
 				int wy = tree_y + y;
 				int dist = distanceTo(wx, wy);
@@ -458,26 +453,22 @@ public final class S_OgreFatigue extends Script {
 		return best_point;
 	}
 
-	private static void debug_println(String str)
-	{
+	private static void debug_println(String str) {
 		if (DEBUG) {
 			System.out.println(str);
 		}
 	}
 
-	private boolean inside_bank()
-	{
+	private boolean inside_bank() {
 		return getX() <= 590 && getX() >= 585 &&
 			getY() >= 750 && getY() <= 758;
 	}
 
-	private boolean should_bank()
-	{
+	private boolean should_bank() {
 		return getInventoryIndex(food_id) == -1;
 	}
 
-	private String get_runtime()
-	{
+	private String get_runtime() {
 		long millis = (System.currentTimeMillis() - start_time) / 1000;
 		long second = millis % 60;
 		long minute = (millis / 60) % 60;
@@ -499,8 +490,7 @@ public final class S_OgreFatigue extends Script {
 		return String.format("%02d seconds", second);
 	}
 
-	private String per_hour(int count)
-	{
+	private String per_hour(int count) {
 		if (count == 0) return "0";
 		double amount = count * 60.0 * 60.0;
 		double secs = (System.currentTimeMillis() - start_time) / 1000.0;

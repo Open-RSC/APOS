@@ -1,6 +1,6 @@
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.Locale;
-import java.awt.Point;
 
 public final class S_DummyTrainer extends Script {
 
@@ -9,16 +9,14 @@ public final class S_DummyTrainer extends Script {
 		final int id;
 		final int empty_id;
 
-		public Alcohol(String name, int id, int empty_id)
-		{
+		public Alcohol(String name, int id, int empty_id) {
 			this.name = name;
 			this.id = id;
 			this.empty_id = empty_id;
 		}
 
 		@Override
-		public String toString()
-		{
+		public String toString() {
 			return name;
 		}
 	}
@@ -56,14 +54,12 @@ public final class S_DummyTrainer extends Script {
 	private int withdrawn_count;
 	private boolean has_withdrawn;
 
-	public S_DummyTrainer(Extension ex)
-	{
+	public S_DummyTrainer(Extension ex) {
 		super(ex);
 	}
 
 	@Override
-	public void init(String params)
-	{
+	public void init(String params) {
 		params = params.trim();
 		try {
 			target_level = Integer.parseInt(params);
@@ -75,8 +71,7 @@ public final class S_DummyTrainer extends Script {
 	}
 
 	@Override
-	public int main()
-	{
+	public int main() {
 		if (start_time == -1L) {
 			drink = null;
 			for (Alcohol type : drink_types) {
@@ -103,7 +98,7 @@ public final class S_DummyTrainer extends Script {
 		}
 		if (getLevel(ATTACK) >= target_level) {
 			System.out.printf("%d attack reached!\n",
-			    target_level);
+				target_level);
 			setAutoLogin(false);
 			logout();
 			stopScript();
@@ -111,7 +106,7 @@ public final class S_DummyTrainer extends Script {
 		}
 		if (getFightMode() != 2) {
 			System.out.printf("Set combat style to %s.\n",
-			    FIGHTMODES[2]);
+				FIGHTMODES[2]);
 			setFightMode(2);
 			return random(600, 800);
 		}
@@ -129,8 +124,7 @@ public final class S_DummyTrainer extends Script {
 	}
 
 	@Override
-	public void paint()
-	{
+	public void paint() {
 		if (start_time == -1L) {
 			return;
 		}
@@ -140,24 +134,23 @@ public final class S_DummyTrainer extends Script {
 		drawString(getClass().getSimpleName(), x, y, 1, 0xFFD900);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time),
-		    x, y, 1, 0xFFFFFF);
+			x, y, 1, 0xFFFFFF);
 		y += 15;
 		int gained = getXpForLevel(ATTACK) - start_xp;
 		drawString(String.format("XP gained: %s (%s/h)",
-		    iformat.format(gained),
-		    per_hour(gained)),
-		    x, y, 1, 0xFFFFFF);
+				iformat.format(gained),
+				per_hour(gained)),
+			x, y, 1, 0xFFFFFF);
 		y += 15;
 		drawString(String.format("%s withdrawn: %s (%s/h)",
-		    drink.name,
-		    iformat.format(withdrawn_count),
-		    per_hour(withdrawn_count)),
-		    x, y, 1, 0xFFFFFF);
+				drink.name,
+				iformat.format(withdrawn_count),
+				per_hour(withdrawn_count)),
+			x, y, 1, 0xFFFFFF);
 	}
 
 	@Override
-	public void onServerMessage(String str)
-	{
+	public void onServerMessage(String str) {
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("busy at the moment")) {
 			menu_time = -1L;
@@ -165,13 +158,12 @@ public final class S_DummyTrainer extends Script {
 			walk_x = 103 + random(-1, 1);
 			walk_y = 503 + random(-1, 1);
 		} else if (str.contains("hit the dummy") ||
-		    str.contains("nothing more")) {
+			str.contains("nothing more")) {
 			click_time = -1L;
 		}
 	}
 
-	private int inside_bank()
-	{
+	private int inside_bank() {
 		if (isBanking()) {
 			bank_time = -1L;
 			if (getInventoryIndex(drink.id) != -1) {
@@ -224,8 +216,7 @@ public final class S_DummyTrainer extends Script {
 		return random(600, 800);
 	}
 
-	private int inside_training_room()
-	{
+	private int inside_training_room() {
 		if (walk_x != 0 && walk_y != 0) {
 			if (getX() != walk_x || getY() != walk_y) {
 				walkTo(walk_x, walk_y);
@@ -238,7 +229,7 @@ public final class S_DummyTrainer extends Script {
 			long current_time = System.currentTimeMillis();
 			int[] dummy = getObjectById(DUMMY);
 			if (dummy[0] != -1 && !isWalking() &&
-			    current_time > (click_time + 8000L)) {
+				current_time > (click_time + 8000L)) {
 				atObject(dummy[1], dummy[2]);
 				click_time = current_time;
 				return random(600, 800);
@@ -267,8 +258,7 @@ public final class S_DummyTrainer extends Script {
 		return random(1000, 1500);
 	}
 
-	private int on_road()
-	{
+	private int on_road() {
 		if (getInventoryIndex(drink.id) != -1) {
 			if (open_training_door()) {
 				walk_to_unused_dummy();
@@ -285,19 +275,17 @@ public final class S_DummyTrainer extends Script {
 		return random(1000, 1500);
 	}
 
-	private void walk_to_bank()
-	{
+	private void walk_to_bank() {
 		walkTo(102 + random(-2, 2), 510 + random(1, 3));
 	}
 
-	private void walk_to_unused_dummy()
-	{
+	private void walk_to_unused_dummy() {
 		for (Point p : dummies) {
 			boolean taken = false;
 			int count = countPlayers();
 			for (int i = 0; i < count; ++i) {
 				if (getPlayerX(i) == p.x &&
-				    getPlayerY(i) == p.y) {
+					getPlayerY(i) == p.y) {
 					taken = true;
 					break;
 				}
@@ -311,8 +299,7 @@ public final class S_DummyTrainer extends Script {
 		walkTo(dummies[0].x, dummies[0].y);
 	}
 
-	private boolean open_training_door()
-	{
+	private boolean open_training_door() {
 		if (getWallObjectIdFromCoords(104, 506) == 2) {
 			atWallObject(104, 506);
 			return false;
@@ -320,8 +307,7 @@ public final class S_DummyTrainer extends Script {
 		return true;
 	}
 
-	private boolean open_bank_door()
-	{
+	private boolean open_bank_door() {
 		if (getObjectIdFromCoords(102, 509) == 64) {
 			atObject(102, 509);
 			return false;
@@ -329,8 +315,7 @@ public final class S_DummyTrainer extends Script {
 		return true;
 	}
 
-	private String per_hour(int count)
-	{
+	private String per_hour(int count) {
 		double amount, secs;
 
 		if (count == 0) return "0";
@@ -339,8 +324,7 @@ public final class S_DummyTrainer extends Script {
 		return iformat.format(amount / secs);
 	}
 
-	private static String get_time_since(long t)
-	{
+	private static String get_time_since(long t) {
 		long millis = (System.currentTimeMillis() - t) / 1000;
 		long second = millis % 60;
 		long minute = (millis / 60) % 60;

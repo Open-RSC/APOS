@@ -1,60 +1,49 @@
-import javax.swing.JOptionPane;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Choice;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.Point;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Locale;
-import javax.swing.BoxLayout;
-
 import com.aposbot.Constants;
 import com.aposbot.StandardCloseHandler;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
 
 public final class SAF_PurgeShit extends Script
-implements ActionListener {
+	implements ActionListener {
 
 	private long
-	time = 0,
-	delayStart = 0;
+		time = 0;
+	private final long delayStart = 0;
 
-	private int 
-	currentItem = 0,
-	amountTraded = 0,
-	giveOrTake = 0,
-	fightMode = 1;
+	private int
+		currentItem = 0;
+	private final int amountTraded = 0;
+	private final int giveOrTake = 0;
+	private int fightMode = 1;
 
-	private final int 
-	NPC_BANKER = 95;
+	private final int
+		NPC_BANKER = 95;
 
-	private boolean 
-	init = false,
-	banking = true;
+	private final boolean
+		init = false;
+	private boolean banking = true;
 
 	private String
-	playerName;
+		playerName;
 
-	private final String[] 
-	fightModeStrings = {"Strength", "Attack", "Defense" },
-	giveOrTakeStrings = {"Giver", "Taker" };
+	private final String[]
+		fightModeStrings = {"Strength", "Attack", "Defense"},
+		giveOrTakeStrings = {"Giver", "Taker"};
 
-	private ArrayList<Integer> ids = new ArrayList<Integer>();
+	private final ArrayList<Integer> ids = new ArrayList<Integer>();
 
 	private Frame frame;
 
-	private final Choice 
-	combat_choice = new Choice();
+	private final Choice
+		combat_choice = new Choice();
 
-	private final TextField	tf_specific_items = new TextField();
+	private final TextField tf_specific_items = new TextField();
 
 	private final DecimalFormat int_format = new DecimalFormat("#,##0");
 
@@ -86,11 +75,11 @@ implements ActionListener {
 			button = new Button("Cancel");
 			button.addActionListener(this);
 			button_pane.add(button);
-			
+
 			frame = new Frame(getClass().getSimpleName());
 			frame.addWindowListener(
 				new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
-				);
+			);
 			frame.setIconImages(Constants.ICONS);
 			frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
 			frame.add(col_pane);
@@ -107,82 +96,58 @@ implements ActionListener {
 	@Override
 	public int main() {
 
-		if (giveOrTake == 0)
-		{
-			if (getInventoryCount() < 1 && !isBanking())
-			{
+		if (giveOrTake == 0) {
+			if (getInventoryCount() < 1 && !isBanking()) {
 				System.out.println("Banking because we have no more items in our inventory.");
 				banking = true;
 			}
 		}
 		// giveOrTake != 0 so we are in buying mode
-		else
-		{
-			if (getInventoryCount() > 0 && getInventoryCount() != 12 && !isBanking())
-			{
+		else {
+			if (getInventoryCount() > 0 && getInventoryCount() != 12 && !isBanking()) {
 				System.out.println("Banking because we have " + getInventoryCount() + " items in our inventory.");
 				banking = true;
 			}
-		}	
+		}
 		//Banking
-		if (banking)
-		{
-			int banker[] = getNpcByIdNotTalk(NPC_BANKER);
+		if (banking) {
+			int[] banker = getNpcByIdNotTalk(NPC_BANKER);
 
-			if (!isBanking())
-			{
-				if(isQuestMenu())
-				{
+			if (!isBanking()) {
+				if (isQuestMenu()) {
 					answer(0);
 					return random(1000, 1500);
-				}
-				else
-				{
+				} else {
 					talkToNpc(banker[0]);
 					return random(4000, 6000);
 				}
-			}
-			else
-			{
-				if (getInventoryCount(ids.get(currentItem)) < 1)
-				{
-					if (bankCount(ids.get(currentItem)) < 1)
-					{
+			} else {
+				if (getInventoryCount(ids.get(currentItem)) < 1) {
+					if (bankCount(ids.get(currentItem)) < 1) {
 						currentItem++;
-						if (currentItem == ids.size())
-						{
+						if (currentItem == ids.size()) {
 							_end("Out of items to drop");
 							return random(1000, 1500);
 						}
 					}
-					if (bankCount(ids.get(currentItem)) > 29)
-					{
+					if (bankCount(ids.get(currentItem)) > 29) {
 						withdraw(ids.get(currentItem), 30 - getInventoryCount());
-					}
-					else
-					{
+					} else {
 						withdraw(ids.get(currentItem), bankCount(ids.get(currentItem)));
 					}
-					System.out.println("Withdrawing items: " + getItemNameId(ids.get(currentItem)));	
+					System.out.println("Withdrawing items: " + getItemNameId(ids.get(currentItem)));
 					return random(1000, 1500);
-				}
-				else
-				{
+				} else {
 					banking = false;
 					closeBank();
 					return random(1000, 1500);
 				}
 			}
-		}
-		else
-		{
-			if (getInventoryCount(ids.get(currentItem)) > 0)
-			{
+		} else {
+			if (getInventoryCount(ids.get(currentItem)) > 0) {
 				dropItem(getInventoryIndex(ids.get(currentItem)));
 				return random(400, 600);
-			}
-			else
-			{
+			} else {
 				banking = true;
 			}
 		}
@@ -196,44 +161,35 @@ implements ActionListener {
 				fightMode = (combat_choice.getSelectedIndex() + 1);
 				time = System.currentTimeMillis();
 				String[] spi = tf_specific_items.getText().trim().split(",");
-				for(int x = 0; x < spi.length; x++) {
-					if (isItemTradableId(x))
-					{
+				for (int x = 0; x < spi.length; x++) {
+					if (isItemTradableId(x)) {
 						ids.add(Integer.parseInt(spi[x]));
 						System.out.println("Adding item: " + getItemNameId(Integer.parseInt(spi[x])));
 					}
-        		}
+				}
 
-				if (getInventoryCount() < 1)
-				{
-					banking = true;
-				}
-				else
-				{
-					banking = false;
-				}
-			} 
-			catch (Throwable t) {
+				banking = getInventoryCount() < 1;
+			} catch (Throwable t) {
 				System.out.println("Error parsing field. Script cannot start. Check your inputs.");
 			}
 		}
 		frame.setVisible(false);
 	}
-	
+
 	private String getTimeRunning() {
 		long time = ((System.currentTimeMillis() - this.time) / 1000);
 		if (time >= 7200) {
-			return new String((time / 3600) + " hours, " + ((time % 3600) / 60) + " minutes");
+			return (time / 3600) + " hours, " + ((time % 3600) / 60) + " minutes";
 		}
 		if (time >= 3600 && time < 7200) {
-			return new String((time / 3600) + " hour, " + ((time % 3600) / 60) + " minutes");
+			return (time / 3600) + " hour, " + ((time % 3600) / 60) + " minutes";
 		}
 		if (time >= 60) {
-			return new String(time / 60 + " minutes, " + (time % 60) + " seconds");
+			return time / 60 + " minutes, " + (time % 60) + " seconds";
 		}
-		return new String(time + " seconds");
+		return time + " seconds";
 	}
-	
+
 	private void _walkApprox(int nx, int ny, int range) {
 		int x, y;
 		int loop = 0;
@@ -244,24 +200,23 @@ implements ActionListener {
 		} while (!isReachable(x, y));
 		walkTo(x, y);
 	}
-	
+
 	private static int get_int(TextField tf) {
 		return Integer.parseInt(tf.getText());
 	}
 
 	//When trade request received
-	public void onTradeRequest(String name)
-	{
-		if(!isInTradeOffer() && !isInTradeConfirm())
-		{
-			
+	public void onTradeRequest(String name) {
+		if (!isInTradeOffer() && !isInTradeConfirm()) {
+
 		}
-		
+
 	}
 
 	private int _end(String message) {
 		System.out.println(message);
-		stopScript(); setAutoLogin(false);
+		stopScript();
+		setAutoLogin(false);
 		return 0;
 	}
 

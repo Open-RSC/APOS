@@ -1,20 +1,16 @@
+import com.aposbot.Constants;
+import com.aposbot.StandardCloseHandler;
+
+import javax.swing.*;
+import java.awt.List;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Locale;
-import java.util.Set;
-
-import javax.swing.BoxLayout;
-
-import com.aposbot.Constants;
-import com.aposbot.StandardCloseHandler;
+import java.util.*;
 
 public final class S_Miner extends Script
-    implements ActionListener {
+	implements ActionListener {
 
 	/* rock selection improvements inspired by aero */
 
@@ -43,17 +39,17 @@ public final class S_Miner extends Script
 
 	private static final int[] bank_ids = {
 		149, 383, 152, 155, 202, 150, 151, 153, 154, 409,
-		160, 159, 158, 157, 542, 889, 890, 891, 
-		161, 162, 163, 164, 523, 892, 893, 894, 
+		160, 159, 158, 157, 542, 889, 890, 891,
+		161, 162, 163, 164, 523, 892, 893, 894,
 	};
 
-	private static final int[] gems = { 
-		160, 159, 158, 157, 542, 889, 890, 891, 
+	private static final int[] gems = {
+		160, 159, 158, 157, 542, 889, 890, 891,
 	};
 
 	private static final Map<String, int[]> map_rocks = new HashMap<>();
 
-	private GenericImpl[] impls = {
+	private final GenericImpl[] impls = {
 		new DwarfMineScorpImpl(),
 		new MiningGuildImpl(),
 		new CraftingGuildImpl()
@@ -74,7 +70,7 @@ public final class S_Miner extends Script
 	private PathWalker.Path lumb_to_bank;
 	private PathWalker.Path from_bank;
 	private PathWalker.Path to_bank;
-	private PathWalker pw;
+	private final PathWalker pw;
 
 	private Frame frame;
 	private Checkbox cb_bank;
@@ -110,18 +106,21 @@ public final class S_Miner extends Script
 			bank = pw.getNearestBank(cur_x, cur_y);
 			if (bank == null) {
 				System.out.println("ERROR: No usable bank found!");
-				stopScript(); return 0;
+				stopScript();
+				return 0;
 			}
 			System.out.println("Nearest bank: " + bank.name);
 			to_bank = pw.calcPath(cur_x, cur_y, bank.x, bank.y);
 			if (to_bank == null) {
 				System.out.println("Failed to calculate to_bank. Unsupproted location?");
-				stopScript(); return 0;
+				stopScript();
+				return 0;
 			}
 			from_bank = pw.calcPath(bank.x, bank.y, cur_x, cur_y);
 			if (from_bank == null) {
 				System.out.println("Failed to calculate from_bank. Unsupproted location?");
-				stopScript(); return 0;
+				stopScript();
+				return 0;
 			}
 
 			return -1;
@@ -186,12 +185,14 @@ public final class S_Miner extends Script
 			to_bank = pw.calcPath(347, 600, 286, 572);
 			if (to_bank == null) {
 				System.out.println("Failed to calculate to_bank. This is not good.");
-				stopScript(); return 0;
+				stopScript();
+				return 0;
 			}
 			from_bank = pw.calcPath(286, 572, 347, 600);
 			if (from_bank == null) {
 				System.out.println("Failed to calculate from_bank. This is not good.");
-				stopScript(); return 0;
+				stopScript();
+				return 0;
 			}
 			return -1;
 		}
@@ -427,7 +428,7 @@ public final class S_Miner extends Script
 			} else if (isInMineEntry()) {
 				if (should_bank()) {
 					if (getWallObjectIdFromCoords(MINE_DOOR_X, MINE_DOOR_Y) ==
-							ID_MINE_DOOR) {
+						ID_MINE_DOOR) {
 						atWallObject(MINE_DOOR_X, MINE_DOOR_Y);
 						return random(1000, 2000);
 					}
@@ -469,7 +470,7 @@ public final class S_Miner extends Script
 				} else {
 					if (distanceTo(MINE_DOOR_X, MINE_DOOR_Y) < 6) {
 						if (getWallObjectIdFromCoords(MINE_DOOR_X, MINE_DOOR_Y) ==
-								ID_MINE_DOOR) {
+							ID_MINE_DOOR) {
 							atWallObject(MINE_DOOR_X, MINE_DOOR_Y);
 							return random(1000, 2000);
 						}
@@ -520,7 +521,7 @@ public final class S_Miner extends Script
 				x = 287 - random(0, 4);
 				y = 571 - random(0, 4);
 			} while (!isReachable(x, y) ||
-			    (exact && !isInBankArea(x, y)));
+				(exact && !isInBankArea(x, y)));
 			walkTo(x, y);
 		}
 
@@ -535,7 +536,7 @@ public final class S_Miner extends Script
 				x = 273 + random(-1, 2);
 				y = 562 + random(-1, 2);
 			} while (!isReachable(x, y) ||
-			    (exact && !isInMineEntry(x, y)));
+				(exact && !isInMineEntry(x, y)));
 			walkTo(x, y);
 		}
 
@@ -544,7 +545,7 @@ public final class S_Miner extends Script
 		}
 
 		private boolean inArea(int c_x, int c_y,
-		    int x1, int y1, int x2, int y2) {
+							   int x1, int y1, int x2, int y2) {
 
 			if (c_x <= x1 && c_x >= x2 && c_y >= y1 && c_y <= y2) {
 				return true;
@@ -555,10 +556,7 @@ public final class S_Miner extends Script
 			if (c_x <= x1 && c_x >= x2 && c_y >= y2 && c_y <= y1) {
 				return true;
 			}
-			if (c_x <= x2 && c_x >= x1 && c_y >= y1 && c_y <= y2) {
-				return true;
-			}
-			return false;
+			return c_x <= x2 && c_x >= x1 && c_y >= y1 && c_y <= y2;
 		}
 
 		private boolean isInBankArea(int x, int y) {
@@ -587,17 +585,17 @@ public final class S_Miner extends Script
 	}
 
 	static {
-		map_rocks.put("Copper", new int[] { 100, 101 });
-		map_rocks.put("Tin", new int[] { 104, 105 });
-		map_rocks.put("Clay", new int[] { 195, 196 });
-		map_rocks.put("Iron", new int[] { 102, 103 });
-		map_rocks.put("Silver", new int[] { 195, 196 });
-		map_rocks.put("Coal", new int[] { 110, 111 });
-		map_rocks.put("Gold", new int[] { 112, 113 });
-		map_rocks.put("Gem rocks", new int[] { 588 });
-		map_rocks.put("Mithril", new int[] { 106, 107 });
-		map_rocks.put("Adamantite", new int[] { 108, 109 });
-		map_rocks.put("Runite", new int[] { 210 });
+		map_rocks.put("Copper", new int[]{100, 101});
+		map_rocks.put("Tin", new int[]{104, 105});
+		map_rocks.put("Clay", new int[]{195, 196});
+		map_rocks.put("Iron", new int[]{102, 103});
+		map_rocks.put("Silver", new int[]{195, 196});
+		map_rocks.put("Coal", new int[]{110, 111});
+		map_rocks.put("Gold", new int[]{112, 113});
+		map_rocks.put("Gem rocks", new int[]{588});
+		map_rocks.put("Mithril", new int[]{106, 107});
+		map_rocks.put("Adamantite", new int[]{108, 109});
+		map_rocks.put("Runite", new int[]{210});
 	}
 
 	@Override
@@ -654,12 +652,12 @@ public final class S_Miner extends Script
 
 			frame = new Frame(getClass().getSimpleName());
 			frame.addWindowListener(
-			    new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
+				new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
 			);
 			frame.setIconImages(Constants.ICONS);
 			frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
 			frame.add(new Label(
-			    "Preference order (best-worst):", Label.CENTER));
+				"Preference order (best-worst):", Label.CENTER));
 			frame.add(list_rocks);
 			frame.add(rock_panel);
 
@@ -679,13 +677,13 @@ public final class S_Miner extends Script
 			frame.add(v_panel);
 
 			frame.add(new Label(
-			    "Banking is supported from most locations excluding some"
+				"Banking is supported from most locations excluding some"
 			));
 			frame.add(new Label(
-			    "such as the Grand Tree. Start at the mining spot."
+				"such as the Grand Tree. Start at the mining spot."
 			));
 			frame.add(new Label(
-			    "Gems will be cut if there is a chisel in your inventory."
+				"Gems will be cut if there is a chisel in your inventory."
 			));
 			frame.add(button_panel);
 			frame.setResizable(false);
@@ -899,7 +897,7 @@ public final class S_Miner extends Script
 		int count = countPlayers();
 		for (int i = 1; i < count; ++i) {
 			int dist = Math.abs(getPlayerX(i) - x) +
-			    Math.abs(getPlayerY(i) - y);
+				Math.abs(getPlayerY(i) - y);
 			if (dist <= 1) {
 				return true;
 			}
@@ -908,7 +906,7 @@ public final class S_Miner extends Script
 	}
 
 	private int[] get_closest_rock(int... ids) {
-		int[] rock = new int[] { -1, -1, -1 };
+		int[] rock = new int[]{-1, -1, -1};
 		int best_dist = Integer.MAX_VALUE;
 		int count = getObjectCount();
 		int my_x = getX();
@@ -921,15 +919,15 @@ public final class S_Miner extends Script
 			int rock_x = getObjectX(i);
 			int rock_y = getObjectY(i);
 			if (last_mined[0] == rock_x &&
-			    last_mined[1] == rock_y &&
-			    System.currentTimeMillis() < dont_remine) {
+				last_mined[1] == rock_y &&
+				System.currentTimeMillis() < dont_remine) {
 				continue;
 			}
 			if (is_player_beside(rock_x, rock_y)) {
 				continue;
 			}
 			int dist = Math.abs(rock_x - my_x) +
-			    Math.abs(rock_y - my_y);
+				Math.abs(rock_y - my_y);
 			if (dist < 30 && dist < best_dist) {
 				best_dist = dist;
 				rock[0] = rock_id;
@@ -947,12 +945,12 @@ public final class S_Miner extends Script
 				int rock_x = getObjectX(i);
 				int rock_y = getObjectY(i);
 				if (last_mined[0] == rock_x &&
-				    last_mined[1] == rock_y &&
-				    System.currentTimeMillis() < dont_remine) {
+					last_mined[1] == rock_y &&
+					System.currentTimeMillis() < dont_remine) {
 					continue;
 				}
 				int dist = Math.abs(rock_x - my_x) +
-				    Math.abs(rock_y - my_y);
+					Math.abs(rock_y - my_y);
 				if (dist < 30 && dist < best_dist) {
 					best_dist = dist;
 					rock[0] = rock_id;
@@ -969,7 +967,7 @@ public final class S_Miner extends Script
 		for (int i = 0; i < array_sz; ++i) {
 			int[] rock = get_closest_rock(rocks[i]);
 			if (rock[0] == -1 ||
-			    (impl != null && !impl.isRockValid(rock))) {
+				(impl != null && !impl.isRockValid(rock))) {
 				continue;
 			}
 			int dist = distanceTo(rock[1], rock[2]);
@@ -992,10 +990,7 @@ public final class S_Miner extends Script
 		if (getInventoryIndex(pickaxes) == -1) {
 			return true;
 		}
-		if (getInventoryIndex(SLEEPING_BAG) == -1) {
-			return true;
-		}
-		return false;
+		return getInventoryIndex(SLEEPING_BAG) == -1;
 	}
 
 	private void walk_approx(int x, int y) {
@@ -1006,7 +1001,7 @@ public final class S_Miner extends Script
 			dy = y + random(-1, 1);
 			if ((++loop) > 100) return;
 		} while (!isReachable(dx, dy) ||
-		    (dx == getX() && dy == getY()));
+			(dx == getX() && dy == getY()));
 		walkTo(dx, dy);
 	}
 
@@ -1022,35 +1017,35 @@ public final class S_Miner extends Script
 		drawString("S Miner", x, y, 1, orangey);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time),
-		    x + 10, y, 1, white);
+			x + 10, y, 1, white);
 		y += 15;
 		drawString(String.format("Stats for current level (%d gained):",
-		    levels_gained), x, y, 1, orangey);
+			levels_gained), x, y, 1, orangey);
 		y += 15;
 		drawString(String.format("Successful attempts: %s (%s/h)",
-		    iformat.format(cur_success),
-		    per_hour(cur_success, level_time)),
-		    x + 10, y, 1, white);
+				iformat.format(cur_success),
+				per_hour(cur_success, level_time)),
+			x + 10, y, 1, white);
 		y += 15;
 		drawString(String.format("Failed attempts: %s (%s/h)",
-		    iformat.format(cur_fails),
-		    per_hour(cur_fails, level_time)),
-		    x + 10, y, 1, white);
+				iformat.format(cur_fails),
+				per_hour(cur_fails, level_time)),
+			x + 10, y, 1, white);
 		y += 15;
 		drawString("Fail rate: " + (float)
-		    ((double) cur_fails / (double) cur_success),
-		    x + 10, y, 1, white);
+				((double) cur_fails / (double) cur_success),
+			x + 10, y, 1, white);
 		y += 15;
 		if (levels_gained > 0) {
 			drawString("Total:", x, y, 1, orangey);
 			y += 15;
 			drawString(String.format("Successful attempts: %s",
-			    iformat.format(total_success)),
-			    x + 10, y, 1, white);
+					iformat.format(total_success)),
+				x + 10, y, 1, white);
 			y += 15;
 			drawString(String.format("Failed attempts: %s",
-			    iformat.format(total_fails)),
-			    x + 10, y, 1, white);
+					iformat.format(total_fails)),
+				x + 10, y, 1, white);
 			y += 15;
 		}
 		if (!cb_bank.getState()) return;
@@ -1066,9 +1061,9 @@ public final class S_Miner extends Script
 				header = true;
 			}
 			drawString(String.format("%s %s",
-			    iformat.format(banked_count[i]),
-			    getItemNameId(bank_ids[i])),
-			    x + 10, y, 1, white);
+					iformat.format(banked_count[i]),
+					getItemNameId(bank_ids[i])),
+				x + 10, y, 1, white);
 			y += 15;
 		}
 	}
@@ -1119,7 +1114,7 @@ public final class S_Miner extends Script
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
 		if (command.equals("OK")) {
-			if (frame.equals(get_window((Component)e.getSource()))) {
+			if (frame.equals(get_window((Component) e.getSource()))) {
 				try {
 					int rock_count = list_rocks.getItemCount();
 					if (rock_count <= 0) {
@@ -1138,7 +1133,7 @@ public final class S_Miner extends Script
 				frame.setVisible(false);
 			}
 		} else if (command.equals("Cancel")) {
-			if (frame.equals(get_window((Component)e.getSource()))) {
+			if (frame.equals(get_window((Component) e.getSource()))) {
 				frame.setVisible(false);
 			}
 		} else if (command.equals("Add")) {
@@ -1149,7 +1144,7 @@ public final class S_Miner extends Script
 					continue;
 				}
 				System.out.println("ERROR: " + selected +
-				    " has already been added.");
+					" has already been added.");
 				return;
 			}
 			list_rocks.add(selected);
@@ -1163,14 +1158,14 @@ public final class S_Miner extends Script
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("standing here")) {
 			move_time = System.currentTimeMillis() +
-			    random(1500, 1800);
+				random(1500, 1800);
 		} else if (str.contains("swing")) {
 			click_time = System.currentTimeMillis() +
-			    random(5000, 7000);
+				random(5000, 7000);
 		} else if (str.contains("scratch") ||
-		    str.contains("fail") || str.contains("no ore")) {
+			str.contains("fail") || str.contains("no ore")) {
 			click_time = System.currentTimeMillis() +
-			    random(100, 200);
+				random(100, 200);
 			++cur_fails;
 			++total_fails;
 		} else if (str.contains("advanced")) {
@@ -1181,9 +1176,9 @@ public final class S_Miner extends Script
 			cur_success = 0;
 			++levels_gained;
 		} else if (str.contains("manage") || str.contains("gem") ||
-		    str.contains("just mined") || str.contains("found")) {
+			str.contains("just mined") || str.contains("found")) {
 			click_time = System.currentTimeMillis() +
-			    random(100, 200);
+				random(100, 200);
 			++cur_success;
 			++total_success;
 			last_mined[0] = last_used[0];
@@ -1191,7 +1186,7 @@ public final class S_Miner extends Script
 			dont_remine = System.currentTimeMillis() + 5000L;
 		} else if (str.contains("tired")) {
 			sleep_time = System.currentTimeMillis() +
-			    random(800, 2500);
+				random(800, 2500);
 		}
 	}
 
@@ -1219,7 +1214,8 @@ public final class S_Miner extends Script
 	private int _end(String reason) {
 		print_out();
 		System.out.println(reason);
-		stopScript(); setAutoLogin(false);
+		stopScript();
+		setAutoLogin(false);
 		return 0;
 	}
 }

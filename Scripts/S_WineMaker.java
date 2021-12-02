@@ -22,7 +22,7 @@ public final class S_WineMaker extends Script {
 	 * for selecting the combat style for the skill we have the most
 	 * xp in
 	 */
-	private static final int[] melee_skills = { 2, 0, 1 };
+	private static final int[] melee_skills = {2, 0, 1};
 
 	private long start_time;
 	private long bank_time;
@@ -33,7 +33,7 @@ public final class S_WineMaker extends Script {
 	private int start_xp;
 	private int wine_made;
 
-	private PathWalker pw;
+	private final PathWalker pw;
 	private PathWalker.Path to_bank;
 	private PathWalker.Path from_bank;
 
@@ -69,10 +69,10 @@ public final class S_WineMaker extends Script {
 				xp = highest_xp;
 				style = i + 1;
 			}
-		} 
+		}
 		if (getFightMode() != style) {
 			System.out.printf("Setting combat style to %s\n",
-			    FIGHTMODES[style]);
+				FIGHTMODES[style]);
 			setFightMode(style);
 			return random(600, 800);
 		}
@@ -123,16 +123,16 @@ public final class S_WineMaker extends Script {
 		drawString("S WineMaker", 25, y, 1, gray);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time),
-		    25, y, 1, gray);
+			25, y, 1, gray);
 		y += 15;
 		drawString(String.format("Wine made: %s (%s/h)",
-		    iformat.format(wine_made), per_hour(wine_made)),
-		    25, y, 1, gray);
+				iformat.format(wine_made), per_hour(wine_made)),
+			25, y, 1, gray);
 		y += 15;
 		int xp_gained = getXpForLevel(COOKING) - start_xp;
 		drawString(String.format("Cooking XP: %s (%s/h)",
-		    iformat.format(xp_gained), per_hour(xp_gained)),
-		    25, y, 1, gray);
+				iformat.format(xp_gained), per_hour(xp_gained)),
+			25, y, 1, gray);
 		y += 15;
 	}
 
@@ -236,18 +236,18 @@ public final class S_WineMaker extends Script {
 
 	private int[] get_ids_to_take() {
 		if (getInventoryCount() == MAX_INV_SIZE) {
-			return new int[] {};
+			return new int[]{};
 		}
 
 		int grape_count = getInventoryCount(GRAPES);
 		int base_count = getInventoryCount(JUG, WATER);
 
 		if (grape_count > base_count) {
-			return new int[] { JUG };
+			return new int[]{JUG};
 		} else if (base_count > grape_count) {
-			return new int[] { GRAPES };
+			return new int[]{GRAPES};
 		}
-		return new int[] { GRAPES, JUG };
+		return new int[]{GRAPES, JUG};
 	}
 
 	private String per_hour(int count) {

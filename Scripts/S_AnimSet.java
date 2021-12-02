@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public final class S_AnimSet extends Script {
 
-	private Extension ex;
+	private final Extension ex;
 	private int anim;
 
 	public S_AnimSet(Extension ex) {

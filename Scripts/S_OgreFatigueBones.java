@@ -1,7 +1,6 @@
+import javax.swing.*;
 import java.text.DecimalFormat;
 import java.util.Locale;
-
-import javax.swing.JOptionPane;
 
 public final class S_OgreFatigueBones extends Script {
 
@@ -11,21 +10,19 @@ public final class S_OgreFatigueBones extends Script {
 	private PathWalker.Path to_bank;
 	private PathWalker.Path from_bank;
 	private long
-	bank_time,
-	menu_time,
-	start_time;
+		bank_time,
+		menu_time,
+		start_time;
 	private int start_xp;
 	private final DecimalFormat iformat = new DecimalFormat("#,##0");
 
-	public S_OgreFatigueBones(Extension ex)
-	{
+	public S_OgreFatigueBones(Extension ex) {
 		super(ex);
 		pw = new PathWalker(ex);
 	}
 
 	@Override
-	public void init(String params)
-	{
+	public void init(String params) {
 		bank_time = menu_time = start_time = -1L;
 
 		String[] food_types = {
@@ -41,16 +38,16 @@ public final class S_OgreFatigueBones extends Script {
 			return;
 		}
 
-		switch ((String)sfood) {
-		case "Lobster":
-			food_id = 373;
-			break;
-		case "Swordfish":
-			food_id = 370;
-			break;
-		case "Shark":
-			food_id = 546;
-			break;
+		switch ((String) sfood) {
+			case "Lobster":
+				food_id = 373;
+				break;
+			case "Swordfish":
+				food_id = 370;
+				break;
+			case "Shark":
+				food_id = 546;
+				break;
 		}
 
 		Object smode = JOptionPane.showInputDialog(null,
@@ -87,8 +84,7 @@ public final class S_OgreFatigueBones extends Script {
 	}
 
 	@Override
-	public int main()
-	{
+	public int main() {
 		if (start_time == -1L) {
 			start_time = System.currentTimeMillis();
 			start_xp = getXpForLevel(5);
@@ -198,7 +194,7 @@ public final class S_OgreFatigueBones extends Script {
 			return random(600, 800);
 		}
 
-		int[] best_item = { -1, -1 };
+		int[] best_item = {-1, -1};
 		int best_dist = Integer.MAX_VALUE;
 		int gitemcount = getGroundItemCount();
 		for (int i = 0; i < gitemcount; ++i) {
@@ -230,8 +226,7 @@ public final class S_OgreFatigueBones extends Script {
 	}
 
 	@Override
-	public void paint()
-	{
+	public void paint() {
 		int x = 10;
 		int y = 18;
 		drawString("S Ogre Prayer", x, y, 2, 0xFFFFFF);
@@ -240,33 +235,29 @@ public final class S_OgreFatigueBones extends Script {
 		y += 15;
 		int gained = start_xp - getXpForLevel(5);
 		drawString(String.format("Prayer XP gained: %s (%s/h)",
-			iformat.format(gained), per_hour(gained)),
+				iformat.format(gained), per_hour(gained)),
 			x, y, 2, 0xFFFFFF);
 		y += 15;
 	}
 
 	@Override
-	public void onServerMessage(String str)
-	{
+	public void onServerMessage(String str) {
 		str = str.toLowerCase(Locale.ENGLISH);
 		if (str.contains("busy")) {
 			menu_time = -1L;
 		}
 	}
 
-	private boolean inside_bank()
-	{
+	private boolean inside_bank() {
 		return getX() <= 590 && getX() >= 585 &&
 			getY() >= 750 && getY() <= 758;
 	}
 
-	private boolean should_bank()
-	{
+	private boolean should_bank() {
 		return getInventoryIndex(food_id) == -1;
 	}
 
-	private String get_runtime()
-	{
+	private String get_runtime() {
 		long millis = (System.currentTimeMillis() - start_time) / 1000;
 		long second = millis % 60;
 		long minute = (millis / 60) % 60;
@@ -288,11 +279,10 @@ public final class S_OgreFatigueBones extends Script {
 		return String.format("%02d seconds", second);
 	}
 
-	private String per_hour(int count)
-	{
+	private String per_hour(int count) {
 		if (count == 0) return "0";
 		double amount = count * 60.0 * 60.0;
 		double secs = (System.currentTimeMillis() - start_time) / 1000.0;
-        return iformat.format(amount / secs);
+		return iformat.format(amount / secs);
 	}
 }
