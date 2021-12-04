@@ -22,7 +22,6 @@ public final class BotLoader {
 
     public BotLoader(String[] argv, IClientInit init) {
         this.init = init;
-        new Thread(new Authenticator()).start();
         new EntryFrame(this).setVisible(true);
 
         if (argv.length == 0) {
@@ -120,36 +119,4 @@ public final class BotLoader {
     IClientInit getClientInit() {
         return init;
     }
-
-    private final class Authenticator implements Runnable {
-
-        private boolean invalid;
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(60 * 60 * 1000);
-            } catch (InterruptedException ignored) {
-            }
-            try {
-                int sleep;
-                int mins = 60 + (7 & Constants.RANDOM.nextInt());
-                if (invalid) {
-                    System.out.println("Auth valid. Starting.");
-                    init.getScriptListener().setBanned(false);
-                    init.getAutoLogin().setBanned(false);
-                    init.getPaintListener().setBanned(false);
-                    invalid = false;
-                }
-                sleep = mins * 60 * 1000;
-                try {
-                    Thread.sleep(sleep);
-                } catch (InterruptedException ignored) {
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }
