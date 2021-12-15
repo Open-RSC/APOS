@@ -74,7 +74,7 @@ public class AA_GnomeFlax extends AA_Script {
 			this.banking = true;
 		}
 
-		this.state = State.PICK;
+		this.state = this.spinning ? State.PICK_TREE : State.PICK_BANK;
 		this.initialCraftingXp = this.getAccurateXpForLevel(SKILL_INDEX_CRAFTING);
 		this.startTime = Instant.now();
 	}
@@ -85,14 +85,18 @@ public class AA_GnomeFlax extends AA_Script {
 		this.playerY = this.getY();
 
 		switch (this.state) {
-			case PICK:
-				return this.pick();
+			case PICK_TREE:
+				return this.pickTree();
+			case PICK_BANK:
+				return this.pickBank();
 			case SPIN:
 				return this.spin();
 			case DROP:
 				return this.drop();
-			case BANK:
-				return this.bank();
+			case BANK_SOUTH:
+				return this.bankSouth();
+			case BANK_NORTH:
+				return this.bankNorth();
 			default:
 				return this.exit("Invalid script state.");
 		}
@@ -145,10 +149,10 @@ public class AA_GnomeFlax extends AA_Script {
 			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, PAINT_COLOR);
 	}
 
-	private int pick() {
-		if (this.playerX == Object.FLAX.coordinate.getX() && this.playerY == Object.FLAX.coordinate.getY() + 1) {
+	private int pickTree() {
+		if (this.playerX == Object.FLAX_TREE.coordinate.getX() && this.playerY == Object.FLAX_TREE.coordinate.getY() + 1) {
 			if (this.getInventoryCount() == MAX_INV_SIZE) {
-				this.state = this.spinning ? State.SPIN : State.BANK;
+				this.state = State.SPIN;
 				return 0;
 			}
 
@@ -157,7 +161,7 @@ public class AA_GnomeFlax extends AA_Script {
 			}
 
 			this.extension.displayMessage("@gre@Picking ...");
-			this.pickFlax();
+			this.pickFlax(Object.FLAX_TREE);
 			this.flaxTimeout = System.currentTimeMillis() + TIMEOUT_ONE_SECOND;
 			return 0;
 		}
@@ -173,22 +177,22 @@ public class AA_GnomeFlax extends AA_Script {
 		}
 
 		if (Area.BANK.contains(this.playerX, this.playerY)) {
-			if (this.playerX == Object.LADDER_DOWN_BANK.coordinate.getX() - 1 &&
-				this.playerY == Object.LADDER_DOWN_BANK.coordinate.getY()) {
+			if (this.playerX == Object.LADDER_DOWN_SOUTH_BANK.coordinate.getX() - 1 &&
+				this.playerY == Object.LADDER_DOWN_SOUTH_BANK.coordinate.getY()) {
 				if (System.currentTimeMillis() <= this.ladderTimeout) {
 					return 0;
 				}
 
-				this.useLadder(Object.LADDER_DOWN_BANK.coordinate.getX(), Object.LADDER_DOWN_BANK.coordinate.getY());
+				this.useLadder(Object.LADDER_DOWN_SOUTH_BANK.coordinate.getX(), Object.LADDER_DOWN_SOUTH_BANK.coordinate.getY());
 				this.ladderTimeout = System.currentTimeMillis() + SLEEP_TWO_SECONDS;
 				return 0;
 			}
 
-			this.walkTo(Object.LADDER_DOWN_BANK.coordinate.getX() - 1, Object.LADDER_DOWN_BANK.coordinate.getY());
+			this.walkTo(Object.LADDER_DOWN_SOUTH_BANK.coordinate.getX() - 1, Object.LADDER_DOWN_SOUTH_BANK.coordinate.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		this.walkTo(Object.FLAX.coordinate.getX(), Object.FLAX.coordinate.getY() + 1);
+		this.walkTo(Object.FLAX_TREE.coordinate.getX(), Object.FLAX_TREE.coordinate.getY() + 1);
 
 		if (this.getFatigue() >= MAXIMUM_SLEEP_WALK_FATIGUE && this.isWalking()) {
 			return this.sleep();
@@ -197,10 +201,47 @@ public class AA_GnomeFlax extends AA_Script {
 		return SLEEP_ONE_TICK;
 	}
 
+	private int pickBank() {
+		if (this.playerX == Object.FLAX_BANK.coordinate.getX() && this.playerY == Object.FLAX_BANK.coordinate.getY() - 1) {
+			if (this.getInventoryCount() == MAX_INV_SIZE) {
+				this.state = State.BANK_NORTH;
+				return 0;
+			}
+
+			if (System.currentTimeMillis() <= this.flaxTimeout) {
+				return 0;
+			}
+
+			this.extension.displayMessage("@gre@Picking ...");
+			this.pickFlax(Object.FLAX_BANK);
+			this.flaxTimeout = System.currentTimeMillis() + TIMEOUT_ONE_SECOND;
+			return 0;
+		}
+
+		if (Area.BANK.contains(this.playerX, this.playerY)) {
+			if (this.playerX == Object.LADDER_DOWN_NORTH_BANK.coordinate.getX() &&
+				this.playerY == Object.LADDER_DOWN_NORTH_BANK.coordinate.getY() + 1) {
+				if (System.currentTimeMillis() <= this.ladderTimeout) {
+					return 0;
+				}
+
+				this.useLadder(Object.LADDER_DOWN_NORTH_BANK.coordinate.getX(), Object.LADDER_DOWN_NORTH_BANK.coordinate.getY());
+				this.ladderTimeout = System.currentTimeMillis() + SLEEP_TWO_SECONDS;
+				return 0;
+			}
+
+			this.walkTo(Object.LADDER_DOWN_NORTH_BANK.coordinate.getX(), Object.LADDER_DOWN_NORTH_BANK.coordinate.getY() + 1);
+			return SLEEP_ONE_TICK;
+		}
+
+		this.walkTo(Object.FLAX_BANK.coordinate.getX(), Object.FLAX_BANK.coordinate.getY() - 1);
+		return SLEEP_ONE_TICK;
+	}
+
 	private int spin() {
 		if (Area.TREE.contains(this.playerX, this.playerY)) {
 			if (this.getInventoryId(1) != ITEM_ID_FLAX) {
-				this.state = this.banking ? State.BANK : State.DROP;
+				this.state = this.banking ? State.BANK_SOUTH : State.DROP;
 				return 0;
 			}
 
@@ -241,7 +282,7 @@ public class AA_GnomeFlax extends AA_Script {
 
 	private int drop() {
 		if (this.getInventoryCount() == 1) {
-			this.state = State.PICK;
+			this.state = State.PICK_TREE;
 			return 0;
 		}
 
@@ -250,10 +291,10 @@ public class AA_GnomeFlax extends AA_Script {
 		return SLEEP_ONE_TICK;
 	}
 
-	private int bank() {
+	private int bankSouth() {
 		if (Area.BANK.contains(this.playerX, this.playerY)) {
 			if (this.getInventoryCount() != MAX_INV_SIZE) {
-				this.state = State.PICK;
+				this.state = State.PICK_TREE;
 				return 0;
 			}
 
@@ -265,7 +306,7 @@ public class AA_GnomeFlax extends AA_Script {
 				return 0;
 			}
 
-			final int itemId = this.getInventoryId(this.spinning ? 1 : 0);
+			final int itemId = this.getInventoryId(1);
 			this.deposit(itemId, MAX_INV_SIZE);
 			this.depositTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
 			return 0;
@@ -281,18 +322,54 @@ public class AA_GnomeFlax extends AA_Script {
 			return 0;
 		}
 
-		if (this.playerX == Object.LADDER_UP_BANK.coordinate.getX() - 1 &&
-			this.playerY == Object.LADDER_UP_BANK.coordinate.getY()) {
+		if (this.playerX == Object.LADDER_UP_SOUTH_BANK.coordinate.getX() - 1 &&
+			this.playerY == Object.LADDER_UP_SOUTH_BANK.coordinate.getY()) {
 			if (System.currentTimeMillis() <= this.ladderTimeout) {
 				return 0;
 			}
 
-			this.useLadder(Object.LADDER_UP_BANK.coordinate.getX(), Object.LADDER_UP_BANK.coordinate.getY());
+			this.useLadder(Object.LADDER_UP_SOUTH_BANK.coordinate.getX(), Object.LADDER_UP_SOUTH_BANK.coordinate.getY());
 			this.ladderTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 			return 0;
 		}
 
-		this.walkTo(Object.LADDER_UP_BANK.coordinate.getX() - 1, Object.LADDER_UP_BANK.coordinate.getY());
+		this.walkTo(Object.LADDER_UP_SOUTH_BANK.coordinate.getX() - 1, Object.LADDER_UP_SOUTH_BANK.coordinate.getY());
+		return SLEEP_ONE_TICK;
+	}
+
+	private int bankNorth() {
+		if (Area.BANK.contains(this.playerX, this.playerY)) {
+			if (this.getInventoryCount() != MAX_INV_SIZE) {
+				this.state = State.PICK_BANK;
+				return 0;
+			}
+
+			if (!this.isBanking()) {
+				return this.openBank();
+			}
+
+			if (System.currentTimeMillis() <= this.depositTimeout) {
+				return 0;
+			}
+
+			final int itemId = this.getInventoryId(0);
+			this.deposit(itemId, MAX_INV_SIZE);
+			this.depositTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
+			return 0;
+		}
+
+		if (this.playerX == Object.LADDER_UP_NORTH_BANK.coordinate.getX() &&
+			this.playerY == Object.LADDER_UP_NORTH_BANK.coordinate.getY() + 1) {
+			if (System.currentTimeMillis() <= this.ladderTimeout) {
+				return 0;
+			}
+
+			this.useLadder(Object.LADDER_UP_NORTH_BANK.coordinate.getX(), Object.LADDER_UP_NORTH_BANK.coordinate.getY());
+			this.ladderTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+			return 0;
+		}
+
+		this.walkTo(Object.LADDER_UP_NORTH_BANK.coordinate.getX(), Object.LADDER_UP_NORTH_BANK.coordinate.getY() + 1);
 		return SLEEP_ONE_TICK;
 	}
 
@@ -304,10 +381,10 @@ public class AA_GnomeFlax extends AA_Script {
 		this.extension.finishPacket();
 	}
 
-	private void pickFlax() {
+	private void pickFlax(final Object object) {
 		this.extension.createPacket(Constants.OP_OBJECT_ACTION2);
-		this.extension.put2(Object.FLAX.coordinate.getX());
-		this.extension.put2(Object.FLAX.coordinate.getY());
+		this.extension.put2(object.coordinate.getX());
+		this.extension.put2(object.coordinate.getY());
 		this.extension.finishPacket();
 	}
 
@@ -319,10 +396,12 @@ public class AA_GnomeFlax extends AA_Script {
 	}
 
 	private enum State {
-		PICK,
+		PICK_TREE,
+		PICK_BANK,
 		SPIN,
 		DROP,
-		BANK
+		BANK_SOUTH,
+		BANK_NORTH
 	}
 
 	private enum Area implements RSArea {
@@ -347,12 +426,15 @@ public class AA_GnomeFlax extends AA_Script {
 	}
 
 	private enum Object implements RSObject {
-		LADDER_DOWN_BANK(6, new Coordinate(714, 1460)),
-		LADDER_UP_BANK(5, new Coordinate(714, 516)),
+		LADDER_DOWN_SOUTH_BANK(6, new Coordinate(714, 1460)),
+		LADDER_UP_SOUTH_BANK(5, new Coordinate(714, 516)),
+		LADDER_DOWN_NORTH_BANK(6, new Coordinate(714, 1444)),
+		LADDER_UP_NORTH_BANK(5, new Coordinate(714, 500)),
 		LADDER_DOWN_TREE(6, new Coordinate(692, 1469)),
 		LADDER_UP_TREE(5, new Coordinate(692, 525)),
 		SPINNING_WHEEL(121, new Coordinate(694, 1469)),
-		FLAX(313, new Coordinate(693, 524));
+		FLAX_TREE(313, new Coordinate(693, 524)),
+		FLAX_BANK(313, new Coordinate(714, 502));
 
 		private final int id;
 		private final Coordinate coordinate;
