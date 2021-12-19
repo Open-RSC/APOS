@@ -16,7 +16,7 @@ import java.time.Instant;
 public class AA_AmuletEnchanter extends AA_Script {
 	private static final Coordinate COORDINATE_SHANTAY_BANK_CHEST = new Coordinate(58, 731);
 
-	private static final long CAST_DELAY = 550L; // +- based on latency
+	private static final long CAST_DELAY = 1280L; // +- based on latency
 
 	private static final int ITEM_ID_COSMIC_RUNE = 46;
 	private static final int ITEM_ID_WATER_RUNE = 32;
