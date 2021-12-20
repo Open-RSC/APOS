@@ -202,7 +202,8 @@ public class AA_VarrockWestSmither extends AA_Script {
 			}
 
 			final int itemId = this.getInventoryId(INITIAL_INVENTORY_SIZE);
-			this.deposit(itemId, MAX_INV_SIZE);
+			final int itemCount = this.getInventoryCount(itemId);
+			this.deposit(itemId, itemCount);
 			this.bankDepositTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
 			return 0;
 		}
