@@ -116,7 +116,7 @@ public class AA_PotionMixer extends AA_Script {
 		this.inventoryCount = this.getInventoryCount();
 		final int secondaryIndex = this.getInventoryIndex(this.potion.secondaryId);
 
-		if (this.inventoryCount == 0 ||
+		if (this.inventoryCount == 1 ||
 			this.getInventoryId(1) != this.potion.unfinishedPotionId ||
 			secondaryIndex == -1) {
 			return this.bank();
@@ -199,7 +199,7 @@ public class AA_PotionMixer extends AA_Script {
 			return this.openBank();
 		}
 
-		if (this.inventoryCount > 0 &&
+		if (this.inventoryCount > 1 &&
 			this.getInventoryId(1) == this.potion.unfinishedPotionId &&
 			this.inventoryCount < MAX_INV_SIZE) {
 			if (System.currentTimeMillis() <= this.withdrawSecondaryTimeout) {
