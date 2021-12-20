@@ -11,4 +11,4 @@ stages:
 build:
   stage: build
   script:
-    - ant compile
+    - ant compile-all
