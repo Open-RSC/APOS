@@ -1,1 +1,0 @@
-javaw -cp ./Scripts;./lib/rs.jar;./lib/bis.jar;bot.jar; ClientInit

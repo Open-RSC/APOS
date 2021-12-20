@@ -1,0 +1,7 @@
+@echo off
+SET antpath="apache-ant-1.10.5\bin\"
+
+echo Compiling bot and scripts ...
+echo.
+call %antpath%ant -f build.xml compile-all
+pause
