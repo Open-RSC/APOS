@@ -21,6 +21,7 @@ import java.util.TreeMap;
  * Notes:
  * Specifying names of alts will enable spawn synchronization between accounts via PM.
  * Alt accounts need to have each other added as friends.
+ * Replace any spaces in an rsn with an underscore _.
  * e.g. -f attack -a bot02 -a bot03
  * <p>
  * Author: Chomp
@@ -83,7 +84,7 @@ public class AA_DruidsCircle extends AA_Script {
 							alts = new ArrayList<>();
 						}
 
-						final String altName = args[++i];
+						final String altName = args[++i].replace('_', ' ');;
 
 						if (!this.isFriend(altName)) {
 							this.addFriend(altName);
