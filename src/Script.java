@@ -1433,7 +1433,7 @@ public abstract class Script
     }
 
     /**
-     * Locates the player with the given display name. <b>CASE SENSITIVE</b>.
+     * Locates the player with the given display name. <b>CASE INSENSITIVE</b>.
      *
      * @param name the display name of the player to search for.
      * @return always an integer array of size 3. If no player can be found, the
@@ -1446,7 +1446,7 @@ public abstract class Script
         };
         for (int i = 0; i < countPlayers(); i++) {
             final String temp_name = client.getPlayerName(client.getPlayer(i));
-            if (temp_name.equals(name)) {
+            if (temp_name.equalsIgnoreCase(name)) {
                 player[0] = i;
                 player[1] = client.getMobLocalX(client.getPlayer(i)) + client.getAreaX();
                 player[2] = client.getMobLocalY(client.getPlayer(i)) + client.getAreaY();
