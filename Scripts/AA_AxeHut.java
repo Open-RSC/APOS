@@ -648,7 +648,7 @@ public class AA_AxeHut extends AA_Script {
 
 		final int[] animatedAxe = this.getNpcById(NPC_ID_ANIMATED_AXE);
 
-		if (animatedAxe != null) {
+		if (animatedAxe[0] != -1) {
 			this.attackNpc(animatedAxe[0]);
 			return SLEEP_ONE_TICK;
 		}

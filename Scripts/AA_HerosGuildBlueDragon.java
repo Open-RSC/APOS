@@ -20,7 +20,7 @@ import java.util.TreeMap;
  * --min-pray       <#>                                  (default 1)
  * --food-count     <#>                                  (default 1)
  * --no-atk                                              (no incredible reflexes prayer)
- * --no-pray                                             (no ultimate strength prayer)
+ * --no-str                                              (no ultimate strength prayer)
  * <p>
  * Author: Chomp
  */
