@@ -322,7 +322,7 @@ public class AA_HerosGuildBlueDragon extends AA_Script {
 		}
 
 		if (!this.hasInventoryItem(ITEM_ID_WATER_RUNE)) {
-			if (System.currentTimeMillis() <= this.withdrawLawTimeout) {
+			if (System.currentTimeMillis() <= this.withdrawWaterTimeout) {
 				return 0;
 			}
 
@@ -331,7 +331,7 @@ public class AA_HerosGuildBlueDragon extends AA_Script {
 			}
 
 			this.withdraw(ITEM_ID_WATER_RUNE, 1);
-			this.withdrawLawTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+			this.withdrawWaterTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 			return 0;
 		}
 
