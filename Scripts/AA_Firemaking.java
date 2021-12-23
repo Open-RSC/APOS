@@ -38,6 +38,7 @@ public class AA_Firemaking extends AA_Script {
 
 	private long burnTimeout;
 	private long swingTimeout;
+	private long walkTimeout;
 
 	private int radius = 10;
 
@@ -131,8 +132,14 @@ public class AA_Firemaking extends AA_Script {
 
 		if (this.nearestTree[0] != -1) {
 			if (this.playerX != this.nearestTile[0] || this.playerY != this.nearestTile[1]) {
+				if (System.currentTimeMillis() <= this.walkTimeout)
+				{
+					return 0;
+				}
+
 				this.walkTo(this.nearestTile[0], this.nearestTile[1]);
-				return SLEEP_ONE_TICK;
+				this.walkTimeout = System.currentTimeMillis() + TIMEOUT_ONE_SECOND;
+				return 0;
 			}
 
 			return this.chopTree();
