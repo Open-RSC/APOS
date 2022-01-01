@@ -19,6 +19,7 @@ public class AA_Chickens extends AA_Script {
 	private static final int NPC_ID_CHICKEN = 3;
 	private static final int NPC_XP_CHICKEN = 26;
 	private static final int ITEM_ID_FEATHER = 381;
+	private static final int MAXIMUM_FATIGUE = 100;
 
 	private final int[] groundItemFeather = new int[4];
 
@@ -105,7 +106,7 @@ public class AA_Chickens extends AA_Script {
 			return 0;
 		}
 
-		if (this.fatigued) {
+		if (this.getFatigue() >= MAXIMUM_FATIGUE) {
 			return this.sleep();
 		}
 

@@ -56,6 +56,7 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 	private static final int DISTANCE_FROM_GATE_TO_WILDERNESS = 7;
 	private static final int MAXIMUM_DISTANCE_FROM_LOOT = 4;
 	private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 2;
+	private static final int MAXIMUM_FATIGUE = 100;
 
 	private final int[] loot = new int[3];
 
@@ -411,7 +412,7 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			return 0;
 		}
 
-		if (this.fatigued && this.hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
+		if (this.getFatigue() >= MAXIMUM_FATIGUE && this.hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
 			return this.sleep();
 		}
 
