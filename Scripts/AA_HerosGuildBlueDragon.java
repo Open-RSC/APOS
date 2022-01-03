@@ -695,10 +695,6 @@ public class AA_HerosGuildBlueDragon extends AA_Script {
 		return 0;
 	}
 
-	private int getCurrentHits() {
-		return this.getCurrentLevel(SKILL_INDEX_HITS);
-	}
-
 	private boolean needToOpenGate(final int x, final int y) {
 		if (!this.isGateClosed()) {
 			return false;
@@ -714,32 +710,6 @@ public class AA_HerosGuildBlueDragon extends AA_Script {
 
 	private boolean isFullPrayer() {
 		return this.getCurrentLevel(SKILL_INDEX_PRAYER) == this.getLevel(SKILL_INDEX_PRAYER);
-	}
-
-	private boolean isInventoryFull() {
-		return this.getInventoryCount() == MAX_INV_SIZE;
-	}
-
-	private boolean hasInventoryItem(final int[] itemIds) {
-		for (final int itemId : itemIds) {
-			for (int index = 0; index < this.getInventoryCount(); index++) {
-				if (this.getInventoryId(index) == itemId) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	private boolean isItemIdEquipped(final int itemId) {
-		for (int index = 0; index < this.getInventoryCount(); index++) {
-			if (this.getInventoryId(index) == itemId) {
-				return this.isItemEquipped(index);
-			}
-		}
-
-		return false;
 	}
 
 	private void setState(final State state) {
