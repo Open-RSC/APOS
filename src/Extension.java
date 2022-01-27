@@ -401,6 +401,7 @@ public class Extension extends client
     public void typeChar(char key_char, int key_code) {
         // TODO: keep shift down
         boolean upper = Character.isUpperCase(key_char);
+		key_code = KeyEvent.getExtendedKeyCodeForChar(key_char);
         int m = 0;
         if (upper) {
             super.keyPressed(new KeyEvent(this,
