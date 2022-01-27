@@ -14,6 +14,7 @@
 		//2.0 2022-01-08 -{- Require [Abyte0_Script 1.6+] -}-  If no param are provided, it will use any food in bank and fightmode = Defence
 		//2.0.1 2022-01-08 - Bank half full wine if you drink wines as food, support 330 as full cake
 		//2.0.2 2022-01-08 - Pickup rares from ground, will stay in inv...
+		//2.1 2022-01-27 - Will try to move to avoid reloggin [Require Abyte0_Script 1.7.3+]
 		
 public class Abyte0_Paladin extends Abyte0_Script 
 {
@@ -23,7 +24,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 	int fightMode = 3; //0 Controlled, 1 Strength, 2 Attack, 3 Defence
 	//============= CONFIG END= ============//
 	
-	public String SCRIPT_VERSION = "2.0.2";
+	public String SCRIPT_VERSION = "2.1";
 	
 	@Override
 	public String[] getRandomQuotes()
@@ -49,7 +50,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 			"so hard to thieve these with so many bots",
 			"almost 92 thieving legit",
 			"I bet your thief lvl is like 99?!",
-			"sup"};
+			"bro"};
 		return result;
 	}
 
@@ -123,7 +124,14 @@ public class Abyte0_Paladin extends Abyte0_Script
 		{			
 			walkTo(getX(), getY());			
 			return 800;		
-		}				
+		}
+		
+		if(needToMove)
+		{
+			changePosition();
+			return 500;
+		}
+		
 		if(getFatigue() > 90) 
 		{			
 			useSleepingBag();			
@@ -655,6 +663,25 @@ public class Abyte0_Paladin extends Abyte0_Script
 		return SCRIPT_VERSION;
 	}
 	
+    @Override
+    public void onServerMessage(String s) {
+
+        if (s.contains("standing here for 5 mins!")) {
+			needToMoveFromX = getX();
+			needToMoveFromY = getY();
+			needToMove = true;
+        }
+		
+    }
+
+	private void changePosition()
+	{
+		if(getX() != needToMoveFromX || getY() != needToMoveFromY)
+			needToMove = false;
+		else
+			walkTo(needToMoveFromX + random(0,2) - 1, needToMoveFromY + random(0,2) - 1);
+	}
+	
 	int[] foodIDs;
 	int camelotTeleport = 22;
 	int AIR_RUNE_ID = 33;
@@ -669,7 +696,9 @@ public class Abyte0_Paladin extends Abyte0_Script
 	int MITH_BAR_ID = 173;
 	int halfFullWine = 246;
 	int JUG_ID = 140;
-	
+	int needToMoveFromX = -1;
+	int needToMoveFromY = -1;
+	boolean needToMove = false;
 	int initialXp = 0;
 	long initialTime = 0;
 	
