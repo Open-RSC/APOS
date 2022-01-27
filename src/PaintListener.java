@@ -126,6 +126,11 @@ public final class PaintListener
             y = 135;
         }
 
+        client.drawString("PID: " + client.getMobServerIndex(client.getPlayer()),
+                x, y, 2, 0xFFFFFF);
+
+        y += 17;
+
         drawStatBar(x, y, hits, base_hits, HP_FRONT, HP_BACK);
         client.drawString(String.format("Hits: %d/%d",
                 hits, base_hits), x + 2, y, 2, 0xFFFFFF);

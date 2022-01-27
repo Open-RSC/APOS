@@ -1,1051 +1,171 @@
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Choice;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.List;
-import java.awt.Panel;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
-
-import javax.swing.BoxLayout;
-
 import com.aposbot.Constants;
 import com.aposbot.StandardCloseHandler;
 
-// this is not an example of good program design
-// but it'll mine your ore
+import javax.swing.*;
+import java.awt.List;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.util.*;
+
 public final class S_Miner extends Script
-    implements ActionListener {
-    
-    public S_Miner(Extension ex) {
-        super(ex);
-        pw = new PathWalker(ex);
-    }
-    
-    public static void main(String[] argv) {
-        new S_Miner(null).init(null);
-    }
-    
-    private static final int[] bad_gems = {
-        889, 890, 891, 892, 893, 894
-    };
-    
-    private static final int SLEEPING_BAG = 1263;
-    private static final int CHISEL = 167;
-    private static final int CRUSHED_GEM = 915;
-    private static final int GNOME_BALL = 981;
-    private static final int SKILL_MINING = 14;
+	implements ActionListener {
 
-    private static final int[] pickaxes = {
-        1262, 1261, 1260, 1259, 1258, 156
-    };
-    
-    private static final int[] bank_ids = {
-        149, 383, 152, 155, 202, 150, 151, 153, 154, 409,
-        160, 159, 158, 157, 542, 889, 890, 891, 
-        161, 162, 163, 164, 523, 892, 893, 894, 
-    };
-    
-    private static final int[] gems = { 
-        160, 159, 158, 157, 542, 889, 890, 891, 
-    };
-    
-    private static final HashMap<String, int[]> map_rocks = new HashMap<>();
-    
-    private GenericImpl[] impls = {
-        new DwarfMineScorpImpl(),
-        new MiningGuildImpl(),
-        new CraftingGuildImpl()
-    };
-    
-    private int[][] rocks;
-    private int[] banked_count;
-    private long sleep_time;
-    private long start_time;
-    private long bank_time;
-    private long move_time;
-    private long click_time;
-    private boolean init_path;
-    private boolean died;
-    
-    private PathWalker.Location bank;
-    private PathWalker.Path lumb_to_bank;
-    private PathWalker.Path from_bank;
-    private PathWalker.Path to_bank;
-    private PathWalker pw;
-    
-    private Frame frame;
-    private Checkbox cb_bank;
-    private List list_rocks;
-    private Choice choice_rocks;
-    // for gem mining: drop the unusable things
-    private Checkbox cb_drop_bad;
-    private Choice choice_cmb;
-    
-    private long lvl_time;
-    private long cur_fails;
-    private long total_fails;
-    private long cur_success;
-    private long total_success;
-    
-    private int levels_gained;
-    
-    private GenericImpl impl;
-    
-    // I will probably change how implementations works unpredictably.
-    // If you write your own and it starts not working, I'm sorry.
-    // Scripts are difficult.
-    private class GenericImpl {
-        // return -1 (to continue) or wait value
-        
-        public int pathInit() {
-            pw.init(null);
-            int cur_x = getX();
-            int cur_y = getY();
-            bank = pw.getNearestBank(cur_x, cur_y);
-            // workaround to stop it from trying to bank at al-kharid
-            // when at lumb swamp
-            if (cur_x >= 109 && bank.name.contains("harid")) {
-                int count = PathWalker.locations.length;
-                for (int i = 0; i < count; ++i) {
-                    PathWalker.Location loc = PathWalker.locations[i];
-                    if (loc.name.contains("raynor") && loc.bank) {
-                        bank = loc;
-                        break;
-                    }
-                }
-            }
-            System.out.println("Nearest bank: " + bank.name);
-            to_bank = pw.calcPath(cur_x, cur_y, bank.x, bank.y);
-            if (to_bank == null) {
-                System.out.println("Failed to calculate to_bank. Unsupproted location?");
-                stopScript(); return 0;
-            }
-            from_bank = pw.calcPath(bank.x, bank.y, cur_x, cur_y);
-            if (from_bank == null) {
-                System.out.println("Failed to calculate from_bank. Unsupproted location?");
-                stopScript(); return 0;
-            }
-            
-            return -1;
-        }
-        
-        // for handling detecting when it's time to bank and walking
-        // to and from the bank
-        public int handleToBank() {
-            if (pw.walkPath()) return 0;
-            if (isAtApproxCoords(bank.x, bank.y, 20)) {
-                boolean shouldb = _shouldBank();
-                if (died) {
-                    died = false;
-                    if (!shouldb) {
-                        pw.setPath(from_bank);
-                        return random(1000, 2000);
-                    }
-                }
-                if (shouldb) {
-                    int ret = _talkToBanker();
-                    if (ret != -1) {
-                        return ret;
-                    }
-                    return random(600, 1000);
-                }
-            } else if (_shouldBank()) {
-                pw.setPath(to_bank);
-                return random(600, 800);
-            }
-            return -1;
-        }
-        
-        public void setRocksToBank() {
-            pw.setPath(to_bank);
-        }
-        
-        public void bankClosed() {
-            pw.setPath(from_bank);
-        }
-        
-        // check whether the player is inside the appropriate
-        // coordinates to initialize this implementation
-        public boolean applies() {
-            return true;
-        }
+	/* rock selection improvements inspired by aero */
 
-        public boolean isRockValid(int[] r) {
-            return true;
-        }
-    }
-    
-    private final class CraftingGuildImpl extends GenericImpl {
-        
-        private final int BROWN_APRON = 191;
-        private final int GUILD_DOOR = 68;
-        
-        // Copied from my old separate crafting guild script
-        
-        @Override
-        public int pathInit() {
-            pw.init(null);
-            to_bank = pw.calcPath(347, 600, 286, 572);
-            if (to_bank == null) {
-                System.out.println("Failed to calculate to_bank. This is not good.");
-                stopScript(); return 0;
-            }
-            from_bank = pw.calcPath(286, 572, 347, 600);
-            if (from_bank == null) {
-                System.out.println("Failed to calculate from_bank. This is not good.");
-                stopScript(); return 0;
-            }
-            return -1;
-        }
-        
-        @Override
-        public int handleToBank() {
-            int index = getInventoryIndex(BROWN_APRON);
-            if (index == -1) {
-                return _end("ERROR: No brown apron!");
-            }
-            if (pw.walkPath()) return 0;
-            // at the guild door, sadly the pather can't currently
-            // handle the crafting guild building
-            if (getX() == 347) {
-                if (getY() == 600) {
-                    if (!_shouldBank()) {
-                        return openGuildDoor();
-                    } else {
-                        pw.setPath(to_bank);
-                        return 0;
-                    }
-                } else if (getY() == 601) {
-                    if (_shouldBank()) {
-                        return openGuildDoor();
-                    } else {
-                        int x, y;
-                        int loop = 0;
-                        do {
-                            x = 341 + random(-1, 1);
-                            y = 611 + random(-1, 1);
-                        } while (!isReachable(x, y) && (loop++) < 1000);
-                        int dist = distanceTo(x, y);
-                        walkTo(x, y);
-                        return dist * random(800, 900);
-                    }
-                }
-            }
-            if (_shouldBank()) {
-                int ret = _talkToBanker();
-                if (ret != -1) {
-                    return ret;
-                }
-                // walk to the guild door
-                if (distanceTo(347, 601) > 20) {
-                    // probably in the bank?
-                    return random(600, 1000);
-                }
-                if (!isWalking()) {
-                    walkTo(347, 601);
-                }
-                return random(1000, 1500);
-            }
-            return -1;
-        }
-        
-        @Override
-        public void setRocksToBank() {
-        }
-        
-        @Override
-        public void bankClosed() {
-            pw.setPath(from_bank);
-        }
-        
-        @Override
-        public boolean applies() {
-            return getX() > 335 && getX() < 343 && getY() > 598 && getY() < 616;
-        }
-        
-        private int openGuildDoor() {
-            int[] door = getWallObjectById(GUILD_DOOR);
-            if (door[0] != -1) {
-                atWallObject(door[1], door[2]);
-                return random(1500, 2000);
-            }
-            return random(200, 400);
-        }
-    }
-    
-    private final class DwarfMineScorpImpl extends GenericImpl {
-        private PathWalker.Path rocks_to_stairs;
-        private PathWalker.Path stairs_to_rocks;
-        private int rocks_x;
-        private int rocks_y;
-        private final int BANK_X = 286;
-        private final int BANK_Y = 571;
-        private final int STAIRS_ABOVE = 44;
-        private final int STAIRS_ABOVE_X = 251;
-        private final int STAIRS_ABOVE_Y = 540;
-        private final int STAIRS_BELOW = 43;
-        private final int STAIRS_BELOW_X = 254;
-        private final int STAIRS_BELOW_Y = 3369;
+	public S_Miner(Extension ex) {
+		super(ex);
+		pw = new PathWalker(ex);
+	}
 
-        @Override
-        public int pathInit() {
-            pw.init(null);
-            rocks_x = getX();
-            rocks_y = getY();
-            
-            to_bank = pw.calcPath(
-                STAIRS_ABOVE_X, STAIRS_ABOVE_Y,
-                BANK_X, BANK_Y
-            );
-            if (to_bank == null)
-                return _end("DwarfMineScorpImpl.to_bank pathing error");
-            from_bank = pw.calcPath(
-                BANK_X, BANK_Y,
-                STAIRS_ABOVE_X, STAIRS_ABOVE_Y
-            );
-            if (from_bank == null)
-                return _end("DwarfMineScorpImpl.from_bank pathing error");
-            
-            rocks_to_stairs = pw.calcPath(
-                rocks_x, rocks_y,
-                STAIRS_BELOW_X, STAIRS_BELOW_Y
-            );
-            if (rocks_to_stairs == null)
-                return _end("DwarfMineScorpImpl.rocks_to_stairs pathing error");
-            stairs_to_rocks = pw.calcPath(
-                STAIRS_BELOW_X, STAIRS_BELOW_Y,
-                rocks_x, rocks_y
-            );
-            if (stairs_to_rocks == null)
-                return _end("DwarfMineScorpImpl.stairs_to_rocks pathing error");
-            return -1;
-        }
+	public static void main(String[] argv) {
+		new S_Miner(null).init(null);
+	}
 
-        @Override
-        public int handleToBank() {
-            if (pw.walkPath()) return 0;
-            if (isAtApproxCoords(STAIRS_ABOVE_X, STAIRS_ABOVE_Y, 5)) {
-                if (_shouldBank()) {
-                    pw.setPath(to_bank);
-                    return random(600, 900);
-                } else {
-                    int[] stairs = getObjectById(STAIRS_ABOVE);
-                    if (stairs[0] != -1 && distanceTo(stairs[1], stairs[2]) < 8) {
-                        atObject(stairs[1], stairs[2]);
-                    }
-                    return random(1200, 2500);
-                }
-            } else if (isAtApproxCoords(STAIRS_BELOW_X, STAIRS_BELOW_Y, 5)) {
-                if (!_shouldBank()) {
-                    pw.setPath(stairs_to_rocks);
-                    return random(600, 900);
-                } else {
-                    int[] stairs = getObjectById(STAIRS_BELOW);
-                    if (stairs[0] != -1 && distanceTo(stairs[1], stairs[2]) < 8) {
-                        atObject(stairs[1], stairs[2]);
-                    }
-                    return random(1200, 2500);
-                }
-            } else if (isAtApproxCoords(BANK_X, BANK_Y, 20)) {
-                if (died) {
-                    died = false;
-                }
-                if (_shouldBank()) {
-                    int ret = _talkToBanker();
-                    if (ret != -1) {
-                        return ret;
-                    }
-                    return random(600, 1000);
-                } else {
-                    pw.setPath(from_bank);
-                    return random(600, 900);
-                }
-            } else {
-                if (_shouldBank()) {
-                    pw.setPath(rocks_to_stairs);
-                    return random(600, 900);
-                }
-            }
-            return -1;
-        }
+	private static final int[] bad_gems = {
+		889, 890, 891, 892, 893, 894
+	};
 
-        @Override
-        public boolean applies() {
-            return getY() > 3324 && getY() < 3381 && getX() > 252 && getX() < 283;
-        }
+	private static final int SLEEPING_BAG = 1263;
+	private static final int CHISEL = 167;
+	private static final int CRUSHED_GEM = 915;
+	private static final int GNOME_BALL = 981;
+	private static final int SKILL_MINING = 14;
 
-        @Override
-        public void setRocksToBank() {
-            pw.setPath(rocks_to_stairs);
-        }
+	private static final int[] pickaxes = {
+		1262, 1261, 1260, 1259, 1258, 156
+	};
 
-        @Override
-        public void bankClosed() {
-            pw.setPath(from_bank);
-        }
-        
-        @Override
-        public boolean isRockValid(int[] r) {
-            if (r[2] > 3380) {
-                return false;
-            }
-            if (rocks_y > 3360 && r[2] < 3360) {
-                return false;
-            }
-            return super.isRockValid(r);
-        }
-    }
-    
-    private final class MiningGuildImpl extends GenericImpl {
-        
-        // Copied from my old separate guild mining script
-        
-        private static final int MINE_DOOR_X = 274;
-        private static final int MINE_DOOR_Y = 563;
+	private static final int[] bank_ids = {
+		149, 383, 152, 155, 202, 150, 151, 153, 154, 409,
+		160, 159, 158, 157, 542, 889, 890, 891,
+		161, 162, 163, 164, 523, 892, 893, 894,
+	};
 
-        private static final int ID_BANK_DOORS = 64;
-        private static final int ID_MINE_DOOR = 2;
+	private static final int[] gems = {
+		160, 159, 158, 157, 542, 889, 890, 891,
+	};
 
-        @Override
-        public int pathInit() {
-            return -1;
-        }
+	private static final Map<String, int[]> map_rocks = new HashMap<>();
 
-        @Override
-        public int handleToBank() {
-            if (isUnderground()) {
-                if (_shouldBank()) {
-                    if (distanceTo(274, 3398) < 4) {
-                        atObject(274, 3398);
-                        return random(1500, 2500);
-                    }
-                    if (isWalking()) return random(400, 600);
-                    walkNearLadder();
-                    return random(1000, 2000);
-                } else {
-                    if (getY() < 3387) {
-                        if (!isWalking()) {
-                            walkNearLadder();
-                        }
-                        return random(1000, 2000);
-                    }
-                    return -1;
-                }
-            } else if (isInMineEntry()) {
-                if (_shouldBank()) {
-                    if (getWallObjectIdFromCoords(MINE_DOOR_X, MINE_DOOR_Y) ==
-                            ID_MINE_DOOR) {
-                        atWallObject(MINE_DOOR_X, MINE_DOOR_Y);
-                        return random(1000, 2000);
-                    }
-                    if (isWalking()) return random(400, 600);
-                    walkNearBank(false);
-                    return random(3000, 5000);
-                } else {
-                    atObject(274, 566);
-                    return random(1500, 2500);
-                }
-            } else if (isInBankArea()) {
-                if (_shouldBank()) {
-                    int ret = _talkToBanker();
-                    if (ret != -1) {
-                        return ret;
-                    }
-                    return random(600, 1000);
-                } else {
-                    int[] doors = getObjectById(ID_BANK_DOORS);
-                    if (doors[0] != -1) {
-                        atObject(doors[1], doors[2]);
-                        return random(600, 800);
-                    }
-                    if (isWalking()) return random(400, 600);
-                    walkNearMineEntry(false);
-                    return random(3000, 5000);
-                }
-            } else {
-                if (_shouldBank()) {
-                    if (distanceTo(287, 571) < 6) {
-                        int[] doors = getObjectById(ID_BANK_DOORS);
-                        if (doors[0] != -1) {
-                            atObject(doors[1], doors[2]);
-                            return random(600, 800);
-                        }
-                        walkNearBank(true);
-                        return random(1500, 3000);
-                    }
-                    if (isWalking()) return random(400, 600);
-                    walkNearBank(false);
-                    return random(3000, 5000);
-                } else {
-                    if (distanceTo(MINE_DOOR_X, MINE_DOOR_Y) < 6) {
-                        if (getWallObjectIdFromCoords(MINE_DOOR_X, MINE_DOOR_Y) ==
-                                ID_MINE_DOOR) {
-                            atWallObject(MINE_DOOR_X, MINE_DOOR_Y);
-                            return random(1000, 2000);
-                        }
-                        walkNearMineEntry(true);
-                        return random(1500, 3000);
-                    }
-                    if (isWalking()) return random(400, 600);
-                    walkNearMineEntry(false);
-                    return random(3000, 5000);
-                }
-            }
-        }
+	private final GenericImpl[] impls = {
+		new DwarfMineScorpImpl(),
+		new MiningGuildImpl(),
+		new CraftingGuildImpl()
+	};
 
-        @Override
-        public void setRocksToBank() {
-        }
+	private final int[] banked_count = new int[bank_ids.length];
+	private final boolean[] has_banked = new boolean[bank_ids.length];
+	private int[][] rocks;
+	private long sleep_time;
+	private long start_time;
+	private long bank_time;
+	private long move_time;
+	private long click_time;
+	private boolean init_path;
+	private boolean died;
 
-        @Override
-        public void bankClosed() {
-        }
+	private PathWalker.Location bank;
+	private PathWalker.Path lumb_to_bank;
+	private PathWalker.Path from_bank;
+	private PathWalker.Path to_bank;
+	private final PathWalker pw;
 
-        @Override
-        public boolean applies() {
-            return getX() > 262 && getX() < 278 && getY() > 3381 && getY() < 3401;
-        }
-        
-        private void walkNearLadder() {
-            int x, y;
-            int loop = 0;
-            do {
-                if (loop++ > 1000) {
-                    System.out.println("DEBUG: walkNearLadder");
-                    return;
-                }
-                x = 273 + random(0, 2);
-                y = 3397 + random(0, 2);
-            } while (!isReachable(x, y));
-            walkTo(x, y);
-        }
+	private Frame frame;
+	private Checkbox cb_bank;
+	private List list_rocks;
+	private Choice choice_rocks;
+	// for gem mining: drop the unusable things
+	private Checkbox cb_drop_bad;
+	private Choice choice_cmb;
 
-        private void walkNearBank(boolean exact) {
-            int x, y;
-            int loop = 0;
-            do {
-                if (loop++ > 1000) {
-                    System.out.println("DEBUG: walkNearBank(" + exact + ')');
-                    return;
-                }
-                x = 287 - random(0, 4);
-                y = 571 - random(0, 4);
-            } while (!isReachable(x, y) || (exact && !isInBankArea(x, y)));
-            walkTo(x, y);
-        }
+	private long level_time;
+	private long cur_fails;
+	private long total_fails;
+	private long cur_success;
+	private long total_success;
 
-        private void walkNearMineEntry(boolean exact) {
-            int x, y;
-            int loop = 0;
-            do {
-                if (loop++ > 1000) {
-                    System.out.println("DEBUG: walkNearMineEntry(" + exact + ')');
-                    return;
-                }
-                x = 273 + random(-1, 2);
-                y = 562 + random(-1, 2);
-            } while (!isReachable(x, y) || (exact && !isInMineEntry(x, y)));
-            walkTo(x, y);
-        }
-        
-        private boolean isUnderground() {
-            return getY() > 3000;
-        }
-        
-        private boolean inArea(int c_x, int c_y, int x1, int y1, int x2, int y2) {
+	private int levels_gained;
 
-            if (c_x <= x1 && c_x >= x2 && c_y >= y1 && c_y <= y2) {
-                return true;
-            }
-            if (c_x <= x2 && c_x >= x1 && c_y >= y2 && c_y <= y1) {
-                return true;
-            }
-            if (c_x <= x1 && c_x >= x2 && c_y >= y2 && c_y <= y1) {
-                return true;
-            }
-            if (c_x <= x2 && c_x >= x1 && c_y >= y1 && c_y <= y2) {
-                return true;
-            }
-            return false;
-        }
+	private GenericImpl impl;
 
-        private boolean isInBankArea(int x, int y) {
-            return inArea(x, y, 280, 564, 286, 573);
-        }
+	private final int[] last_used = new int[2];
+	private final int[] last_mined = new int[2];
+	private long dont_remine;
 
-        private boolean isInBankArea() {
-            return isInBankArea(getX(), getY());
-        }
+	private final DecimalFormat iformat = new DecimalFormat("#,##0");
 
-        private boolean isInMineEntry(int x, int y) {
-            return inArea(x, y, 272, 567, 277, 563);
-        }
+	private class GenericImpl {
+		// return -1 (to continue) or wait value
 
-        private boolean isInMineEntry() {
-            return isInMineEntry(getX(), getY());
-        }
-        
-        @Override
-        public boolean isRockValid(int[] r) {
-            if (r[2] < 3381) {
-                return false;
-            }
-            return super.isRockValid(r);
-        }
-    }
-    
-    static {
-        map_rocks.put("Copper", new int[] { 100, 101 });
-        map_rocks.put("Tin", new int[] { 104, 105 });
-        map_rocks.put("Clay", new int[] { 195, 196 });
-        map_rocks.put("Iron", new int[] { 102, 103 });
-        map_rocks.put("Silver", new int[] { 195, 196 });
-        map_rocks.put("Coal", new int[] { 110, 111 });
-        map_rocks.put("Gold", new int[] { 112, 113 });
-        map_rocks.put("Gem rocks", new int[] { 588 });
-        map_rocks.put("Mithril", new int[] { 106, 107 });
-        map_rocks.put("Adamantite", new int[] { 108, 109 });
-        map_rocks.put("Runite", new int[] { 210 });
-        map_rocks.put("Yan/S.Ard Clay", new int[] { 114, 115 });
-    }
+		public int pathInit() {
+			pw.init(null);
+			int cur_x = getX();
+			int cur_y = getY();
+			bank = pw.getNearestBank(cur_x, cur_y);
+			if (bank == null) {
+				System.out.println("ERROR: No usable bank found!");
+				stopScript();
+				return 0;
+			}
+			System.out.println("Nearest bank: " + bank.name);
+			to_bank = pw.calcPath(cur_x, cur_y, bank.x, bank.y);
+			if (to_bank == null) {
+				System.out.println("Failed to calculate to_bank. Unsupproted location?");
+				stopScript();
+				return 0;
+			}
+			from_bank = pw.calcPath(bank.x, bank.y, cur_x, cur_y);
+			if (from_bank == null) {
+				System.out.println("Failed to calculate from_bank. Unsupproted location?");
+				stopScript();
+				return 0;
+			}
 
-    @Override
-    public void init(String params) {
-        died = false;
-        sleep_time = -1L;
-        bank_time = -1L;
-        move_time = -1L;
-        start_time = -1L;
-        click_time = -1L;
-        lvl_time = -1L;
-        if (frame == null) {
-            Panel rock_panel = new Panel();
-            
-            Set<String> set = map_rocks.keySet();
-            String[] list = set.toArray(new String[set.size()]);
-            Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
-            choice_rocks = new Choice();
-            for (String str : list) {
-                choice_rocks.add(str);
-            }
-            list = null;
-            
-            Button button;
-            
-            rock_panel.add(choice_rocks);
-            button = new Button("Add");
-            button.addActionListener(this);
-            rock_panel.add(button);
-            button = new Button("Reset");
-            button.addActionListener(this);
-            rock_panel.add(button);
-            
-            Panel button_panel = new Panel();
-            
-            button = new Button("OK");
-            button.addActionListener(this);
-            button_panel.add(button);
-            button = new Button("Cancel");
-            button.addActionListener(this);
-            button_panel.add(button);
-            
-            cb_bank = new Checkbox("Enable banking");
-            cb_bank.setState(true);
-            
-            cb_drop_bad = new Checkbox("Drop unusable gems (Shilo)");
-            cb_drop_bad.setState(false);
-            
-            list_rocks = new List(7);
-            
-            choice_cmb = new Choice();
-            for (String str : FIGHTMODES) {
-                choice_cmb.addItem(str);
-            }
-            
-            frame = new Frame(getClass().getSimpleName());
-            frame.addWindowListener(
-                new StandardCloseHandler(frame, StandardCloseHandler.HIDE)
-            );
-            frame.setIconImages(Constants.ICONS);
-            frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
-            frame.add(new Label(
-                    "Preference order (best-worst):", Label.CENTER));
-            frame.add(list_rocks);
-            frame.add(rock_panel);
-            
-            Panel cb_panel = new Panel(new GridLayout(0, 1));
-            cb_panel.add(cb_bank);
-            cb_panel.add(cb_drop_bad);
-            
-            frame.add(cb_panel);
-            
-            Panel cmb_choice_panel = new Panel(new FlowLayout(FlowLayout.LEFT));
-            cmb_choice_panel.add(new Label("Combat style:"));
-            cmb_choice_panel.add(choice_cmb);
-            
-            Panel v_panel = new Panel(new GridLayout(0, 1));
-            v_panel.add(cmb_choice_panel);
-            
-            frame.add(v_panel);
-            
-            frame.add(new Label(
-                "Banking is supported from most locations excluding some"
-            ));
-            frame.add(new Label(
-                "such as the Grand Tree. Start at the mining spot."
-            ));
-            frame.add(new Label(
-                "Gems will be cut if there is a chisel in your inventory."
-            ));
-            frame.add(button_panel);
-            frame.setResizable(false);
-            frame.pack();
-        }
-        frame.setLocationRelativeTo(null);
-        frame.toFront();
-        frame.requestFocus();
-        frame.setVisible(true);
-    }
+			return -1;
+		}
 
-    @Override
-    public int main() {
-        int ret = _premain();
-        if (ret != -1) {
-            return ret;
-        }
-        if (cb_bank.getState()) {
-            if (!init_path) {
-                impl = null;
-                for (GenericImpl impl : impls) {
-                    if (impl.applies()) {
-                        this.impl = impl;
-                        break;
-                    }
-                }
-                if (impl == null) {
-                    impl = new GenericImpl();
-                }
-                System.out.println("Using implementation: " + impl.getClass().getSimpleName());
-                ret = impl.pathInit();
-                if (ret != -1) {
-                    return ret;
-                }
-                init_path = true;
-            }
-            if (isQuestMenu()) {
-                answer(0);
-                bank_time = System.currentTimeMillis();
-                return random(2000, 3000);
-            }
-            if (isBanking()) {
-                bank_time = -1L;
-                int len = bank_ids.length;
-                for (int i = 0; i < len; ++i) {
-                    int count = getInventoryCount(bank_ids[i]);
-                    if (count > 0) {
-                        deposit(bank_ids[i], count);
-                        banked_count[i] += count;
-                        return random(1000, 1500);
-                    }
-                }
-                if (getInventoryIndex(pickaxes) == -1) {
-                    len = pickaxes.length;
-                    for (int i = 0; i < len; ++i) {
-                        if (bankCount(pickaxes[i]) <= 0) {
-                            continue;
-                        }
-                        System.out.println("Withdrawing pickaxe");
-                        withdraw(pickaxes[i], 1);
-                        return random(1700, 3200);
-                    }
-                    return _end("Error: no pickaxe!");
-                }
-                if (!hasInventoryItem(SLEEPING_BAG)) {
-                    if (bankCount(SLEEPING_BAG) <= 0) {
-                        return _end("Error: no sleeping bag!");
-                    }
-                    System.out.println("Withdrawing sleeping bag");
-                    withdraw(SLEEPING_BAG, 1);
-                    return random(1700, 3200);
-                }
-                closeBank();
-                impl.bankClosed();
-                return random(1000, 2000);
-            } else if (bank_time != -1L) {
-                if (System.currentTimeMillis() >= (bank_time + 8000L)) {
-                    bank_time = -1L;
-                }
-                return random(300, 400);
-            }
-            if (distanceTo(120, 648) < 12) { // abyte0
-                System.out.println("Looks like we died :(");
-                if (lumb_to_bank == null) {
-                    lumb_to_bank = pw.calcPath(getX(), getY(), bank.x, bank.y);
-                }
-                if (lumb_to_bank != null) {
-                    pw.setPath(lumb_to_bank);
-                } else {
-                    return _end("lumb_to_bank==null");
-                }
-                died = true;
-                return random(2000, 3000);
-            }
-            ret = impl.handleToBank();
-            if (ret != -1) {
-                return ret;
-            }
-        } else { // powermining
-            if (getInventoryIndex(pickaxes) == -1) {
-                return _end("Error: no pickaxe!");
-            }
-        }
-        return _mineRocks();
-    }
-    
-    private int _talkToBanker() {
-        int[] banker = getNpcByIdNotTalk(BANKERS);
-        if (banker[0] != -1) {
-            if (distanceTo(banker[1], banker[2]) > 5) {
-                if (!isWalking()) {
-                    _walkApprox(banker[1], banker[2]);
-                }
-                return random(1500, 2500);
-            }
-            talkToNpc(banker[0]);
-            return random(3000, 3500);
-        }
-        return -1;
-    }
-    
-    private int _premain() {
-        int style = choice_cmb.getSelectedIndex();
-        if (getFightMode() != style) {
-            setFightMode(style);
-            return random(600, 800);
-        }
-        
-        if (lvl_time != -1L) {
-            if (System.currentTimeMillis() >= lvl_time) {
-                System.out.print("Congrats on level ");
-                System.out.print(getLevel(SKILL_MINING));
-                System.out.println(" mining!");
-                lvl_time = -1L;
-            }
-        }
-        
-        if (start_time == -1L) {
-            start_time = System.currentTimeMillis();
-        }
-        
-        if (inCombat()) {
-            pw.resetWait();
-            walkTo(getX(), getY());
-            return random(400, 600);
-        }
-        
-        if (click_time != -1L) {
-            if (System.currentTimeMillis() >= click_time) {
-                click_time = -1L;
-            }
-            return 0;
-        }
-        
-        if (sleep_time != -1L) {
-            if (System.currentTimeMillis() >= sleep_time) {
-                int bag = getInventoryIndex(SLEEPING_BAG);
-                if (bag != -1) {
-                    useItem(bag);
-                } else {
-                    if (!cb_bank.getState()) {
-                        return _end("Error: no sleeping bag!");
-                    } else {
-                        impl.setRocksToBank();
-                    }
-                }
-                sleep_time = -1L;
-                return random(1500, 2500);
-            }
-            return 0;
-        }
-        
-        if (move_time != -1L) {
-            if (System.currentTimeMillis() >= move_time) {
-                System.out.println("Moving for 5 min timer");
-                _walkApprox(getX(), getY());
-                move_time = -1L;
-                return random(1500, 2500);
-            }
-            return 0;
-        }
-        
-        int chisel = getInventoryIndex(CHISEL);
-        if (chisel != -1) {
-            int gem = getInventoryIndex(gems);
-            if (gem != -1) {
-                useItemWithItem(chisel, gem);
-                return random(700, 900);
-            }
-        }
-        
-        if (cb_drop_bad.getState()) {
-            int bad = getInventoryIndex(bad_gems);
-            if (bad != -1) {
-                dropItem(bad);
-                return random(1200, 2000);
-            }
-        }
-        
-        int crush = getInventoryIndex(CRUSHED_GEM);
-        if (crush != -1) {
-            dropItem(crush);
-            return random(1200, 2000);
-        }
-        
-        int ball = getInventoryIndex(GNOME_BALL);
-        if (ball != -1) {
-            System.out.println("Gnome ball!");
-            dropItem(ball);
-            return random(1200, 2000);
-        }
-        
-        return -1;
-    }
-    
-    private int _mineRocks() {
-        int array_sz = rocks.length;
-        for (int i = 0; i < array_sz; ++i) {
-            int[] rock = getObjectById(rocks[i]);
-            if (rock[0] == -1 || (impl != null && !impl.isRockValid(rock))) {
-                continue;
-            }
-            int dist = distanceTo(rock[1], rock[2]);
-            if (dist > 30) continue;
-            if (dist > 5) {
-                if (!isWalking()) {
-                    _walkApprox(rock[1], rock[2]);
-                }
-                return random(1500, 2500);
-            }
-            atObject(rock[1], rock[2]);
-            return random(750, 950);
-        }
-        return random(100, 700);
-    }
-    
-    public boolean _shouldBank() {
-        if (getInventoryCount() == MAX_INV_SIZE) {
-            return true;
-        }
-        if (getInventoryIndex(pickaxes) == -1) {
-            return true;
-        }
-        if (getInventoryIndex(SLEEPING_BAG) == -1) {
-            return true;
-        }
-        return false;
-    }
-    
-    private void _walkApprox(int x, int y) {
-        int dx, dy;
-        int loop = 0;
-        do {
-            dx = x + random(-1, 1);
-            dy = y + random(-1, 1);
-            if ((++loop) > 100) return;
-        } while (!isReachable(dx, dy));
-        walkTo(dx, dy);
-    }
+		// for handling detecting when it's time to bank and walking
+		// to and from the bank
+		public int handleToBank() {
+			if (pw.walkPath()) return 0;
+			if (isAtApproxCoords(bank.x, bank.y, 20)) {
+				boolean shouldb = should_bank();
+				if (died) {
+					died = false;
+					if (!shouldb) {
+						pw.setPath(from_bank);
+						return random(1000, 2000);
+					}
+				}
+				if (shouldb) {
+					int ret = talk_to_banker();
+					if (ret != -1) {
+						return ret;
+					}
+					return random(600, 1000);
+				}
+			} else if (should_bank()) {
+				pw.setPath(to_bank);
+				return random(600, 800);
+			}
+			return -1;
+		}
 
-    @Override
-    public void paint() {
-        final int orangey = 0xFFD900;
-        final int white = 0xFFFFFF;
-        int x = 105;
-        int y = 40;
-        drawString("S Miner", x, y, 1, orangey);
-        y += 15;
-        drawString("Runtime: " + _getRuntime(), x + 10, y, 1, white);
-        y += 15;
-        drawString("Stats for current level (" +
-            levels_gained + " gained):",
-            x, y, 1, orangey);
-        y += 15;
-        drawString("Successful attempts: " + cur_success,
-            x + 10, y, 1, white);
-        y += 15;
-        drawString("Failed attempts: " + cur_fails, x + 10, y, 1, white);
-        y += 15;
-        drawString("Fail rate: " + (float)
-                ((double) cur_fails / (double) cur_success),
-                x + 10, y, 1, white);
-        y += 15;
-        if (levels_gained > 0) {
-            drawString("Total:", x, y, 1, orangey);
-            y += 15;
-            drawString("Successful attempts: " + total_success,
-                x + 10, y, 1, white);
-            y += 15;
-            drawString("Failed attempts: " + total_fails, x + 10, y, 1, white);
-            y += 15;
-        }
-        if (!cb_bank.getState()) return;
-        boolean header = false;
-        int len = bank_ids.length;
-        for (int i = 0; i < len; ++i) {
-            if (banked_count[i] <= 0) {
-                continue;
-            }
-            if (!header) {
-                drawString("Banked items:", x, y, 1, orangey);
-                y += 15;
-                header = true;
-            }
-            drawString(
-                banked_count[i] + " " + getItemNameId(bank_ids[i]),
-                x + 10, y, 1, white);
-            y += 15;
-        }
-    }
-    
-    private String _getRuntime() {
-        long secs = ((System.currentTimeMillis() - start_time) / 1000);
-        if (secs >= 7200) {
-            return (secs / 3600) + " hours, " +
-                    ((secs % 3600) / 60) + " mins, " +
-                    (secs % 60) + " secs.";
-        }
-        if (secs >= 3600 && secs < 7200) {
-            return (secs / 3600) + " hours, " +
-                    ((secs % 3600) / 60) + " mins, " +
-                    (secs % 60) + " secs.";
-        }
-        if (secs >= 60) {
-            return secs / 60 + " mins, " +
-                    (secs % 60) + " secs.";
-        }
-        return secs + " secs.";
-    }
-    
-    private Window _getWindow(Component c) {
-        if (c == null || c instanceof Window) {
-            return c == null ? null : (Window) c;
-        }
-        Component parent = c;
-        do {
-            parent = parent.getParent();
-        } while (!(parent == null || parent instanceof Window));
-        return parent == null ? null : (Window) parent;
-    }
+		public void setRocksToBank() {
+			pw.setPath(to_bank);
+		}
+
+		public void bankClosed() {
+			pw.setPath(from_bank);
+		}
+
+		// check whether the player is inside the appropriate
+		// coordinates to initialize this implementation
+		public boolean applies() {
+			return true;
+		}
 
 		public boolean isRockValid(int[] r) {
 			return true;
