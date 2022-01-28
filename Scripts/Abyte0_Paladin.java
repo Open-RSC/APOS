@@ -476,7 +476,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 					return 2000;
 				}
 			}
-			//Si on est a coter des escalié et on veut descendre
+			//Si on est a coter des escalier et on veut descendre
 			if(getX() >= 602 && getX() <= 615 && getY() > 1500 && getY() < 1548) //Added safet to avoid going down after chest
 			{
 				stairs = getObjectById(44);				
@@ -676,6 +676,13 @@ public class Abyte0_Paladin extends Abyte0_Script
 
 	private void changePosition()
 	{
+		int pid = getSelfPid();
+		if(pid < 250 && pid > 15)
+		{
+			print("bad pid, we can relog");
+			needToMove = false;
+		}
+			
 		if(getX() != needToMoveFromX || getY() != needToMoveFromY)
 			needToMove = false;
 		else
