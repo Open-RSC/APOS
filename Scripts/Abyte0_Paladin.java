@@ -676,13 +676,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 
 	private void changePosition()
 	{
-		int pid = getSelfPid();
-		if(pid < 250 && pid > 15)
-		{
-			print("bad pid, we can relog");
-			needToMove = false;
-		}
-			
+	
 		if(getX() != needToMoveFromX || getY() != needToMoveFromY)
 			needToMove = false;
 		else
