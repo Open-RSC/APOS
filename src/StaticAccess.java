@@ -90,6 +90,22 @@ public final class StaticAccess
         ac.x[963] += " (3)";
         ac.x[964] += " (2)";
         ac.x[965] += " (1)";
+		
+		//Add Id to Items
+		for (int i = 0; i <= 1289; ++i) {
+			ac.x[i] += "@mag@ [" + i + "@mag@]@yel@";
+		}
+		
+		//Add Id to NPC
+		for (int i = 0; i <= 793; ++i) {
+            e.Mb[i] += "@mag@ [" + i + "@mag@]@yel@";
+        }
+		
+		//Add Id to Objects
+		for (int i = 0; i <= 1188; ++i) {
+            l.a[i] += "@mag@ [" + i + "@mag@]@yel@";
+        }
+		
     }
 
     public static final StaticAccess get() {

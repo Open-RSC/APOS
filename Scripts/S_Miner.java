@@ -587,7 +587,7 @@ public final class S_Miner extends Script
 	static {
 		map_rocks.put("Copper", new int[]{100, 101});
 		map_rocks.put("Tin", new int[]{104, 105});
-		map_rocks.put("Clay", new int[]{195, 196});
+		map_rocks.put("Clay", new int[]{114, 115});
 		map_rocks.put("Iron", new int[]{102, 103});
 		map_rocks.put("Silver", new int[]{195, 196});
 		map_rocks.put("Coal", new int[]{110, 111});
