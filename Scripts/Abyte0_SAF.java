@@ -10,7 +10,7 @@
 public class Abyte0_SAF extends Abyte0_Script
 {
 
-	private final String VERSION = "2.1";
+	private final String SCRIPT_VERSION = "2.1.1";
 	
 	@Override
 	public String[] getRandomQuotes()
@@ -33,7 +33,7 @@ public class Abyte0_SAF extends Abyte0_Script
 
     public void init(String params) {
 
-		print("Abyte0_SAF Version " + VERSION);
+		print("Abyte0_SAF Version " + SCRIPT_VERSION);
 		
 		printHelp();
 		loadAllFoods();
@@ -545,12 +545,15 @@ public class Abyte0_SAF extends Abyte0_Script
 				reportXpChange();
 		}
 		
-		if (receivedLC.equals("version"))
-			Say("Script Version " + VERSION);
-		
 		super.onChatMessage(msg, name, pmod, jmod);
     }
 
+	@Override
+	public String getSctiptVersion()
+	{
+		return SCRIPT_VERSION;
+	}
+	
 	private void printHelp()
 	{
 		print("Press # or ' or type --status to display xp stats");

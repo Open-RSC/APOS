@@ -61,7 +61,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 		print("Thiever for Paladin Tower in Ardougne");
 		print("Version " + SCRIPT_VERSION);
 		
-		print("Press # for stats");
+		print("Press # or ' for stats");
 		print("Press F2 to reset stats");
 		
 		print("Abyte0_paladin fmode,foodId,foodId,...");
@@ -676,7 +676,6 @@ public class Abyte0_Paladin extends Abyte0_Script
 
 	private void changePosition()
 	{
-	
 		if(getX() != needToMoveFromX || getY() != needToMoveFromY)
 			needToMove = false;
 		else

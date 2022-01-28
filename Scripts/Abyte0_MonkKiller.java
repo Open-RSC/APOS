@@ -15,7 +15,7 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 	int targetFmodeLevel = 100;
 	// === END DEFAULT CONFIG === //
 	int MONK_ID = 93;
-	private final String VERSION = "2.3";
+	private final String SCRIPT_VERSION = "2.3.1";
 	
 	int initialXp = 0;
 	long initialTime = 0;
@@ -55,7 +55,7 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 		else
 			print("Param are fmode,targetPrayer : using 1,31");
 		
-		print("Version @mag@"+VERSION+" : @whi@- Goes up the ladder if 31+ prayer");
+		print("Version @mag@"+SCRIPT_VERSION+" : @whi@- Goes up the ladder if 31+ prayer");
 		printParams();
 		printHelp();
 		//foodId = Integer.parseInt(str[2]);
@@ -394,12 +394,15 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 				reportXpChange();
 		}
 		
-		if (receivedLC.equals("version"))
-			Say("Script Version " + VERSION);
-		
 		super.onChatMessage(msg, name, pmod, jmod);
     }
 
+	@Override
+	public String getSctiptVersion()
+	{
+		return SCRIPT_VERSION;
+	}
+	
 	private void printParams()
 	{
 		print("Fmode is " + FIGHTMODES[fmode]);
