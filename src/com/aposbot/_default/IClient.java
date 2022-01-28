@@ -123,7 +123,7 @@ public interface IClient {
 
     int getBoundId(int i);
 
-    void typeChar(char key_char, int key_code);
+    void typeChar(char key_char);
 
     boolean isShopVisible();
 

@@ -619,12 +619,12 @@ public abstract class Script
      */
     public boolean next() {
         if (typeOffset >= toType.length()) {
-            client.typeChar('\n', 10);
+            client.typeChar('\n');
             typeOffset = 0;
             return true;
         }
         final char c = toType.charAt(typeOffset++);
-        client.typeChar(c, c);
+        client.typeChar(c);
         return false;
     }
 

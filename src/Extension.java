@@ -55,7 +55,7 @@ public class Extension extends client
                     .toCharArray();
             for (int i = 0; i < str.length; ++i) {
                 if (str[i] >= ' ' && str[i] <= '~') {
-                    typeChar(str[i], str[i]);
+                    typeChar(str[i]);
                 }
             }
         } catch (Throwable t) {
@@ -398,10 +398,10 @@ public class Extension extends client
     }
 
     @Override
-    public void typeChar(char key_char, int key_code) {
+    public void typeChar(char key_char) {
         // TODO: keep shift down
         boolean upper = Character.isUpperCase(key_char);
-		key_code = KeyEvent.getExtendedKeyCodeForChar(key_char);
+		int key_code = KeyEvent.getExtendedKeyCodeForChar(key_char);
         int m = 0;
         if (upper) {
             super.keyPressed(new KeyEvent(this,
