@@ -73,6 +73,7 @@ public abstract class AA_Script extends Script {
 		}
 	}
 
+	@Override
 	public void onDeath() {
 		this.setAutoLogin(false);
 		this.stopScript();
@@ -85,7 +86,7 @@ public abstract class AA_Script extends Script {
 	}
 
 	protected boolean isDead() {
-		return 
+		return this.extension.isDeathScreen() ||
 			this.extension.getLocalX() < 0 || this.extension.getLocalX() > 96 ||
 			this.extension.getLocalY() < 0 || this.extension.getLocalY() > 96;
 	}
