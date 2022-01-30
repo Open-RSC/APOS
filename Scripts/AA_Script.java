@@ -1,41 +1,40 @@
-import com.aposbot.Constants;
-
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public abstract class AA_Script extends Script {
-	protected static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0");
+	public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+	public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0");
 
-	protected static final long TIMEOUT_ONE_TICK = 650L;
-	protected static final long TIMEOUT_ONE_SECOND = 1000L;
-	protected static final long TIMEOUT_TWO_SECONDS = 2000L;
-	protected static final long TIMEOUT_THREE_SECONDS = 3000L;
-	protected static final long TIMEOUT_FIVE_SECONDS = 5000L;
-	protected static final long TIMEOUT_TEN_SECONDS = 10000L;
+	public static final int[] NPC_IDS_BANKER = new int[]{95, 224, 268, 485, 540, 617};
 
-	protected static final int SLEEP_ONE_TICK = 650;
-	protected static final int SLEEP_ONE_SECOND = 1000;
-	protected static final int SLEEP_TWO_SECONDS = 2000;
-	protected static final int SLEEP_THREE_SECONDS = 3000;
-	protected static final int SLEEP_FIVE_SECONDS = 5000;
-	protected static final int SLEEP_TEN_SECONDS = 10000;
+	public static final int ITEM_ID_SLEEPING_BAG = 1263;
 
-	protected static final int PAINT_OFFSET_X = 312;
-	protected static final int PAINT_OFFSET_X_ALT = 185;
-	protected static final int PAINT_OFFSET_Y = 48;
-	protected static final int PAINT_OFFSET_Y_INCREMENT = 14;
-	protected static final int PAINT_COLOR = 0xFFFFFF;
+	public static final long TIMEOUT_HALF_TICK = 325L;
+	public static final long TIMEOUT_ONE_TICK = 650L;
+	public static final long TIMEOUT_ONE_SECOND = 1000L;
+	public static final long TIMEOUT_TWO_SECONDS = 2000L;
+	public static final long TIMEOUT_THREE_SECONDS = 3000L;
+	public static final long TIMEOUT_FIVE_SECONDS = 5000L;
+	public static final long TIMEOUT_TEN_SECONDS = 10000L;
 
-	protected static final int MAX_TRADE_SIZE = 12;
+	public static final int SLEEP_HALF_TICK = 325;
+	public static final int SLEEP_ONE_TICK = 650;
+	public static final int SLEEP_ONE_SECOND = 1000;
+	public static final int SLEEP_TWO_SECONDS = 2000;
+	public static final int SLEEP_THREE_SECONDS = 3000;
+	public static final int SLEEP_FIVE_SECONDS = 5000;
 
-	protected static final int ITEM_ID_SLEEPING_BAG = 1263;
-
-	private static final int[] NPC_IDS_BANKER = new int[]{95, 224, 268, 485, 540, 617};
+	public static final int PAINT_OFFSET_X = 312;
+	public static final int PAINT_OFFSET_Y = 48;
+	public static final int PAINT_OFFSET_Y_INCREMENT = 14;
+	public static final int PAINT_COLOR = 0xFFFFFF;
 
 	protected final Extension extension;
-
+	protected boolean fatigued;
 	protected CombatStyle combatStyle = CombatStyle.STRENGTH;
-
 	private long optionMenuTimeout;
 
 	public AA_Script(final Extension extension) {
@@ -43,15 +42,19 @@ public abstract class AA_Script extends Script {
 		this.extension = extension;
 	}
 
-	protected static String getElapsedSeconds(final long seconds) {
+	public static String getLocalDateTime() {
+		return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DATE_TIME_FORMATTER);
+	}
+
+	public static String getElapsedSeconds(final long seconds) {
 		return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
 	}
 
-	protected static String getUnitsPerHour(final double processed, final long seconds) {
+	public static String getUnitsPerHour(final double processed, final long seconds) {
 		return processed == 0 ? "0" : DECIMAL_FORMAT.format((processed * 60.0 * 60.0) / seconds);
 	}
 
-	protected static String getTTL(final double processed, final int remaining, final long elapsedSeconds) {
+	public static String getTTL(final double processed, final int remaining, final long elapsedSeconds) {
 		return processed == 0 ? "0:00:00" : getElapsedSeconds((long) (remaining * (elapsedSeconds / processed)));
 	}
 
@@ -65,10 +68,11 @@ public abstract class AA_Script extends Script {
 	public void onServerMessage(final String message) {
 		if (message.endsWith("moment")) {
 			this.optionMenuTimeout = 0L;
+		} else if (message.endsWith("rest!") || message.startsWith("tired", 12)) {
+			this.fatigued = true;
 		}
 	}
 
-	@Override
 	public void onDeath() {
 		this.setAutoLogin(false);
 		this.stopScript();
@@ -80,54 +84,20 @@ public abstract class AA_Script extends Script {
 		return this.getClass().getSimpleName();
 	}
 
-	protected final boolean isDead() {
-		return this.extension.isDeathScreen() ||
+	protected boolean isDead() {
+		return 
 			this.extension.getLocalX() < 0 || this.extension.getLocalX() > 96 ||
 			this.extension.getLocalY() < 0 || this.extension.getLocalY() > 96;
 	}
 
-	protected final double getTotalCombatXp() {
+	protected double getTotalCombatXp() {
 		int total = 0;
 
 		for (int i = 0; i < 4; i++) {
-			total += this.extension.getExperience(i);
+			total += this.getAccurateXpForLevel(i);
 		}
 
 		return total;
-	}
-
-	protected final boolean isInventoryFull() {
-		return this.extension.getInventorySize() == MAX_INV_SIZE;
-	}
-
-	protected final boolean isInventoryEmpty() {
-		return this.extension.getInventorySize() == 0;
-	}
-
-	protected final int getInventoryEmptyCount() {
-		return MAX_INV_SIZE - this.extension.getInventorySize();
-	}
-
-	protected final boolean hasInventoryItem(final int[] itemIds) {
-		for (final int itemId : itemIds) {
-			for (int index = 0; index < this.extension.getInventorySize(); index++) {
-				if (this.extension.getInventoryId(index) == itemId) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	protected final boolean isItemIdEquipped(final int itemId) {
-		for (int index = 0; index < this.extension.getInventorySize(); index++) {
-			if (this.extension.getInventoryId(index) == itemId) {
-				return this.extension.isEquipped(index);
-			}
-		}
-
-		return false;
 	}
 
 	protected final int openBank() {
@@ -139,6 +109,11 @@ public abstract class AA_Script extends Script {
 	}
 
 	protected final int sleep() {
+		if (this.getFatigue() == 0) {
+			this.fatigued = false;
+			return 0;
+		}
+
 		final int index = this.getInventoryIndex(ITEM_ID_SLEEPING_BAG);
 
 		if (index == -1) {
@@ -152,136 +127,15 @@ public abstract class AA_Script extends Script {
 	}
 
 	protected final int exit(final String reason) {
+		System.err.println(reason);
 		this.setAutoLogin(false);
 		this.stopScript();
-		System.err.println(reason);
 		return 0;
 	}
 
-	protected final int getBaseHits() {
-		return this.extension.getBaseLevel(3);
-	}
-
-	protected final int getCurrentHits() {
-		return this.extension.getCurrentLevel(3);
-	}
-
-	protected final int getCurrentHits(final java.lang.Object character) {
-		return ((ta) character).B;
-	}
-
-	protected final String getName(final java.lang.Object character) {
-		final String name = ((ta) character).c;
-
-		if (name == null) {
-			return null;
-		}
-
-		return name.replace((char) 160, ' ');
-	}
-
-	protected final int getWaypointX(final java.lang.Object character) {
-		return ((ta) character).i;
-	}
-
-	protected final int getWaypointY(final java.lang.Object character) {
-		return ((ta) character).K;
-	}
-
-	protected final void useObject1(final int x, final int y) {
-		this.extension.createPacket(Constants.OP_OBJECT_ACTION1);
-		this.extension.put2(x);
-		this.extension.put2(y);
-		this.extension.finishPacket();
-	}
-
-	protected final void useObject2(final int x, final int y) {
-		this.extension.createPacket(Constants.OP_OBJECT_ACTION2);
-		this.extension.put2(x);
-		this.extension.put2(y);
-		this.extension.finishPacket();
-	}
-
-	protected final void useWithObject(final int inventoryIndex, final int x, final int y) {
-		this.extension.createPacket(Constants.OP_OBJECT_USEWITH);
-		this.extension.put2(x);
-		this.extension.put2(y);
-		this.extension.put2(inventoryIndex);
-		this.extension.finishPacket();
-	}
-
-	protected final void takeGroundItem(final int itemId, final int x, final int y) {
-		this.extension.createPacket(Constants.OP_GITEM_TAKE);
-		this.extension.put2(x);
-		this.extension.put2(y);
-		this.extension.put2(itemId);
-		this.extension.finishPacket();
-	}
-
-	protected final boolean hasTradeItem(final int[] itemIds) {
-		for (final int itemId : itemIds) {
-			for (int index = 0; index < this.extension.getLocalTradeItemCount(); index++) {
-				if (this.extension.getLocalTradeItemId(index) == itemId) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	protected final int getTradeItemIdCount(final int itemId) {
-		int count = 0;
-
-		for (int index = 0; index < this.extension.getLocalTradeItemCount(); index++) {
-			if (this.extension.getLocalTradeItemId(index) == itemId) {
-				count += this.extension.getLocalTradeItemStack(index);
-			}
-		}
-
-		return count;
-	}
-
-	protected final int getTradeItemIndex(final int itemId) {
-		for (int index = 0; index < this.extension.getLocalTradeItemCount(); index++) {
-			if (this.extension.getLocalTradeItemId(index) == itemId) {
-				return index;
-			}
-		}
-
-		return -1;
-	}
-
-	protected final void offerTradeItemId(final int itemId, final int amount) {
-		final int inventoryIndex = this.getInventoryIndex(itemId);
-
-		if (inventoryIndex == -1) {
-			return;
-		}
-
-		this.extension.offerItemTrade(inventoryIndex, amount);
-	}
-
-	protected final void removeTradeItem(final int tradeIndex, final int amount) {
-		this.extension.c(amount, (byte) 124, tradeIndex);
-	}
-
-	protected final void removeTradeItemId(final int itemId, final int amount) {
-		final int tradeIndex = this.getTradeItemIndex(itemId);
-
-		if (tradeIndex == -1) {
-			return;
-		}
-
-		this.removeTradeItem(tradeIndex, amount);
-	}
-
 	private int openGenericInterface(final int[] npcs) {
-		if (this.extension.isDialogVisible()) {
-			this.extension.createPacket(Constants.OP_DIALOG_ANSWER);
-			this.extension.put1(0);
-			this.extension.finishPacket();
-			this.extension.setDialogVisible(false);
+		if (this.isQuestMenu()) {
+			this.answer(0);
 			this.optionMenuTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
 			return 0;
 		}
@@ -297,9 +151,7 @@ public abstract class AA_Script extends Script {
 		}
 
 		if (this.distanceTo(npc[1], npc[2]) > 2) {
-			this.extension.walkDirectly(npc[1] - this.extension.getAreaX(),
-				npc[2] - this.extension.getAreaY(), false);
-			this.extension.setActionInd(24);
+			this.walkTo(npc[1], npc[2]);
 			return SLEEP_ONE_TICK;
 		}
 
@@ -308,7 +160,7 @@ public abstract class AA_Script extends Script {
 		return 0;
 	}
 
-	protected enum CombatStyle {
+	public enum CombatStyle {
 		CONTROLLED(0),
 		STRENGTH(1),
 		ATTACK(2),
@@ -330,43 +182,7 @@ public abstract class AA_Script extends Script {
 		}
 	}
 
-	protected enum Skill {
-		ATTACK(0),
-		DEFENSE(1),
-		STRENGTH(2),
-		HITS(3),
-		RANGED(4),
-		PRAYER(5),
-		MAGIC(6),
-		COOKING(7),
-		WOODCUT(8),
-		FLETCHING(9),
-		FISHING(10),
-		FIREMAKING(11),
-		CRAFTING(12),
-		SMITHING(13),
-		MINING(14),
-		HERBLAW(15),
-		AGILITY(16),
-		THIEVING(17);
-
-		private final int index;
-
-		Skill(final int index) {
-			this.index = index;
-		}
-
-		@Override
-		public String toString() {
-			return this.name().charAt(0) + this.name().substring(1).toLowerCase();
-		}
-
-		public int getIndex() {
-			return this.index;
-		}
-	}
-
-	protected enum Food {
+	public enum Food {
 		NONE(-1, 0, "None"),
 		SHRIMP(350, 3, "Shrimp"),
 		ANCHOVIES(352, 1, "Anchovies"),
@@ -410,13 +226,13 @@ public abstract class AA_Script extends Script {
 		}
 	}
 
-	protected interface RSObject {
+	public interface RSObject {
 		int getId();
 
 		Coordinate getCoordinate();
 	}
 
-	protected interface RSArea {
+	public interface RSArea {
 		Coordinate getLowerBoundingCoordinate();
 
 		Coordinate getUpperBoundingCoordinate();
@@ -427,7 +243,7 @@ public abstract class AA_Script extends Script {
 		}
 	}
 
-	protected static final class Coordinate {
+	public static final class Coordinate {
 		private int x;
 
 		private int y;
@@ -485,7 +301,7 @@ public abstract class AA_Script extends Script {
 		}
 	}
 
-	protected static final class Spawn implements Comparable<Spawn> {
+	public static final class Spawn implements Comparable<Spawn> {
 		private final Coordinate coordinate;
 
 		private long timestamp;
