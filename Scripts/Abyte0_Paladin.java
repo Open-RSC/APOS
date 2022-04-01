@@ -30,27 +30,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 	public String[] getRandomQuotes()
 	{
 		String[] result = {
-			"Thieving level?",
-			"Nice wallet",
-			"Once a thief, always a thief",
-			"give me that wallet!",
-			"fking bots!",
-			"Wanna buy a watch?",
-			"I stole a million from that guy over there!",
-			"I stole his keys, kill him you'll see he wont drop any!",
-			"nice xp!",
-			"yo!",
-			"I am what I am, but I'm not a thief",
-			"Nice hat bro",
-			"is that a rune armore?",
-			"what food do you use?",
-			"this is so quick xp",
-			"anyone here?",
-			"why such low pid?",
-			"so hard to thieve these with so many bots",
-			"almost 92 thieving legit",
-			"I bet your thief lvl is like 99?!",
-			"bro"};
+};
 		return result;
 	}
 

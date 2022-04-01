@@ -235,70 +235,7 @@ public class Abyte0_Script extends Storm_Script
 		while(!next());
 	}
 	
-    @Override
-    public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
-		
-		String receivedLC = msg.toLowerCase();
-		
-		if (receivedLC.equals("base version"))
-			Say("using Abyte0_Script " + BASE_SCRIPT_VERSION);
-		if (receivedLC.equals("version") && !getSctiptVersion().equals(""))
-			Say("Script Version " + getSctiptVersion());
-		
-		//Do not reply to yourself
-		final String lname = client.getPlayerName(client.getPlayer());		
-        if(name.equalsIgnoreCase(lname)) return;
-		
-		int oddsToReply = random(0,10);
-		boolean wantToReply = oddsToReply == 1;
-		
-        if (wantToReply && ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?"))) {
-			
-			if(random(0,50)== 0)
-				Say("i cant tell you its a secret");
-			else
-			{
-				if (receivedLC.contains("cook"))
-					Say("I am " + getLevel(7));
-				if (receivedLC.contains("wood") || receivedLC.contains("wc"))
-					Say("I am " + getLevel(8));
-				if (receivedLC.contains("fletch"))
-					Say("I am " + getLevel(9));
-				if (receivedLC.contains("fish"))
-					Say("I am " + getLevel(10));
-				if (receivedLC.contains("fire"))
-					Say("I am " + getLevel(11));
-				if (receivedLC.contains("craft"))
-					Say("I am " + getLevel(12));
-				if (receivedLC.contains("smith"))
-					Say("I am " + getLevel(13));
-				if (receivedLC.contains("mining")|| receivedLC.contains("mine"))
-					Say("I am " + getLevel(14));
-				if (receivedLC.contains("herb"))
-					Say("I am " + getLevel(15));
-				if (receivedLC.contains("agility"))
-					Say("I am " + getLevel(16));
-				if (receivedLC.contains("thieving") || receivedLC.contains("thieve") || receivedLC.contains("thief"))
-					Say("I am " + getLevel(17));
-			}
-			//https://stackoverflow.com/questions/2286648/named-placeholders-in-string-formatting
-        }
-		
-        if (wantToReply && receivedLC.contains("press") && (receivedLC.contains("macro") || receivedLC.contains("bot"))) {
-			
-				Pattern pattern = Pattern.compile("\\d{3,6}");
-				Matcher matcher = pattern.matcher(receivedLC);
-				if(matcher.find())
-				{
-					if(random(0,1)== 0)
-						Say(matcher.group(0));
-					else
-						Say("i dont bot so " + matcher.group(0));
-				}
-        }
-		
-		super.onChatMessage(msg, name, pmod, jmod);
-    }
+
 
 	public void printInventory()
 	{
