@@ -4,9 +4,10 @@
 //Version 5.0 Updated to OpenRSC 2021-06-29
 //Version 5.1 Support Hero
 //Version 6.0 2022-01-28 [Require Abyte0_Script 1.7.3+] Auto move + commands added
+//Version 6.1 - 2022-02-14 - Updated to work with abyte0_Script 1.8  [require abyte0_Script 1.8+]
 public class Abyte0_ArdThiever extends Abyte0_Script 
 {
-	public String SCRIPT_VERSION = "6.0";
+	public String SCRIPT_VERSION = "6.1.1";
 	
 	int MAX_INVENTORY_SIZE = 30;
 	int freeInventrySlotsRequired = 22;
@@ -121,43 +122,43 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 			if(getInventoryCount(10) > 1) 
 			{				
 				deposit(10,getInventoryCount(10)-1);
-				return random(500, 600);			
+				return 1000;
 			}
 			else if(getInventoryCount(10) < 1) 
 			{				
 				withdraw(10,1);
-				return random(500, 600);			
+				return 1000;
 			}
 			//deposit chaos and keep 1 chaos
 			if(getInventoryCount(chaosId) > 1) 
 			{				
 				deposit(chaosId,getInventoryCount(chaosId)-1);
-				return random(500, 600);			
+				return 1000;
 			}
 			if(getInventoryCount(deathId) > 1) 
 			{				
 				deposit(deathId,getInventoryCount(deathId));
-				return random(500, 600);			
+				return 1000;
 			}
 			if(getInventoryCount(bloodId) > 1) 
 			{				
 				deposit(bloodId,getInventoryCount(bloodId));
-				return random(500, 600);			
+				return 1000;
 			}
 			if(getInventoryCount(goldId) > 0) 
 			{				
 				deposit(goldId,getInventoryCount(goldId));
-				return random(500, 600);			
+				return 1000;
 			}
 			if(getInventoryCount(wineId) > 0) 
 			{				
 				deposit(wineId,getInventoryCount(wineId));
-				return random(500, 600);			
+				return 1000;
 			}
 			if(getInventoryCount(diamonId) > 0) 
 			{				
 				deposit(diamonId,getInventoryCount(diamonId));
-				return random(500, 600);			
+				return 1000;
 			}
 			//else if(getInventoryCount(41) < 1) 
 			//{				
@@ -165,21 +166,21 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 			//	return random(500, 600);			
 			//}
 			
-			if((getInventoryCount() == MAX_INVENTORY_SIZE && !isDoingHero) || getInventoryCount() >= MAX_INVENTORY_SIZE - freeInventrySlotsRequired && isDoingHero) 
+			if((getInventoryCount() >= MAX_INVENTORY_SIZE - 4 && !isDoingHero) || getInventoryCount() >= MAX_INVENTORY_SIZE - freeInventrySlotsRequired && isDoingHero) 
 			{				
 				closeBank();				
-				return random(500, 600);			
+				return 1000;	
 			}
 			
 			if(isDoingHero)
 			{
 				withdraw(330, MAX_INVENTORY_SIZE - freeInventrySlotsRequired - getInventoryCount());
-				return random(700, 800);
+				return 1000;
 			}
 			else
 			{
-				withdraw(330, MAX_INVENTORY_SIZE - getInventoryCount() - 1);
-				return random(700, 800);
+				withdraw(330, MAX_INVENTORY_SIZE - getInventoryCount() - 2);
+				return 1000;
 			}
 				
 		}				
@@ -331,7 +332,8 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 		initialTime = System.currentTimeMillis();
 	}
 	
-	private void reportXpChange()
+	@Override
+	protected void reportXpChange()
 	{
 		
 		int xpDifference = getThievingXp() - initialXp;
@@ -374,25 +376,18 @@ public class Abyte0_ArdThiever extends Abyte0_Script
     @Override
     public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
 		
-		String receivedLC = msg.toLowerCase();
-		
-		final String lname = client.getPlayerName(client.getPlayer());		
-        if(name.equalsIgnoreCase(lname))
-		{
-			if (receivedLC.equals("--params") || receivedLC.equals("--param"))
-				printParams();
-			if (receivedLC.equals("--help"))
-				printHelp();
-			if (receivedLC.equals("--status"))
-				reportXpChange();
-			if (receivedLC.equals("--version"))
-				print("Version " + SCRIPT_VERSION);
-		}
+		//String receivedLC = msg.toLowerCase();
+		//
+		//final String lname = client.getPlayerName(client.getPlayer());		
+        //if(name.equalsIgnoreCase(lname))
+		//{
+		//}
 		
 		super.onChatMessage(msg, name, pmod, jmod);
     }
 
-	private void printParams()
+	@Override
+	protected void printParams()
 	{
 		print("fightMode is " + FIGHTMODES[fightMode]);
 		
@@ -403,26 +398,33 @@ public class Abyte0_ArdThiever extends Abyte0_Script
 				npcs += npcIDs[i] + " ";
 			print(npcs);
 		}
-		
-		print("type '--help' in public chat to view help");
 	}
 	
-	private void printHelp()
+	@Override
+	protected void printHelp()
 	{
 		print("Press # or ' or type --status to display xp stats");
 		print("Press F2 to reset stats");
 		
-		print("type '--help' in public chat to view help");
-		print("type '--param' to view currently running parameters");
-		print("type '--version' to view currently running script version");
-		print("type 'version' to view other players running script version");
-		print("type 'base version' to view other players Abyte0_Script version");
+		print("type @mag@--help@whi@ in public chat to view help");
+		print("type @mag@--param@whi@ to view currently running parameters");
+		print("type @mag@--version@whi@ to view currently running script version");
+		print("type @mag@version@whi@ to view other players running script version");
+		print("type @mag@base version@whi@ to view other players Abyte0_Script version");
 		
 		print("param are fightmode,npc,npc,npc,etc");
 		print("param example: 3,324 would be defence on hero");
 	}
+	
 	private void changePosition()
 	{
+		int pid = getSelfPid();
+		if(pid < 250 && pid > 15)
+		{
+			print("bad pid, we can relog");
+			needToMove = false;
+		}
+			
 		if(getX() != needToMoveFromX || getY() != needToMoveFromY)
 			needToMove = false;
 		else

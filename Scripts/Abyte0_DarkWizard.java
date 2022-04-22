@@ -303,7 +303,7 @@ public class Abyte0_DarkWizard extends Abyte0_Script
 		initialTime = System.currentTimeMillis();
 	}
 	
-	private void reportXpChange()
+	protected void reportXpChange()
 	{
 		
 		int xpDifference = getFmodeXp() - initialXp;

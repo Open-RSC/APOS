@@ -15,6 +15,8 @@
 		//2.0.1 2022-01-08 - Bank half full wine if you drink wines as food, support 330 as full cake
 		//2.0.2 2022-01-08 - Pickup rares from ground, will stay in inv...
 		//2.1 2022-01-27 - Will try to move to avoid reloggin [Require Abyte0_Script 1.7.3+]
+		//2.2 2022-01-28 - degelated some task to the super class [Require Abyte0_Script 1.7.4+]
+		//2.3 2022-02-14 - Updated to work with abyte0_Script 1.8  [require abyte0_Script 1.8+]
 		
 public class Abyte0_Paladin extends Abyte0_Script 
 {
@@ -24,7 +26,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 	int fightMode = 3; //0 Controlled, 1 Strength, 2 Attack, 3 Defence
 	//============= CONFIG END= ============//
 	
-	public String SCRIPT_VERSION = "2.1";
+	private final String SCRIPT_VERSION = "2.3";
 	
 	@Override
 	public String[] getRandomQuotes()
@@ -56,15 +58,11 @@ public class Abyte0_Paladin extends Abyte0_Script
 
 	public Abyte0_Paladin(Extension e) {super(e);}		
 	public void init(String params) 
-	{		
-		print("Abyte0_Paladin");
-		print("Thiever for Paladin Tower in Ardougne");
+	{
+		print("Abyte0_Paladin Thiever for Paladin Tower in Ardougne");
 		print("Version " + SCRIPT_VERSION);
-		
-		print("Press # or ' for stats");
-		print("Press F2 to reset stats");
-		
-		print("Abyte0_paladin fmode,foodId,foodId,...");
+
+		printHelp();
 		
 		if(params.equals(""))
 		{
@@ -98,6 +96,9 @@ public class Abyte0_Paladin extends Abyte0_Script
 		
 		initialXp = getThievingXp();
 		initialTime = System.currentTimeMillis();
+		
+		//Do not change
+		hasStatistics = true;
 	}	
 	
 	private void loadAllFoods()
@@ -595,7 +596,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 			}
 		}
 		
-		useItem(idx);
+		EatFood(foodIDs);
 		
 		if(getInventoryCount(halfFullWine) > 0)
 			Say("Woot! Half-Full-Wine generated!");
@@ -628,29 +629,6 @@ public class Abyte0_Paladin extends Abyte0_Script
 		initialTime = System.currentTimeMillis();
 	}
 	
-	private void reportXpChange()
-	{
-		
-		int xpDifference = getThievingXp() - initialXp;
-		long timeSpan = System.currentTimeMillis() - initialTime;
-		long secondSpan = timeSpan / 1000;
-		long xpRatio = xpDifference * 3600L / secondSpan; //The L set 3600 as long variable Forcing to calculate as long to avoid overflow
-		long thieveCount = (long)(xpDifference / 151.75);
-
-		print("=================================");
-		print("initialXp: " + initialXp);
-		print("total Thieving xp gained: " + xpDifference);
-		print("time running: " + secondSpan + " s");
-		print("xpRatio: " + xpRatio + "/h");
-		print("=================================");
-		print("Chaos: " + thieveCount + " && coins: " + (thieveCount * 80));
-	}
-	
-	public int getThievingXp()
-	{
-		return getXpForLevel(17);
-	}
-
 	private int getMaxInventoryCount()
 	{
 		if(keepOneExtraInventorySpace) return 29;
@@ -674,8 +652,73 @@ public class Abyte0_Paladin extends Abyte0_Script
 		
     }
 
+    @Override
+    public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
+		
+		super.onChatMessage(msg, name, pmod, jmod);
+    }
+
+	@Override
+	protected void printHelp()
+	{
+		super.printHelp();
+		
+		print("Params = fmode,foodid,foodid,food,etc");
+		print("Example= 3,330,333,335,373 would use defence to use full cake and lobsters");
+	}
+	
+	@Override
+	protected void printParams()
+	{
+		print("Fmode is @or3@" + FIGHTMODES[fightMode]);
+		
+		double eatAt = getLevel(3) * 0.70;
+	
+		if(foodIDs.length > 7)
+			print("Script use most known food to eat @or3@when hp <= " + eatAt);
+		else if(foodIDs.length > 1)
+		{
+			String foods = "Script use ";
+			for(int i = 0; i < foodIDs.length; i++)
+				foods += foodIDs[i] + " ";
+			print(foods + "to eat @or3@when hp <= " + eatAt);
+		}
+		else
+			print("Script use food : " + foodIDs[0] + " to eat @or3@when hp <= " + eatAt);
+
+		if(eatFoodToPickMITH_BAR_ID)
+			print("Script will eat fod to pickup item from ground");
+
+	}
+	
+	@Override
+	protected void reportXpChange()
+	{
+		
+		int xpDifference = getThievingXp() - initialXp;
+		long timeSpan = System.currentTimeMillis() - initialTime;
+		long secondSpan = timeSpan / 1000;
+		long xpRatio = xpDifference * 3600L / secondSpan; //The L set 3600 as long variable Forcing to calculate as long to avoid overflow
+		long thieveCount = (long)(xpDifference / 151.75);
+
+		print("=================================");
+		print("initialXp: " + initialXp);
+		print("total Thieving xp gained: " + xpDifference);
+		print("time running: " + secondSpan + " s");
+		print("xpRatio: " + xpRatio + "/h");
+		print("=================================");
+		print("Chaos: " + thieveCount + " && coins: " + (thieveCount * 80));
+	}
+	
 	private void changePosition()
 	{
+		int pid = getSelfPid();
+		if(pid < 250 && pid > 15)
+		{
+			print("bad pid, we can relog");
+			needToMove = false;
+		}
+			
 		if(getX() != needToMoveFromX || getY() != needToMoveFromY)
 			needToMove = false;
 		else
