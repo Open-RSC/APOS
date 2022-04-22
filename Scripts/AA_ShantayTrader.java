@@ -501,13 +501,6 @@ public class AA_ShantayTrader extends AA_Script {
 		return this.extension.isInTradeOffer() || this.extension.isInTradeConfirm();
 	}
 
-<<<<<<< HEAD
-=======
-	public boolean isInventoryEmpty() {
-		return this.extension.getInventorySize() == 0;
-	}
-
->>>>>>> upstream/master
 	private void setTradeAccepted(final boolean accepted) {
 		this.extension.Mi = accepted;
 	}
