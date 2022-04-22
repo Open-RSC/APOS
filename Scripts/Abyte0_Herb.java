@@ -1,8 +1,9 @@
-public class Abyte0_Herb extends Abyte0_Script {
+public class Abyte0_Herb extends Abyte0_Script
+{
 	int fmode = 2;
-	int loop = 0;
+	int loop = 0;	
 	int i = 0;
-
+	
 	int guam = 165; //Optional
 	int tarromin = 436; //Optional
 	int FireRune = 31;
@@ -19,7 +20,7 @@ public class Abyte0_Herb extends Abyte0_Script {
 	int halfKey1 = 526;
 	int halfKey2 = 527;
 	int ChristmasCracker = 575;
-	int PartyHat0 = 576;
+	int PartyHat0 = 576; 
 	int PartyHat1 = 577;
 	int PartyHat2 = 578;
 	int PartyHat3 = 579;
@@ -34,27 +35,24 @@ public class Abyte0_Herb extends Abyte0_Script {
 	int HalfDragonSquareShield1 = 1276;
 	int HalfDragonSquareShield2 = 1277;
 	int DragonSquareShield = 1278;
-
-	int[] herbs = {ChristmasCracker, PartyHat0, PartyHat1, PartyHat2, PartyHat3, PartyHat4, PartyHat5,
-		Disk, Pumpkin, halloweenMask0, halloweenMask1, halloweenMask2, DragonBoneCertificate,
-		Santa, FireRune, WaterRune, AirRune, DragonMediumHelmet, HalfDragonSquareShield1, HalfDragonSquareShield2, DragonSquareShield,
-		EarthRune, MindRune, deathRunes, nature, law, crystalKey, halfKey1, halfKey2, 438, 439, 440, 441, 442, 443, 815, 817, 819, 821, 823, 933, 526, 527, 157, 158, 464, 465, guam, tarromin};//40 nature, 42 law, 157 158 uncut ruby diamon 526 527 key  (464 465 vials)
+	
+	int[] herbs = {ChristmasCracker,PartyHat0,PartyHat1,PartyHat2,PartyHat3,PartyHat4,PartyHat5,
+	Disk,Pumpkin,halloweenMask0,halloweenMask1,halloweenMask2,DragonBoneCertificate,
+	Santa,FireRune,WaterRune,AirRune,DragonMediumHelmet,HalfDragonSquareShield1,HalfDragonSquareShield2,DragonSquareShield,
+	EarthRune,MindRune,deathRunes,nature,law,crystalKey,halfKey1,halfKey2,438, 439, 440, 441, 442, 443, 815, 817, 819, 821, 823, 933, 526, 527, 157, 158, 464, 465, guam, tarromin};//40 nature, 42 law, 157 158 uncut ruby diamon 526 527 key  (464 465 vials)
 	int[] path = null;
-
-	public Abyte0_Herb(Extension e) {
-		super(e);
-	}
-
-	public void init(String params) {
-		if (params.equals("1"))
+	public Abyte0_Herb(Extension e) {		super(e);	}
+	public void init(String params)
+	{
+		if(params.equals("1"))
 			fmode = 1;
-		else if (params.equals("2"))
+		else if(params.equals("2"))
 			fmode = 2;
-		else if (params.equals("3"))
+		else if(params.equals("3"))
 			fmode = 3;
 		else
 			fmode = 0;
-
+			
 		System.out.println("Fmode = " + fmode);
 		System.out.println("Herb Collector - By mofo");
 		System.out.println("Edited by Abyte0");
@@ -67,75 +65,93 @@ public class Abyte0_Herb extends Abyte0_Script {
 		//Walk Back
 		//r1 pickup vials
 	}
-
-	public int main() {
-		if (getFightMode() != fmode)
-			setFightMode(fmode);
-
-		if (getCurrentLevel(3) <= 5) {
-			return random(60000, 90000);
+	public int main()
+	{
+		if(getFightMode() != fmode)
+		setFightMode(fmode);
+	
+		if(getCurrentLevel(3) <= 5)
+	    {
+            return random(60000,90000);
 		}
-
-		if (getFatigue() > 90) {
+	
+		if(getFatigue() > 90)
+		{
 			useSleepingBag();
 			return 3000;
 		}
-		if (isBanking()) {
+		if(isBanking()) 
+		{
 			i = 0;
-			for (int h = 0; h < herbs.length; h++) {
-				if (getInventoryCount(herbs[h]) > 0) {
+			for(int h = 0; h < herbs.length; h++) 
+			{
+				if(getInventoryCount(herbs[h]) > 0) 
+				{
 					statusReport(getInventoryCount(herbs[h]), h);
 					deposit(herbs[h], getInventoryCount(herbs[h]));
-					return random(1000, 1500);
+					return random(1000, 1500);				
 				}
 			}
-			closeBank();
+			closeBank();		
 		}
-		if (isAtApproxCoords(581, 574, 5) && getInventoryCount() == 30) {
+		if(isAtApproxCoords(581, 574, 5) && getInventoryCount() == 30)
+		{			
 			i = 0;
-			if (!isQuestMenu()) {
-				int[] banker = getNpcByIdNotTalk(95);
-				if (banker[0] != -1) {
-					talkToNpc(banker[0]);
-					return random(2000, 2700);
-				}
-				return 1000;
-			} else {
-				answer(0);
-				return 6000;
-			}
-		}
-		if (isAtApproxCoords(617, 558, 2) && getInventoryCount() != 30) {
-			i = 0;
-			int[] door = getWallObjectById(96);
-			if (door[0] != -1)
-				atWallObject2(door[1], door[2]);
-			return random(1000, 1500);
-		}
-		if (isAtApproxCoords(617, 552, 3) && getInventoryCount() == 30) {
-			int[] door = getWallObjectById(96);
-			if (door[0] != -1) {
+			if(!isQuestMenu()) 
+			{
+				int banker[] = getNpcByIdNotTalk(new int[]{95});
+				if(banker[0] != -1) 
+				{					
+					talkToNpc(banker[0]);					
+					return random(2000, 2700);				
+				}				
+				return 1000;			
+			} 
+			else 
+			{				
+				answer(0);				
+				return 6000;			
+			}		
+		}		
+		if(isAtApproxCoords(617, 558, 2) && getInventoryCount() != 30) 
+		{			
+			i = 0;			
+			int[] door = getWallObjectById(96);			
+			if(door[0] != -1)				
+			atWallObject2(door[1], door[2]);			
+			return random(1000, 1500);		
+		}		
+		if(isAtApproxCoords(617, 552, 3) && getInventoryCount() == 30) 
+		{			
+			int[] door = getWallObjectById(96);			
+			if(door[0] != -1) 
+			{
 				atWallObject(door[1], door[2]);
-				return random(800, 1200);
+				return random(800, 1200);			
 			}
-			return 1000;
+			return 1000;		
 		}
-		if (isAtApproxCoords(617, 552, 3) && getInventoryCount() != 30) {
+		if(isAtApproxCoords(617, 552, 3) && getInventoryCount() != 30)
+		{
 			int[] druid = getNpcById(270);
-			for (int h = 0; h < herbs.length; h++) {
+			for(int h = 0; h < herbs.length; h++)
+			{
 				int[] groundHerbs = getItemById(herbs[h]);
-				if (groundHerbs[0] != -1) {
+				if(groundHerbs[0] != -1)
+				{
 					pickupItem(groundHerbs[0], groundHerbs[1], groundHerbs[2]);
 					return random(1000, 1500);
 				}
 			}
-			if (druid[0] != -1 && !inCombat()) {
+			if(druid[0] != -1 && !inCombat())
+			{
 				attackNpc(druid[0]);
 				return random(800, 1300);
 			}
-			if (druid[0] == -1 && !inCombat()) {
+			if(druid[0] == -1 && !inCombat())
+			{
 				//walkback
-				walkTo(617, 553);
+				walkTo(617,553);
 			}
 			return random(500, 800);
 		}
@@ -143,30 +159,34 @@ public class Abyte0_Herb extends Abyte0_Script {
 		return random(2000, 2500);
 	}
 
-	public void statusReport(int herbCount, int arrayPoint) {
-		if (arrayPoint < 6) {
+	public void statusReport(int herbCount, int arrayPoint) 
+	{
+		if(arrayPoint < 6) 
+		{
 			total[arrayPoint] = total[arrayPoint] + herbCount;
 			System.out.println("**Status Report**: Collected " + total[arrayPoint] + " " + herbNames[arrayPoint] + " so far!");
 		}
 	}
 
-	public int walk() {
-		if (isAtApproxCoords(581, 574, 5) && getInventoryCount() != 30)
-			path = new int[]{581, 574, 590, 578, 588, 598, 600, 595, 603, 582, 609, 565, 617, 558};
-		if (isAtApproxCoords(617, 558, 2) && getInventoryCount() == 30)
-			path = new int[]{617, 558, 609, 565, 603, 582, 600, 595, 588, 598, 590, 578, 581, 574};
-		if ((i + 1) < path.length) {
-			if (isAtApproxCoords(path[i], path[i + 1], 2))
+	public int walk()
+	{
+		if(isAtApproxCoords(581, 574, 5) && getInventoryCount() != 30)
+			path = new int[] {581, 574, 590, 578, 588, 598, 600, 595, 603, 582, 609, 565, 617, 558};
+		if(isAtApproxCoords(617, 558, 2) && getInventoryCount() == 30)
+			path = new int[] {617, 558, 609, 565, 603, 582, 600, 595, 588, 598, 590, 578, 581, 574};
+		if((i + 1) < path.length)
+		{
+			if(isAtApproxCoords(path[i], path[i + 1], 2))
 				i = i + 2;
-			walkTo(path[i] + random(-2, 2), path[i + 1] + random(-2, 2));
-			return random(1500, 2500);
-		}
-		loop++;
-		if (loop > 5)
-			walkTo(path[i], path[i + 1]);
-		return 1000;
-	}
-
-	public int[] total = {0, 0, 0, 0, 0, 0};
+			walkTo(path[i] + random(-2, 2), path[i + 1] + random(-2, 2));			
+			return random(1500, 2500);		
+		}		
+		loop++;		
+		if(loop > 5)			
+			walkTo(path[i], path[i + 1]);		
+		return 1000;	
+	}	
+	
+	public int[] total = {0, 0, 0, 0, 0, 0};	
 	public String[] herbNames = {"Ranaar", "Irit", "Avantoe", "Kwuarm", "Cadantine", "Dwarf Weed"};
 }

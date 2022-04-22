@@ -242,7 +242,6 @@ public class Abyte0_Script extends Storm_Script
 		while(!next());
 	}
 	
-<<<<<<< HEAD
     @Override
     public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
 		
@@ -321,9 +320,6 @@ public class Abyte0_Script extends Storm_Script
 		
 		super.onChatMessage(msg, name, pmod, jmod);
     }
-=======
-
->>>>>>> upstream/master
 
 	private void ReplyMessage(String content)
 	{
