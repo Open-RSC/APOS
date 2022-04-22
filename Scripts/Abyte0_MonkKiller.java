@@ -5,6 +5,7 @@
 //Version 2.1 - Toggle prayer when close to the monk before fight
 //Version 2.2 - Xp stats with pressing of # or '
 //Version 2.3 - Heal to almost full + optional param stopAt= + added command ::params  [require abyte0_Script 1.6.2+]
+//Version 2.4 - 2022-02-14 - Updated to work with abyte0_Script 1.8  [require abyte0_Script 1.8+]
 
 
 public class Abyte0_MonkKiller extends Abyte0_Script
@@ -15,7 +16,7 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 	int targetFmodeLevel = 100;
 	// === END DEFAULT CONFIG === //
 	int MONK_ID = 93;
-	private final String SCRIPT_VERSION = "2.3.1";
+	private final String SCRIPT_VERSION = "2.4.1";
 	
 	int initialXp = 0;
 	long initialTime = 0;
@@ -45,7 +46,7 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 			{
 				for(int i = 2; i < str.length; i++)
 				{
-					if(str[i].startsWith("stopAt="))
+					if(str[i].toLowerCase().startsWith("stopAt="))
 					{
 						targetFmodeLevel = Integer.parseInt(str[i].substring(7));
 					}
@@ -151,7 +152,7 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 		
 		if(inCombat()) return 100;
 		
-		if(targetFmodeLevel == getFmodeLevel(fmode))
+		if(targetFmodeLevel <= getFmodeLevel(fmode))
 		{
 			setAutoLogin(false);
 			stopScript();
@@ -307,7 +308,8 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 		initialTime = System.currentTimeMillis();
 	}
 	
-	private void reportXpChange()
+	@Override
+	protected void reportXpChange()
 	{
 		
 		int xpDifference = getFmodeXp(fmode) - initialXp;
@@ -323,7 +325,6 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 		print("time running: " + secondSpan + " s");
 		print("xpRatio: " + xpRatio + "/h");
 		print("=================================");
-		printParams();
 	}
 	
     @Override
@@ -381,19 +382,6 @@ public class Abyte0_MonkKiller extends Abyte0_Script
     @Override
     public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
 		
-		String receivedLC = msg.toLowerCase();
-		
-		final String lname = client.getPlayerName(client.getPlayer());		
-        if(name.equalsIgnoreCase(lname))
-		{
-			if (receivedLC.equals("--params") || receivedLC.equals("--param"))
-				printParams();
-			if (receivedLC.equals("--help"))
-				printHelp();
-			if (receivedLC.equals("--status"))
-				reportXpChange();
-		}
-		
 		super.onChatMessage(msg, name, pmod, jmod);
     }
 
@@ -403,7 +391,8 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 		return SCRIPT_VERSION;
 	}
 	
-	private void printParams()
+	@Override
+	protected void printParams()
 	{
 		print("Fmode is " + FIGHTMODES[fmode]);
 		if(targetFmodeLevel < 100)
@@ -412,7 +401,8 @@ public class Abyte0_MonkKiller extends Abyte0_Script
 			print("Prayer will stop once reached " + targetPrayerLevel);
 	}
 	
-	private void printHelp()
+	@Override
+	protected void printHelp()
 	{
 		print("Press # or ' or type --status to display xp stats");
 		

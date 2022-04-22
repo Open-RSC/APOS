@@ -74,7 +74,7 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 		initialTime = System.currentTimeMillis();
 	}
 	
-	private void reportXpChange()
+	protected void reportXpChange()
 	{
 		
 		int xpDifference = getFishingXp() - initialXp;

@@ -394,7 +394,8 @@ public class Abyte0_SAF extends Abyte0_Script
             startY = getY();
 
         }
-
+		//print("fmode is :" + fmode);
+		//print("get fmode return :" + getFightMode());
         if(getFightMode() != fmode) {
 
             setFightMode(fmode);
@@ -507,7 +508,8 @@ public class Abyte0_SAF extends Abyte0_Script
 		initialTime = System.currentTimeMillis();
 	}
 	
-	private void reportXpChange()
+	@Override
+	protected void reportXpChange()
 	{
 		
 		int xpDifference = getFmodeXp(fmode) - initialXp;
@@ -537,12 +539,7 @@ public class Abyte0_SAF extends Abyte0_Script
 		final String lname = client.getPlayerName(client.getPlayer());		
         if(name.equalsIgnoreCase(lname))
 		{
-			if (receivedLC.equals("--params") || receivedLC.equals("--param"))
-				printParams();
-			if (receivedLC.equals("--help"))
-				printHelp();
-			if (receivedLC.equals("--status"))
-				reportXpChange();
+			
 		}
 		
 		super.onChatMessage(msg, name, pmod, jmod);
@@ -554,7 +551,8 @@ public class Abyte0_SAF extends Abyte0_Script
 		return SCRIPT_VERSION;
 	}
 	
-	private void printHelp()
+	@Override
+	protected void printHelp()
 	{
 		print("Press # or ' or type --status to display xp stats");
 		
@@ -565,7 +563,8 @@ public class Abyte0_SAF extends Abyte0_Script
 		print("Result= Train Def to lvl 98 on guard in radius of 25 + eat lob at 20hp + bury + walkback");
 	}
 	
-	private void printParams()
+	@Override
+	protected void printParams()
 	{
 		print("Fmode is " + FIGHTMODES[fmode]);
 		if(targetFmodeLevel < 100)

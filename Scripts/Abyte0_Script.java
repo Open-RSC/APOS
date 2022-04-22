@@ -11,6 +11,9 @@
 	Version 1.7 - 2022-01-20 support eating multiple food by providing an array including single id for multi parts like cake 330
 	Version 1.7.2 - Shark was forgotten
 	Version 1.7.3 - Will reply to question 1/10 chance
+	Version 1.8 - More features for user
+	Version 1.8.1 - Allow swiching script
+	Version 1.8.2 - Much less auto talk
 */
 import java.net.*; 
 import java.io.*;
@@ -24,11 +27,14 @@ import java.util.regex.Pattern;
 
 public class Abyte0_Script extends Storm_Script 
 {
-	private String BASE_SCRIPT_VERSION = "1.7.3";
+	//BEGIN Configuration
+	long minimumSecondsBetweenReplys = 300; //300 mean it won't auto repply more than once ever 300s (5 minutes)
+	int delayDice = 50000; //The greater the number, the less often the acocunt will randomly talk
+	//END Configuration
+	
+	private String BASE_SCRIPT_VERSION = "1.8.2.4";
 	
     public Extension client;
-	
-	boolean waitingBeforeLastDrop = false;
 	
 	public int[] ALL_KNOWN_FOODS = new int[] 
 	{
@@ -89,6 +95,9 @@ public class Abyte0_Script extends Storm_Script
 	
 	int bowString = 676;
 			
+	long lastReplyTime = 0;
+	boolean waitingBeforeLastDrop = false;
+	
 	public static String[] PROPERTY_NAMES = new String[]{"nom", 
 		"money",
 	    "feathers",
@@ -176,8 +185,6 @@ public class Abyte0_Script extends Storm_Script
 		return result;
 	}
 	
-	public int delayDice = 10000;
-	
 	protected boolean switchUserForNextRelog(String name) {
         
 		if (name == null) {
@@ -235,8 +242,97 @@ public class Abyte0_Script extends Storm_Script
 		while(!next());
 	}
 	
+    @Override
+    public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
+		
+		String receivedLC = msg.toLowerCase();
+		
+		final String lname = client.getPlayerName(client.getPlayer());		
+        if(name.equalsIgnoreCase(lname))
+		{
+			if (receivedLC.equals("--params") || receivedLC.equals("--param"))
+				printParams();
+			if (receivedLC.equals("--help"))
+				printHelp();
+			if (receivedLC.equals("--status"))
+				reportXpChange();
+			if (receivedLC.equals("--version"))
+				print("Version " + getSctiptVersion());
+		}
+		
+		
+		if (receivedLC.equals("base version"))
+			ReplyMessage("using Abyte0_Script " + BASE_SCRIPT_VERSION);
+		if (receivedLC.equals("version") && !getSctiptVersion().equals(""))
+			ReplyMessage("Script Version " + getSctiptVersion());
+		
+		//Do not reply to yourself for the code bellow this
+        if(name.equalsIgnoreCase(lname)) return;
+		
+		int oddsToReply = random(0,10);
+		boolean wantToReply = oddsToReply == 1;
+		
+        if (wantToReply && ((receivedLC.contains("level") || receivedLC.contains("lvl")) && receivedLC.contains("?"))) {
+			
+			if(random(0,50)== 0)
+				ReplyMessage("i cant tell you its a secret");
+			else
+			{
+				if (receivedLC.contains("cook"))
+					ReplyMessage("I am " + getLevel(7));
+				if (receivedLC.contains("wood") || receivedLC.contains("wc"))
+					ReplyMessage("I am " + getLevel(8));
+				if (receivedLC.contains("fletch"))
+					ReplyMessage("I am " + getLevel(9));
+				if (receivedLC.contains("fish"))
+					ReplyMessage("I am " + getLevel(10));
+				if (receivedLC.contains("fire"))
+					ReplyMessage("I am " + getLevel(11));
+				if (receivedLC.contains("craft"))
+					ReplyMessage("I am " + getLevel(12));
+				if (receivedLC.contains("smith"))
+					ReplyMessage("I am " + getLevel(13));
+				if (receivedLC.contains("mining")|| receivedLC.contains("mine"))
+					ReplyMessage("I am " + getLevel(14));
+				if (receivedLC.contains("herb"))
+					ReplyMessage("I am " + getLevel(15));
+				if (receivedLC.contains("agility"))
+					ReplyMessage("I am " + getLevel(16));
+				if (receivedLC.contains("thieving") || receivedLC.contains("thieve") || receivedLC.contains("thief"))
+					ReplyMessage("I am " + getLevel(17));
+			}
+			//https://stackoverflow.com/questions/2286648/named-placeholders-in-string-formatting
+        }
+		
+        if (wantToReply && receivedLC.contains("press") && (receivedLC.contains("macro") || receivedLC.contains("bot"))) {
+			
+				Pattern pattern = Pattern.compile("\\d{3,6}");
+				Matcher matcher = pattern.matcher(receivedLC);
+				if(matcher.find())
+				{
+					if(random(0,1)== 0)
+						ReplyMessage(matcher.group(0));
+					else
+						ReplyMessage("i dont bot so " + matcher.group(0));
+				}
+        }
+		
+		
+		super.onChatMessage(msg, name, pmod, jmod);
+    }
 
-
+	private void ReplyMessage(String content)
+	{
+		if((System.currentTimeMillis() - lastReplyTime) < (minimumSecondsBetweenReplys*1000L))
+		{
+			print("wont reply because " + (System.currentTimeMillis() - lastReplyTime) + " is smaller than " + (minimumSecondsBetweenReplys*1000L));
+			return;
+		}
+		
+		Say(content);
+		lastReplyTime = System.currentTimeMillis();
+	}
+	
 	public void printInventory()
 	{
 		//String nom = AutoLogin.user;
@@ -617,6 +713,21 @@ public class Abyte0_Script extends Storm_Script
 		return getXpForLevel(0) + getXpForLevel(1) + getXpForLevel(2);
 	}
 
+	protected int getThievingXp()
+	{
+		return getXpForLevel(17);
+	}
+
+	protected int getWoodcuttingXp()
+	{
+		return getXpForLevel(8);
+	}
+
+	protected int getFletchingXp()
+	{
+		return getXpForLevel(9);
+	}
+
 	protected int getFmodeLevel(int fmode)
 	{
 		if(fmode == 1)
@@ -629,4 +740,45 @@ public class Abyte0_Script extends Storm_Script
 		return 0;
 	}
 
+	protected void printHelp()
+	{
+		if(hasStatistics)
+		{
+			print("Press # or ' or type --status to display statistics");
+			print("Press F2 to reset statistics");
+		}
+		
+		print("type @mag@--help@whi@ in public chat to view help");
+		print("type @mag@--param@whi@ to view currently running parameters");
+		print("type @mag@--version@whi@ to view currently running script version");
+		print("type @mag@version@whi@ to view other players running script version");
+		print("type @mag@base version@whi@ to view other players Abyte0_Script version");
+	}
+	
+	protected void printParams()
+	{
+
+	}
+	
+	protected void reportXpChange()
+	{
+	}
+	
+	protected boolean hasStatistics = false;
+	
+	
+	
+	protected void switchToScript(String scriptName, String scriptParams)
+	{
+		print("{scriptName}="+scriptName);
+		print("{scriptParams}="+scriptParams);
+		
+		ScriptListener listener = (ScriptListener)client.getScriptListener();
+		IScript script = initJavaScript(scriptName + ".class");
+		listener.setIScript(script);
+		script.init(scriptParams);
+		
+		print("Running script Changed : "+listener.getScriptName());
+	}
+	
 }
