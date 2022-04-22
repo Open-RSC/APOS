@@ -100,7 +100,7 @@ public abstract class AA_Script extends Script {
 		return this.extension.getInventorySize() == MAX_INV_SIZE;
 	}
 
-	protected final boolean isInventoryEmpty() {
+	protected boolean isInventoryEmpty() {
 		return this.extension.getInventorySize() == 0;
 	}
 
