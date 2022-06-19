@@ -1,6 +1,6 @@
 @echo off
 
-SET antpath="apache-ant-1.10.5\bin\"
+SET antpath="apache-ant-1.10.12\bin\"
 
 IF NOT EXIST bot.jar (
     call compile_all.cmd

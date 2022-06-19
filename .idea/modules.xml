@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/APOS.iml" filepath="$PROJECT_DIR$/APOS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/APOS.iml" filepath="$PROJECT_DIR$/.idea/APOS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/client/client.iml" filepath="$PROJECT_DIR$/client/client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/script/script.iml" filepath="$PROJECT_DIR$/script/script.iml" />
     </modules>
   </component>
 </project>

@@ -1,6 +1,8 @@
 <project name="APOS" default="run-bot" basedir=".">
     <property name="build" location="build"/>
-    <property name="scripts" location="Scripts"/>
+    <property name="scripts" location="script/out"/>
+    <property name="clientsrc" location="client/src/main/java"/>
+    <property name="scriptsrc" location="script/src/main/java"/>
     <property name="jar" location="bot.jar"/>
     <property name="javac.source" value="1.8"/>
     <property name="javac.target" value="1.8"/>
@@ -25,13 +27,14 @@
         <delete file="${jar}"/>
         <delete dir="${build}"/>
         <mkdir dir="${build}"/>
-        <javac srcdir="src" destdir="${build}" debug="on" includeantruntime="false" target="${javac.target}"
+        <javac srcdir="${clientsrc}" destdir="${build}" debug="on" includeantruntime="false" target="${javac.target}"
                source="${javac.source}" classpathref="compile.path">
             <compilerarg line="-Xlint:unchecked"/>
         </javac>
-        <jar basedir="${build}" destfile="${jar}" manifest="MANIFEST.MF">
+        <jar basedir="${build}" destfile="${jar}">
             <manifest>
                 <attribute name="Main-Class" value="ClientInit"/>
+                <attribute name="Class-Path" value="lib/rsclassic.jar"/>
             </manifest>
         </jar>
         <delete dir="${build}"/>
@@ -45,7 +48,7 @@
                 </not>
             </condition>
         </fail>
-        <javac srcdir="${scripts}" destdir="${scripts}" debug="on" includeantruntime="false" target="${javac.target}"
+        <javac srcdir="${scriptsrc}" destdir="${scripts}" debug="on" includeantruntime="false" target="${javac.target}"
                source="${javac.source}" classpathref="compile.path">
             <compilerarg line="-Xlint:unchecked -Xlint:deprecation"/>
         </javac>
