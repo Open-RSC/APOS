@@ -1,5 +1,6 @@
 import com.aposbot._default.IClient;
 import com.aposbot._default.ILoginListener;
+import com.aposbot.gui.BotFrame;
 
 /**
  * Handles auto-login.
@@ -8,6 +9,8 @@ final class LoginListener implements ILoginListener {
 	private static final LoginListener instance = new LoginListener();
 
 	private final IClient client;
+
+	private BotFrame botFrame;
 
 	private String username;
 	private String password;
@@ -65,6 +68,7 @@ final class LoginListener implements ILoginListener {
 	@Override
 	public void setEnabled(final boolean enabled) {
 		autoLogin = enabled;
+		botFrame.updateAutoLoginCheckBox(enabled);
 		if (enabled) next_attempt = 0;
 	}
 
@@ -72,5 +76,10 @@ final class LoginListener implements ILoginListener {
 	public void setAccount(final String username, final String password) {
 		this.username = username;
 		this.password = password;
+	}
+
+	@Override
+	public void setBotFrame(final BotFrame botFrame) {
+		this.botFrame = botFrame;
 	}
 }

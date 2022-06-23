@@ -354,19 +354,25 @@ public final class BotFrame extends Frame {
 		b.setBackground(SystemColor.control);
 	}
 
+	public void updateStartButton(final boolean scriptEnabled) {
+		startButton.setLabel(scriptEnabled ? "Stop script" : "Start script");
+		System.out.println(clientInit.getScriptListener().getScriptName() + (scriptEnabled ? " started" : " stopped") + ".");
+	}
+
+	public void updateAutoLoginCheckBox(final boolean enabled) {
+		loginCheck.setState(enabled);
+		System.out.println("Autologin " + (enabled ? "enabled." : "disabled."));
+	}
+
 	private void stopScript() {
 		final IScriptListener listener = clientInit.getScriptListener();
 		listener.setScriptRunning(false);
-		startButton.setLabel("Start script");
-		System.out.println(listener.getScriptName() + " stopped.");
 	}
 
 	private void startScript() {
 		final IScriptListener listener = clientInit.getScriptListener();
 		if (listener.hasScript()) {
 			listener.setScriptRunning(true);
-			startButton.setLabel("Stop script");
-			System.out.println(listener.getScriptName() + " started.");
 		} else {
 			System.out.println("No script selected!");
 		}
