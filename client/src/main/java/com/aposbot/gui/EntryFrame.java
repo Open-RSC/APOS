@@ -1,10 +1,10 @@
 package com.aposbot.gui;
 
 import com.aposbot.BotLoader;
-import com.aposbot._default.IClientInit;
-import com.aposbot._default.ISleepListener.OCRType;
 import com.aposbot.Constants;
 import com.aposbot.StandardCloseHandler;
+import com.aposbot._default.IClientInit;
+import com.aposbot._default.ISleepListener.OCRType;
 
 import java.awt.*;
 import java.io.File;
@@ -100,7 +100,10 @@ public final class EntryFrame extends Frame {
 					botLoader.storeProperties(null);
 				}
 				dispose();
-				new BotFrame(clientInit, botLoader.getConsoleTextArea(), account).setVisible(true);
+				final BotFrame botFrame = new BotFrame(clientInit, botLoader.getConsoleTextArea(), account);
+				clientInit.getScriptListener().setBotFrame(botFrame);
+				clientInit.getLoginListener().setBotFrame(botFrame);
+				botFrame.setVisible(true);
 				botLoader.setConsoleFrameVisible();
 			} catch (final Throwable t) {
 				t.printStackTrace();

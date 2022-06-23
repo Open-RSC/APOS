@@ -1,6 +1,7 @@
 import com.aposbot._default.IClient;
 import com.aposbot._default.IScript;
 import com.aposbot._default.IScriptListener;
+import com.aposbot.gui.BotFrame;
 
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ final class ScriptListener implements IScriptListener {
 	private final SleepListener sleepListener;
 
 	private IScript script;
+	private BotFrame botFrame;
 
 	private long next;
 
@@ -268,6 +270,11 @@ final class ScriptListener implements IScriptListener {
 	}
 
 	@Override
+	public void setBotFrame(final BotFrame botFrame) {
+		this.botFrame = botFrame;
+	}
+
+	@Override
 	public void onPaintTick() {
 		if (running) {
 			try {
@@ -312,6 +319,7 @@ final class ScriptListener implements IScriptListener {
 	@Override
 	public void setScriptRunning(final boolean b) {
 		running = b;
+		botFrame.updateStartButton(running);
 		if (!running) {
 			client.setKeysDisabled(false);
 			client.setFatigueTraining(false);

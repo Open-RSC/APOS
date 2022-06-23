@@ -1,5 +1,7 @@
 package com.aposbot._default;
 
+import com.aposbot.gui.BotFrame;
+
 import java.awt.event.KeyEvent;
 
 public interface IScriptListener {
@@ -18,4 +20,6 @@ public interface IScriptListener {
 	String getScriptName();
 
 	boolean hasScript();
+
+	void setBotFrame(BotFrame botFrame);
 }
