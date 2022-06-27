@@ -75,7 +75,9 @@ public final class CameraHandler {
 		CameraHandler.fov = fov;
 	}
 
-	public static void refocusHook() {
+	public static void refocusHook(final boolean loading) {
+		if (!loading) return;
+
 		lookAtX = client.getPlayerWaypointX();
 		lookAtY = client.getPlayerWaypointY();
 
