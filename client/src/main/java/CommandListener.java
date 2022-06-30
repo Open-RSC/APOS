@@ -4,6 +4,7 @@ import com.aposbot._default.IClient;
  * Listens for ::commands typed in-game and toggles client features.
  */
 final class CommandListener {
+	static boolean renderRoofs;
 	static boolean debug;
 	static boolean showCombatStyleMenu;
 	static boolean hideCombatStyleMenu;
@@ -16,6 +17,10 @@ final class CommandListener {
 		final IClient client = Extension.getInstance();
 
 		switch (command) {
+			case "roofs":
+				renderRoofs = !renderRoofs;
+				client.displayMessage("@cya@roofs: " + renderRoofs);
+				return false;
 			case "debug":
 				debug = !debug;
 				client.displayMessage("@cya@debug: " + debug);
