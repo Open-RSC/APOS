@@ -15,11 +15,14 @@ public final class CameraHandler {
 	public static boolean fieldOfView = true; // Camera overrides field of view
 	public static boolean movableRelative = true; // Camera moves relative to player
 	public static boolean viewDistance = true; // Camera overrides fog distance
+	public static boolean auto;
 
 	// Injected
 	public static int fov = 9;
+	public static int angle;
 	public static int zoom;
 	public static int rotation;
+	public static int rotationY;
 	public static int lookAtX;
 	public static int lookAtY;
 	public static int distance1;
