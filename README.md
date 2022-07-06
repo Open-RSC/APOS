@@ -35,6 +35,7 @@ You can also run the client via cli using `java -jar bot.jar`
 In-game Commands
 --------------
 
+* `::roofs` Show/hide roofs
 * `::menu` Show/hide combat style menu
 * `::debug` Show/hide npc/object/wall/item ids
 
