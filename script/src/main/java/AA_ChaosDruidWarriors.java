@@ -27,7 +27,8 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 		157, 158, 159, 160, 165, 220,
 		435, 436, 437, 438, 439, 440, 441, 442, 443, 464, 469, 471, 473, 497,
 		526, 527, 1092, 1277};
-	private static final int[] ITEM_IDS_PREMIUM_LOOT = new int[]{220, 438, 439, 441, 442, 443, 469, 471, 473, 526, 527, 1092, 1277};
+	private static final int[] ITEM_IDS_PREMIUM_LOOT = new int[]{
+		220, 438, 439, 441, 442, 443, 469, 471, 473, 526, 527, 1092, 1277};
 	private static final int[] ITEM_IDS_STACKABLE = new int[]{31, 33, 34, 40, 42};
 
 	private static final int NPC_ID_CHAOS_DRUID_WARRIOR = 555;
@@ -46,12 +47,12 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 	private Iterator<Map.Entry<Integer, Spawn>> syncDataIterator;
 	private String syncPlayerName;
 	private Spawn nextSpawn;
-	private long startTime;
 	private Food food = Food.NONE;
 	private String[] alts;
 
 	private double initialCombatXp;
 
+	private long startTime;
 	private long syncRequestTimeout;
 	private long clickTimeout;
 
@@ -97,16 +98,9 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 						break;
 					case "-a":
 					case "--alt":
-						if (alts == null) {
-							alts = new ArrayList<>();
-						}
-
+						if (alts == null) alts = new ArrayList<>();
 						final String altName = args[++i].replace('_', ' ');
-
-						if (!isFriend(altName)) {
-							addFriend(altName);
-						}
-
+						if (!isFriend(altName)) addFriend(altName);
 						alts.add(altName);
 						break;
 					case "-m":
@@ -118,9 +112,7 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 				}
 			}
 
-			if (alts != null) {
-				this.alts = alts.toArray(new String[0]);
-			}
+			if (alts != null) this.alts = alts.toArray(new String[0]);
 		}
 
 		setCombatStyle(combatStyle.getIndex());
@@ -135,13 +127,8 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 	public int main() {
 		playerX = getX();
 		playerY = getY();
-
 		if (bot.getCombatStyle() != combatStyle.getIndex()) setCombatStyle(combatStyle.getIndex());
-
-		if (getFatigue() >= MAXIMUM_FATIGUE) {
-			return sleep();
-		}
-
+		if (getFatigue() >= MAXIMUM_FATIGUE) return sleep();
 		return banking ? bank() : kill();
 	}
 
@@ -149,9 +136,7 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 	public void onServerMessage(final String message) {
 		if (message.startsWith("eat", 4)) {
 			foodEaten++;
-			if (foodRemaining > 0) {
-				foodRemaining--;
-			}
+			if (foodRemaining > 0) foodRemaining--;
 			clickTimeout = System.currentTimeMillis() + TIMEOUT_ONE_TICK;
 		} else {
 			super.onServerMessage(message);
@@ -159,17 +144,9 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 	}
 
 	private int bank() {
-		if (Area.BANK.contains(playerX, playerY)) {
-			return deposit();
-		}
-
-		if (Area.DUNGEON_ENTRANCE.contains(playerX, playerY)) {
-			return exitDungeonEntrance();
-		}
-
-		if (Area.CHAOS_DRUID_WARRIORS.contains(playerX, playerY)) {
-			return exitLedge();
-		}
+		if (Area.BANK.contains(playerX, playerY)) return deposit();
+		if (Area.DUNGEON_ENTRANCE.contains(playerX, playerY)) return exitDungeonEntrance();
+		if (Area.CHAOS_DRUID_WARRIORS.contains(playerX, playerY)) return exitLedge();
 
 		walkTo(Area.BANK.upperBoundingCoordinate.getX(), Area.BANK.upperBoundingCoordinate.getY());
 		return SLEEP_ONE_TICK;
@@ -186,9 +163,7 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 			return combatCycle();
 		}
 
-		if (Area.DUNGEON_ENTRANCE.contains(playerX, playerY)) {
-			return enterLedge();
-		}
+		if (Area.DUNGEON_ENTRANCE.contains(playerX, playerY)) return enterLedge();
 
 		return enterDungeonEntrance();
 	}
@@ -196,23 +171,14 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 	private int deposit() {
 		if (getCurrentHits() <= eatAt && food != Food.NONE) {
 			final int foodIndex = getInventoryIndex(food.getId());
-
-			if (foodIndex != -1) {
-				return consume(foodIndex);
-			}
+			if (foodIndex != -1) return consume(foodIndex);
 		}
 
-		if (!isBanking()) {
-			return openBank();
-		}
+		if (!isBanking()) return openBank();
 
 		for (int index = 0; index < getInventoryCount(); index++) {
 			final int itemId = getInventoryId(index);
-
-			if (!inArray(ITEM_IDS_LOOT, itemId)) {
-				continue;
-			}
-
+			if (!inArray(ITEM_IDS_LOOT, itemId)) continue;
 			deposit(itemId, getInventoryCount(itemId));
 			return SLEEP_ONE_TICK;
 		}
@@ -225,16 +191,12 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 			return 0;
 		}
 
-		if (System.currentTimeMillis() <= clickTimeout) {
-			return 0;
-		}
+		if (System.currentTimeMillis() <= clickTimeout) return 0;
 
 		foodRemaining = bankCount(food.getId());
 		final int foodNeeded = foodWithdrawCount - foodInvCount;
 
-		if (foodRemaining < foodNeeded) {
-			return exit("Out of food.");
-		}
+		if (foodRemaining < foodNeeded) return exit("Out of food.");
 
 		withdraw(food.getId(), foodNeeded);
 		clickTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
@@ -242,14 +204,15 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 	}
 
 	private int exitDungeonEntrance() {
+		final Coordinate stairs = Object.STAIRS_UP.getCoordinate();
+
 		if (inCombat()) {
-			walkTo(Object.STAIRS_UP.coordinate.getX() - 1, Object.STAIRS_UP.coordinate.getY());
+			walkTo(stairs.getX() - 1, stairs.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerX == Object.STAIRS_UP.coordinate.getX() - 1 &&
-			playerY == Object.STAIRS_UP.coordinate.getY()) {
-			atObject(Object.STAIRS_UP.coordinate.getX(), Object.STAIRS_UP.coordinate.getY());
+		if (playerX == stairs.getX() - 1 && playerY == stairs.getY()) {
+			atObject(stairs.getX(), stairs.getY());
 			return SLEEP_ONE_SECOND;
 		}
 
@@ -260,46 +223,38 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		walkTo(Object.STAIRS_UP.coordinate.getX() - 1, Object.STAIRS_UP.coordinate.getY());
+		walkTo(stairs.getX() - 1, stairs.getY());
 		return SLEEP_ONE_TICK;
 	}
 
 	private int exitLedge() {
+		final Coordinate ledge = Object.LEDGE_EXIT.getCoordinate();
+
 		if (inCombat()) {
-			walkTo(Object.LEDGE_EXIT.coordinate.getX(), Object.LEDGE_EXIT.coordinate.getY() + 1);
+			walkTo(ledge.getX(), ledge.getY() + 1);
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerX == Object.LEDGE_EXIT.coordinate.getX() &&
-			playerY == Object.LEDGE_EXIT.coordinate.getY() + 1) {
-			if (System.currentTimeMillis() <= clickTimeout) {
-				return 0;
-			}
-
-			atObject(Object.LEDGE_EXIT.coordinate.getX(), Object.LEDGE_EXIT.coordinate.getY());
+		if (playerX == ledge.getX() && playerY == ledge.getY() + 1) {
+			if (System.currentTimeMillis() <= clickTimeout) return 0;
+			atObject(ledge.getX(), ledge.getY());
 			clickTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
 			return 0;
 		}
 
-		walkTo(Object.LEDGE_EXIT.coordinate.getX(), Object.LEDGE_EXIT.coordinate.getY() + 1);
+		walkTo(ledge.getX(), ledge.getY() + 1);
 		return SLEEP_ONE_TICK;
 	}
 
 	private int combatCycle() {
 		if (inCombat()) {
-			if (syncWithAlt) {
-				return syncWithAlt();
-			}
-
+			if (syncWithAlt) return syncWithAlt();
 			return 0;
 		}
 
 		if (getCurrentHits() <= eatAt && food != Food.NONE) {
 			final int foodIndex = getInventoryIndex(food.getId());
-
-			if (foodIndex != -1) {
-				return consume(foodIndex);
-			}
+			if (foodIndex != -1) return consume(foodIndex);
 		}
 
 		updateLoot();
@@ -321,16 +276,14 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (nextSpawn == null) {
-			return 0;
-		}
+		if (nextSpawn == null) return 0;
 
 		final Coordinate spawnCoordinate = nextSpawn.getCoordinate();
 
 		if (playerX != spawnCoordinate.getX() || playerY != spawnCoordinate.getY()) {
 			if (alts != null && isSpawnCoordinateOccupied(spawnCoordinate)) {
-				nextSpawn.setTimestamp(System.currentTimeMillis());
-				nextSpawn = getOldestSpawn();
+				nextSpawn.setTimestamp(Long.MAX_VALUE);
+				nextSpawn = getNextRespawn();
 				return 0;
 			}
 
@@ -338,34 +291,28 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (syncWithAlt) {
-			return syncWithAlt();
-		}
+		if (syncWithAlt) return syncWithAlt();
 
 		return 0;
 	}
 
 	private int enterLedge() {
+		final Coordinate ledge = Object.LEDGE_ENTER.getCoordinate();
+
 		if (inCombat()) {
-			walkTo(Object.LEDGE_ENTER.coordinate.getX(), Object.LEDGE_ENTER.coordinate.getY() - 1);
+			walkTo(ledge.getX(), ledge.getY() - 1);
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerX == Object.LEDGE_ENTER.coordinate.getX() &&
-			playerY == Object.LEDGE_ENTER.coordinate.getY() - 1) {
-			if (System.currentTimeMillis() <= clickTimeout) {
-				return 0;
-			}
+		if (playerX == ledge.getX() && playerY == ledge.getY() - 1) {
+			if (System.currentTimeMillis() <= clickTimeout) return 0;
 
 			if (!spawnMap.isEmpty()) {
 				resetSpawns();
-
-				if (alts != null) {
-					resetSync();
-				}
+				if (alts != null) resetSync();
 			}
 
-			atObject(Object.LEDGE_ENTER.coordinate.getX(), Object.LEDGE_ENTER.coordinate.getY());
+			atObject(ledge.getX(), ledge.getY());
 			clickTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
 			return 0;
 		}
@@ -377,30 +324,27 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		walkTo(Object.LEDGE_ENTER.coordinate.getX(), Object.LEDGE_ENTER.coordinate.getY() - 1);
+		walkTo(ledge.getX(), ledge.getY() - 1);
 		return SLEEP_ONE_TICK;
 	}
 
 	private int enterDungeonEntrance() {
-		if (distanceTo(Object.STAIRS_DOWN.coordinate.getX(), Object.STAIRS_DOWN.coordinate.getY()) <= 5) {
-			atObject(Object.STAIRS_DOWN.coordinate.getX(), Object.STAIRS_DOWN.coordinate.getY());
+		final Coordinate stairs = Object.STAIRS_DOWN.getCoordinate();
+
+		if (distanceTo(stairs.getX(), stairs.getY()) <= 5) {
+			atObject(stairs.getX(), stairs.getY());
 			return SLEEP_ONE_SECOND;
 		}
 
-		walkTo(Object.STAIRS_DOWN.coordinate.getX(), Object.STAIRS_DOWN.coordinate.getY() + 3);
+		walkTo(stairs.getX(), stairs.getY() + 3);
 
-		if (getFatigue() != 0 && isWalking()) {
-			return sleep();
-		}
+		if (getFatigue() != 0 && isWalking()) return sleep();
 
 		return SLEEP_ONE_TICK;
 	}
 
 	private int consume(final int foodIndex) {
-		if (System.currentTimeMillis() <= clickTimeout) {
-			return 0;
-		}
-
+		if (System.currentTimeMillis() <= clickTimeout) return 0;
 		useItem(foodIndex);
 		clickTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 		return 0;
@@ -409,27 +353,17 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 	private void updateBankLoot() {
 		for (final int itemId : ITEM_IDS_PREMIUM_LOOT) {
 			final int bankCount = bankCount(itemId);
-
-			if (bankCount == 0) {
-				continue;
-			}
-
+			if (bankCount == 0) continue;
 			premiumLoot.put(itemId, bankCount);
 		}
 	}
 
 	private int getGiantBat() {
 		for (int index = 0; index < bot.getNpcCount(); index++) {
-			if (getNpcId(index) != NPC_ID_GIANT_BAT) {
-				continue;
-			}
-
+			if (getNpcId(index) != NPC_ID_GIANT_BAT) continue;
 			final int npcX = getNpcX(index);
 			final int npcY = getNpcY(index);
-
-			if (distanceTo(npcX, npcY, playerX, playerY) <= 1) {
-				return index;
-			}
+			if (distanceTo(npcX, npcY, playerX, playerY) <= 1) return index;
 		}
 
 		return -1;
@@ -461,26 +395,20 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 		for (int index = 0; index < getGroundItemCount(); index++) {
 			final int groundItemId = getGroundItemId(index);
 
-			if (!inArray(ITEM_IDS_LOOT, groundItemId)) {
-				continue;
-			}
+			if (!inArray(ITEM_IDS_LOOT, groundItemId)) continue;
 
 			final int groundItemX = getItemX(index);
 			final int groundItemY = getItemY(index);
 
-			if (!Area.CHAOS_DRUID_WARRIORS.contains(groundItemX, groundItemY)) {
-				continue;
-			}
+			if (!Area.CHAOS_DRUID_WARRIORS.contains(groundItemX, groundItemY)) continue;
 
 			final int distance = distanceTo(groundItemX, groundItemY);
+			if (distance >= currentDistance) continue;
+			currentDistance = distance;
 
-			if (distance < currentDistance) {
-				loot[0] = groundItemId;
-				loot[1] = groundItemX;
-				loot[2] = groundItemY;
-
-				currentDistance = distance;
-			}
+			loot[0] = groundItemId;
+			loot[1] = groundItemX;
+			loot[2] = groundItemY;
 		}
 	}
 
@@ -490,23 +418,19 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 		int currentDistance = Integer.MAX_VALUE;
 
 		for (int index = 0; index < bot.getNpcCount(); index++) {
-			if (getNpcId(index) != NPC_ID_CHAOS_DRUID_WARRIOR || isNpcInCombat(index)) {
-				continue;
-			}
+			if (getNpcId(index) != NPC_ID_CHAOS_DRUID_WARRIOR || isNpcInCombat(index)) continue;
 
 			final int npcX = getNpcX(index);
 			final int npcY = getNpcY(index);
 
-			if (!Area.CHAOS_DRUID_WARRIORS.contains(npcX, npcY)) {
-				continue;
-			}
+			if (!Area.CHAOS_DRUID_WARRIORS.contains(npcX, npcY)) continue;
 
 			final int distance = distanceTo(npcX, npcY, playerX, playerY);
 
-			if (distance < currentDistance) {
-				nearestChaosDruid = index;
-				currentDistance = distance;
-			}
+			if (distance >= currentDistance) continue;
+
+			nearestChaosDruid = index;
+			currentDistance = distance;
 		}
 
 		return nearestChaosDruid;
@@ -526,14 +450,6 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 		return false;
 	}
 
-	private Spawn getOldestSpawn() {
-		if (spawnMap.isEmpty()) {
-			return null;
-		}
-
-		return spawnMap.values().stream().sorted().findFirst().get();
-	}
-
 	private void resetSpawns() {
 		spawnMap.clear();
 		nextSpawn = null;
@@ -547,9 +463,7 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 
 	private boolean isAnAlt(final String playerName) {
 		for (final String alt : alts) {
-			if (alt.equalsIgnoreCase(playerName)) {
-				return true;
-			}
+			if (alt.equalsIgnoreCase(playerName)) return true;
 		}
 
 		return false;
@@ -564,16 +478,11 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_CHAOS_DRUID_WARRIOR;
 
@@ -605,15 +514,10 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 
 	@Override
 	public void onPrivateMessage(final String message, final String playerName, final boolean moderator, final boolean administrator) {
-		if (alts == null || !isAnAlt(playerName)) {
-			return;
-		}
+		if (alts == null || !isAnAlt(playerName)) return;
 
 		if (message.equalsIgnoreCase("sync")) {
-			if (syncWithAlt || spawnMap.isEmpty()) {
-				return;
-			}
-
+			if (syncWithAlt || spawnMap.isEmpty()) return;
 			syncWithAlt = true;
 			syncPlayerName = playerName;
 			syncDataIterator = new HashMap<>(spawnMap).entrySet().iterator();
@@ -621,53 +525,58 @@ public class AA_ChaosDruidWarriors extends AA_Script {
 			final String[] syncData = message.split(",");
 			final int serverIndex = Integer.parseInt(syncData[0]);
 
-			if (spawnMap.containsKey(serverIndex)) {
-				return;
-			}
+			if (spawnMap.containsKey(serverIndex)) return;
 
 			final Coordinate coordinate = new Coordinate(Integer.parseInt(syncData[1]), Integer.parseInt(syncData[2]));
 			final Spawn spawn = new Spawn(coordinate, Long.parseLong(syncData[3]));
 
 			spawnMap.put(serverIndex, spawn);
-			nextSpawn = getOldestSpawn();
+			nextSpawn = getNextRespawn();
 		}
 	}
 
 	@Override
 	public void onNpcSpawned(final java.lang.Object npc) {
-		if (bot.getNpcId(npc) != NPC_ID_CHAOS_DRUID_WARRIOR ||
-			!Area.CHAOS_DRUID_WARRIORS.contains(playerX, playerY)) {
+		if (bot.getNpcId(npc) != NPC_ID_CHAOS_DRUID_WARRIOR || !Area.CHAOS_DRUID_WARRIORS.contains(playerX, playerY)) {
 			return;
 		}
 
-		if (spawnMap.isEmpty() && alts != null) {
-			requestSyncWithAlt();
-		}
+		if (spawnMap.isEmpty() && alts != null) requestSyncWithAlt();
 
-		final int npcX = bot.getMobLocalX(npc) + bot.getAreaX();
-		final int npcY = bot.getMobLocalY(npc) + bot.getAreaY();
+		final int npcX = getX(npc);
+		final int npcY = getY(npc);
 
-		if (!Area.CHAOS_DRUID_WARRIORS.contains(npcX, npcY)) {
-			return;
-		}
+		if (!Area.CHAOS_DRUID_WARRIORS.contains(npcX, npcY)) return;
 
-		final int serverIndex = bot.getMobServerIndex(npc);
+		final int serverIndex = getServerIndex(npc);
 		final Spawn spawn = spawnMap.get(serverIndex);
 
 		if (spawn != null) {
 			spawn.getCoordinate().set(npcX, npcY);
-			spawn.setTimestamp(System.currentTimeMillis());
+			spawn.setTimestamp(Long.MAX_VALUE);
 		} else {
-			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), System.currentTimeMillis()));
+			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), Long.MAX_VALUE));
 		}
 
-		nextSpawn = getOldestSpawn();
+		nextSpawn = getNextRespawn();
+	}
+
+	@Override
+	public void onNpcDespawned(final java.lang.Object npc) {
+		final int serverIndex = getServerIndex(npc);
+		final Spawn spawn = spawnMap.get(serverIndex);
+		if (spawn == null) return;
+		spawn.setTimestamp(System.currentTimeMillis());
+		nextSpawn = getNextRespawn();
+	}
+
+	private Spawn getNextRespawn() {
+		if (spawnMap.isEmpty()) return null;
+		return spawnMap.values().stream().min(Comparator.naturalOrder()).get();
 	}
 
 	private void requestSyncWithAlt() {
-		if (System.currentTimeMillis() <= syncRequestTimeout) {
-			return;
-		}
+		if (System.currentTimeMillis() <= syncRequestTimeout) return;
 
 		for (final String alt : alts) {
 			sendPrivateMessage("sync", alt);

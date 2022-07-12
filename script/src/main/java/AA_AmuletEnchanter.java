@@ -5,21 +5,21 @@
  * Start at a bank or Shantay Pass with sleeping bag, staff, cosmic runes.
  * <p>
  * Required Parameter:
- * -a,--amulet <sapphire|emerald|ruby|diamond|dragonstone>
+ * <sapphire|emerald|ruby|diamond|dragonstone>
  * <p>
  *
  * @Author Chomp
  */
 public class AA_AmuletEnchanter extends AA_Script {
-	private static final Coordinate COORDINATE_SHANTAY_BANK_CHEST = new Coordinate(58, 731);
+	private static final Coordinate COORD_CHEST = new Coordinate(58, 731);
 
 	private static final long CAST_DELAY = 1280L; // +- based on latency
 
 	private static final int ITEM_ID_COSMIC_RUNE = 46;
 	private static final int ITEM_ID_WATER_RUNE = 32;
 	private static final int ITEM_ID_EARTH_RUNE = 34;
-	private static final int INVENTORY_INDEX_COSMIC_RUNE = 2;
-	private static final int INVENTORY_INDEX_DRAGONSTONE_RUNE = 3;
+	private static final int INV_IDX_COSMIC_RUNE = 2;
+	private static final int INV_IDX_DRAGONSTONE_RUNE = 3;
 	private static final int DRAGONSTONE_RUNE_COUNT = 15;
 	private static final int MAXIMUM_FATIGUE = 99;
 
@@ -49,18 +49,7 @@ public class AA_AmuletEnchanter extends AA_Script {
 	public void init(final String parameters) {
 		if (parameters.isEmpty()) printInstructions();
 
-		final String[] args = parameters.split(" ");
-
-		for (int i = 0; i < args.length; i++) {
-			switch (args[i].toLowerCase()) {
-				case "-a":
-				case "--amulet":
-					amulet = Amulet.valueOf(args[++i].toUpperCase());
-					break;
-				default:
-					throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-			}
-		}
+		amulet = Amulet.valueOf(parameters.toUpperCase());
 
 		if (getInventoryIndex(ITEM_ID_SLEEPING_BAG) != 0) {
 			throw new IllegalStateException("Sleeping bag missing from 1st inv slot.");
@@ -72,12 +61,12 @@ public class AA_AmuletEnchanter extends AA_Script {
 			throw new IllegalStateException("Staff unequipped/missing from 2nd inv slot.");
 		}
 
-		if (getInventoryIndex(ITEM_ID_COSMIC_RUNE) != INVENTORY_INDEX_COSMIC_RUNE) {
+		if (getInventoryIndex(ITEM_ID_COSMIC_RUNE) != INV_IDX_COSMIC_RUNE) {
 			throw new IllegalStateException("Cosmic runes missing from 3rd inv slot.");
 		}
 
 		initialInventoryCount = amulet == Amulet.DRAGONSTONE ? 4 : 3;
-		shantayBanking = distanceTo(COORDINATE_SHANTAY_BANK_CHEST.getX(), COORDINATE_SHANTAY_BANK_CHEST.getY()) < 10;
+		shantayBanking = distanceTo(COORD_CHEST.getX(), COORD_CHEST.getY()) < 10;
 		initialMagicXp = getAccurateXpForLevel(Skill.MAGIC.getIndex());
 		startTime = System.currentTimeMillis();
 	}
@@ -96,12 +85,12 @@ public class AA_AmuletEnchanter extends AA_Script {
 			return 0;
 		}
 
-		if (getInventoryId(INVENTORY_INDEX_COSMIC_RUNE) != ITEM_ID_COSMIC_RUNE) {
+		if (getInventoryId(INV_IDX_COSMIC_RUNE) != ITEM_ID_COSMIC_RUNE) {
 			return exit("Out of cosmic runes.");
 		}
 
 		if (amulet == Amulet.DRAGONSTONE) {
-			final int runeId = getInventoryId(INVENTORY_INDEX_DRAGONSTONE_RUNE);
+			final int runeId = getInventoryId(INV_IDX_DRAGONSTONE_RUNE);
 
 			if (runeId != ITEM_ID_WATER_RUNE && runeId != ITEM_ID_EARTH_RUNE) {
 				return exit("Out of water/earth runes.");
@@ -147,13 +136,13 @@ public class AA_AmuletEnchanter extends AA_Script {
 	}
 
 	private int idle() {
-		if (getX() == COORDINATE_SHANTAY_BANK_CHEST.getX() + 2 &&
-			getY() == COORDINATE_SHANTAY_BANK_CHEST.getY()) {
+		if (getX() == COORD_CHEST.getX() + 2 &&
+			getY() == COORD_CHEST.getY()) {
 			idle = false;
 			return 0;
 		}
 
-		walkTo(COORDINATE_SHANTAY_BANK_CHEST.getX() + 2, COORDINATE_SHANTAY_BANK_CHEST.getY());
+		walkTo(COORD_CHEST.getX() + 2, COORD_CHEST.getY());
 		return SLEEP_ONE_TICK;
 	}
 
@@ -164,7 +153,7 @@ public class AA_AmuletEnchanter extends AA_Script {
 					return 0;
 				}
 
-				atObject(COORDINATE_SHANTAY_BANK_CHEST.getX(), COORDINATE_SHANTAY_BANK_CHEST.getY());
+				atObject(COORD_CHEST.getX(), COORD_CHEST.getY());
 				openTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}
@@ -183,12 +172,12 @@ public class AA_AmuletEnchanter extends AA_Script {
 				return exit(String.format("Out of %ss.", getItemNameId(amulet.id)));
 			}
 
-			final int cosmicsRemaining = getInventoryStack(INVENTORY_INDEX_COSMIC_RUNE);
+			final int cosmicsRemaining = getInventoryStack(INV_IDX_COSMIC_RUNE);
 
 			final int runesRemaining;
 
 			if (amulet == Amulet.DRAGONSTONE) {
-				final int dragonStoneRunesRemaining = getInventoryStack(INVENTORY_INDEX_DRAGONSTONE_RUNE);
+				final int dragonStoneRunesRemaining = getInventoryStack(INV_IDX_DRAGONSTONE_RUNE);
 				runesRemaining = Math.min(cosmicsRemaining, dragonStoneRunesRemaining / DRAGONSTONE_RUNE_COUNT);
 			} else {
 				runesRemaining = cosmicsRemaining;

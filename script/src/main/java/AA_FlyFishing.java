@@ -1,5 +1,3 @@
-import java.awt.*;
-
 /**
  * A script for fly fishing.
  * Start script standing beside a fly fishing spot.
@@ -163,45 +161,37 @@ public class AA_FlyFishing extends AA_Script {
 		bot.drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		bot.drawString(String.format("Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(gainedFishingXp), toUnitsPerHour((int) gainedFishingXp, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0x00AEFF);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0x00AEFF);
 
 		bot.drawString(String.format("Caught: @whi@%s @cya@(@whi@%s fish@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(feathersUsed), toUnitsPerHour(feathersUsed, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0x00AEFF);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0x00AEFF);
 
 		if (totalFishCaught > 0) {
-			bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 			bot.drawString(String.format("Salmon: @whi@%d @cya@(@whi@%.2f%%@cya@)",
 					salmonCaught, (salmonCaught / totalFishCaught) * 100),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0xCE8181);
+				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0xCE8181);
 
 			bot.drawString(String.format("Trout: @whi@%d @cya@(@whi@%.2f%%@cya@)",
 					troutCaught, (troutCaught / totalFishCaught) * 100),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0xCECECE);
-
-			bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0xCECECE);
 
 			bot.drawString(String.format("@gr1@Success Rate: @whi@%.2f%%", (totalFishCaught / fishAttempts) * 100),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 			bot.drawString(String.format("Fail Rate: @whi@%.2f%%", (failCount / fishAttempts) * 100),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0xE0142D);
+				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0xE0142D);
 		}
-
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		final int feathersRemaining = bot.getInventoryStack(feathersIndex);
 
 		bot.drawString(String.format("Feathers: @whi@%d", feathersRemaining),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0xC160FF);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0xC160FF);
 
 		bot.drawString(String.format("Time Remaining: @whi@%s",
 				toTimeToCompletion(feathersUsed, feathersRemaining, startTime)),
-			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0xC160FF);
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0xC160FF);
 	}
 }

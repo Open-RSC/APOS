@@ -252,22 +252,18 @@ public class AA_HerosGuildEnchanter extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		drawString(String.format("@yel@Amulets: @whi@%d @cya@(@whi@%s enchants@cya@/@whi@hr@cya@)",
 				amuletsEnchanted, toUnitsPerHour(amuletsEnchanted, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-		if (amuletsRemaining > 0) {
-			drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		if (amuletsRemaining <= 0) return;
 
-			drawString(String.format("@yel@Remaining: @whi@%d", amuletsRemaining),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		drawString(String.format("@yel@Remaining: @whi@%d", amuletsRemaining),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-			drawString(String.format("@yel@Time remaining: @whi@%s",
-					toTimeToCompletion(amuletsEnchanted, amuletsRemaining, startTime)),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		drawString(String.format("@yel@Time remaining: @whi@%s",
+				toTimeToCompletion(amuletsEnchanted, amuletsRemaining, startTime)),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
 	}
 
 	private enum Area implements RSArea {

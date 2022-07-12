@@ -298,13 +298,11 @@ public class AA_VarrockEastMiner extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getAccurateXpForLevel(SKILL_MINING_INDEX) - initialMiningXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@%s: @whi@%s @cya@(@whi@%s ore@cya@/@whi@hr@cya@)",
 				ore, oresMined, toUnitsPerHour(oresMined, startTime)),

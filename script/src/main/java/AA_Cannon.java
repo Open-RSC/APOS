@@ -11,20 +11,19 @@ import java.util.Map;
 public class AA_Cannon extends AA_Script {
 	private static final int MAXIMUM_FATIGUE = 95;
 
-	private long startTime;
 	private Coordinate idleCoord;
 	private Coordinate cannonCoord;
 
 	private double initialRangedXp;
 
+	private long startTime;
 	private long searchTimeout;
 	private long setUpTimeout;
 
-	private boolean idle;
-
 	private int cannonballIndex;
 	private int initialCannonballCount;
-	private int cannonballsFired;
+
+	private boolean idle;
 
 	public AA_Cannon(final Extension ex) {
 		super(ex);
@@ -177,13 +176,11 @@ public class AA_Cannon extends AA_Script {
 		bot.drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getAccurateXpForLevel(Skill.RANGED.getIndex()) - initialRangedXp;
 
 		bot.drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int remaining = getInventoryStack(cannonballIndex);
 
@@ -193,10 +190,8 @@ public class AA_Cannon extends AA_Script {
 				used, toUnitsPerHour(used, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		bot.drawString(String.format("@yel@Remaining: @whi@%d", remaining),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		bot.drawString(String.format("@yel@Time remaining: @whi@%s", toTimeToCompletion(used, remaining, startTime)),
 			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);

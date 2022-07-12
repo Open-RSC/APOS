@@ -234,13 +234,11 @@ public class AA_HerosGuildBlueDragon extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double combatXpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Combat Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(combatXpGained), toUnitsPerHour((int) combatXpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) combatXpGained / NPC_XP_BLUE_DRAGON;
 
@@ -249,13 +247,11 @@ public class AA_HerosGuildBlueDragon extends AA_Script {
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		if (bonesBuried > 0) {
-			drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 			final double prayerXpGained = getAccurateXpForLevel(Skill.PRAYER.getIndex()) - initialPrayerXp;
 
 			drawString(String.format("@yel@Prayer Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 					DECIMAL_FORMAT.format(prayerXpGained), toUnitsPerHour((int) prayerXpGained, startTime)),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 			drawString(String.format("@yel@Buried: @whi@%d @cya@(@whi@%s bones@cya@/@whi@hr@cya@)",
 					bonesBuried, toUnitsPerHour(kills, startTime)),

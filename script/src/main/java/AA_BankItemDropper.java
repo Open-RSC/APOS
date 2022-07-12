@@ -1,11 +1,17 @@
+import com.aposbot.Constants;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * Withdraws and drops item from bank.
- * Start at Shantay Pass or at a Banker.
+ * Withdraws items from bank and drops them.
+ * Start script at Shantay Bank Chest.
+ * If no parameters are passed, all items will be dropped.
  * <p>
- * Parameters:
- * id1,id2,id3
+ * Parameters (Optional)
+ * id1,id2,id3...
  * <p>
  *
  * @Author Chomp
@@ -13,29 +19,19 @@ import java.util.Arrays;
 public class AA_BankItemDropper extends AA_Script {
 	private static final Coordinate COORDINATE_BANK_CHEST = new Coordinate(58, 731);
 
-	private static final int[] ITEM_IDS_EDIBLE = new int[]{
-		350, 352, 355, 362, 718, 553, 359, 551, 364, 357, 367, 373, 555, 370, 590, 1193, 546, 1191
-	};
+	private Iterator<Integer> itemIds;
 
 	private long startTime;
 
 	private long bankOpenTimeout;
-	private long bankCloseTimeout;
-	private long withdrawTimeout;
-	private long eatTimeout;
 
 	private int itemId;
-	private int itemIdIndex;
-	private int itemsRemaining;
-
-	private int previousPlayerY;
+	private int remaining;
+	private int dropped;
+	private int prevY;
 
 	private boolean idle;
-	private boolean shantayBanking;
-
-	private int[] itemIds;
-
-	private boolean eat;
+	private boolean initialized;
 
 	public AA_BankItemDropper(final Extension ex) {
 		super(ex);
@@ -43,130 +39,19 @@ public class AA_BankItemDropper extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (parameters.isEmpty()) printInstructions();
+		if (!parameters.isEmpty()) {
+			itemIds = Arrays.stream(parameters.split(",")).mapToInt(Integer::parseInt).iterator();
+			itemId = itemIds.next();
+			initialized = true;
+		}
 
-		itemIds = Arrays.stream(parameters.split(",")).mapToInt(Integer::parseInt).toArray();
-		itemId = itemIds[itemIdIndex];
-		shantayBanking = distanceTo(COORDINATE_BANK_CHEST.getX(), COORDINATE_BANK_CHEST.getY()) < 10;
-		eat = isInventoryEmpty() && inArray(ITEM_IDS_EDIBLE, itemId);
 		startTime = System.currentTimeMillis();
 	}
 
 	@Override
 	public int main() {
-		if (isInventoryEmpty() || isBanking()) {
-			return bank();
-		}
-
-		if (idle) {
-			return idle();
-		}
-
-		if (eat) {
-			if (System.currentTimeMillis() <= eatTimeout) {
-				return 0;
-			}
-
-			useItem(0);
-			eatTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-			return 0;
-		}
-
-		dropItem(0);
-		return SLEEP_ONE_TICK;
-	}
-
-	@Override
-	public void onServerMessage(final String message) {
-		if (message.endsWith("men.") || message.endsWith("you.")) {
-			bankOpenTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
-		} else if (message.startsWith("eat", 4)) {
-			eatTimeout = 0L;
-			itemsRemaining--;
-		} else if (message.endsWith("area") && shantayBanking) {
-			idle = true;
-			previousPlayerY = getY();
-		} else {
-			super.onServerMessage(message);
-		}
-	}
-
-	private int bank() {
-		if (!isBanking()) {
-			if (shantayBanking) {
-				return openShantayBank();
-			}
-
-			return openBank();
-		}
-
-		if (isInventoryEmpty()) {
-			if (System.currentTimeMillis() <= withdrawTimeout) {
-				return 0;
-			}
-
-			itemsRemaining = bankCount(itemId);
-
-			if (itemsRemaining == 0) {
-				return getNextItem();
-			}
-
-			withdraw(itemId, MAX_INV_SIZE);
-			withdrawTimeout = System.currentTimeMillis() + TIMEOUT_THREE_SECONDS;
-			return 0;
-		}
-
-		if (System.currentTimeMillis() <= bankCloseTimeout) {
-			return 0;
-		}
-
-		closeBank();
-		bankCloseTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-		return 0;
-	}
-
-	private int idle() {
-		if (getY() != previousPlayerY) {
-			idle = false;
-			return 0;
-		}
-
-		if (!shantayBanking) {
-			walkTo(getX(), getY() + 1);
-			return SLEEP_ONE_TICK;
-		}
-
-		if (previousPlayerY == COORDINATE_BANK_CHEST.getY()) {
-			walkTo(COORDINATE_BANK_CHEST.getX() + 1, COORDINATE_BANK_CHEST.getY() + 1);
-		} else {
-			walkTo(COORDINATE_BANK_CHEST.getX() + 1, COORDINATE_BANK_CHEST.getY());
-		}
-
-		return SLEEP_ONE_TICK;
-	}
-
-	private int openShantayBank() {
-		if (System.currentTimeMillis() <= bankOpenTimeout) {
-			return 0;
-		}
-
-		if (getX() - COORDINATE_BANK_CHEST.getX() > 1) {
-			walkTo(COORDINATE_BANK_CHEST.getX() + 1, COORDINATE_BANK_CHEST.getY());
-			return SLEEP_ONE_TICK;
-		}
-
-		useObject1(COORDINATE_BANK_CHEST.getX(), COORDINATE_BANK_CHEST.getY());
-		bankOpenTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
-		return 0;
-	}
-
-	private int getNextItem() {
-		if (++itemIdIndex == itemIds.length) {
-			return exit("Out of items.");
-		}
-
-		itemId = itemIds[itemIdIndex];
-		eat = inArray(ITEM_IDS_EDIBLE, itemId);
+		if (isInventoryEmpty()) return bank();
+		if (idle) return idle();
 		return 0;
 	}
 
@@ -179,16 +64,99 @@ public class AA_BankItemDropper extends AA_Script {
 		bot.drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		bot.drawString(String.format("@yel@Item: @whi@%s", getItemName(itemId)),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-		bot.drawString(String.format("@yel@Item: @whi@%s", getItemNameId(itemId)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		if (remaining <= 0) return;
 
-		if (itemsRemaining > 0) {
-			bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		bot.drawString(String.format("@yel@Remaining: @whi@%d", remaining),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
+	}
 
-			bot.drawString(String.format("@yel@Remaining: @whi@%d", itemsRemaining),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
+	@Override
+	public void onServerMessage(final String message) {
+		if (message.endsWith("men.") || message.endsWith("you.")) {
+			bankOpenTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
+		} else if (message.endsWith("area")) {
+			idle = true;
+			prevY = getPlayerY();
+		} else {
+			super.onServerMessage(message);
 		}
+	}
+
+	@Override
+	public void onPlayerCoord(final int x, final int y) {
+		if (isInventoryEmpty() || idle) return;
+		dropItem(0);
+	}
+
+	private int bank() {
+		if (!isBankOpen()) return openShantayBank();
+
+		if (!initialized) parseBank();
+
+		remaining = getBankItemIdCount(itemId);
+
+		if (remaining == 0) {
+			if (!itemIds.hasNext()) return exit("Out of items to drop.");
+			itemId = itemIds.next();
+			return 0;
+		}
+
+		final int withdrawAmount = Math.min(remaining, MAX_INVENTORY_SIZE);
+		withdraw(itemId, withdrawAmount);
+		closeBank();
+		dropped += withdrawAmount;
+		return SLEEP_THREE_SECONDS;
+	}
+
+	private int openShantayBank() {
+		if (System.currentTimeMillis() <= bankOpenTimeout) return 0;
+
+		if (getPlayerX() - COORDINATE_BANK_CHEST.getX() > 1) {
+			walkTo(COORDINATE_BANK_CHEST.getX() + 1, COORDINATE_BANK_CHEST.getY());
+			return SLEEP_ONE_TICK;
+		}
+
+		bot.createPacket(Constants.OP_OBJECT_ACTION1);
+		bot.put2(COORDINATE_BANK_CHEST.getX());
+		bot.put2(COORDINATE_BANK_CHEST.getY());
+		bot.finishPacket();
+
+		bankOpenTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
+		return 0;
+	}
+
+	private void parseBank() {
+		if (bot.getBankSize() == 0) {
+			exit("Bank is empty!");
+			return;
+		}
+
+		final List<Integer> itemIds = new ArrayList<>();
+
+		for (int i = 0; i < bot.getBankSize(); i++) {
+			itemIds.add(bot.getBankId(i));
+		}
+
+		this.itemIds = itemIds.iterator();
+		itemId = this.itemIds.next();
+		initialized = true;
+	}
+
+	private int idle() {
+		if (getPlayerY() != prevY) {
+			idle = false;
+			return 0;
+		}
+
+		if (prevY == COORDINATE_BANK_CHEST.getY()) {
+			walkTo(COORDINATE_BANK_CHEST.getX() + 1, COORDINATE_BANK_CHEST.getY() + 1);
+		} else {
+			walkTo(COORDINATE_BANK_CHEST.getX() + 1, COORDINATE_BANK_CHEST.getY());
+		}
+
+		return SLEEP_ONE_TICK;
 	}
 }

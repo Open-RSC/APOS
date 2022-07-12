@@ -908,10 +908,8 @@ public class AA_DesertMiningCamp extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		drawString(String.format("@yel@State: @whi@%s", state),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final double xpGained = getAccurateXpForLevel(SKILL_MINING_INDEX) - initialMiningXp;
 

@@ -9,7 +9,7 @@ import java.util.Iterator;
  * The script will try to cut all gems if no gem parameter is provided.
  * <p>
  * Optional Parameter:
- * -g,--gem <sapphire|emerald|ruby|diamond|dragonstone>
+ * <sapphire|emerald|ruby|diamond|dragonstone>
  * <p>
  *
  * @Author Chomp
@@ -45,20 +45,7 @@ public class AA_GemCutter extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-g":
-					case "--gem":
-						gem = Gem.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) gem = Gem.valueOf(parameters.toUpperCase());
 
 		if (!hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
@@ -203,20 +190,18 @@ public class AA_GemCutter extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getAccurateXpForLevel(Skill.CRAFTING.getIndex()) - initialCraftingXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@%s: @whi@%d @cya@(@whi@%s per@cya@/@whi@hr@cya@)",
 				gem, gemsCut, toUnitsPerHour(gemsCut, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		drawString(String.format("@yel@Remaining: @whi@%d", gemsRemaining),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@Time remaining: @whi@%s",
 				toTimeToCompletion(gemsCut, gemsRemaining, startTime)),

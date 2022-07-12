@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,7 +12,7 @@ import java.util.regex.Pattern;
  * Amulet and cape are optional.
  * <p>
  * Optional Parameter:
- * -f,--fightmode <controlled|attack|strength|defense> (default strength)
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  * Notes:
  * PathWalker is used to return to the Pirate Hut if pked.
@@ -58,11 +55,11 @@ public class AA_PirateHut extends AA_Script {
 	private Coordinate nextRespawn;
 	private String attackers = "";
 	private State state;
-	private long startTime;
 	private PathWalker pathWalker;
 
 	private double initialCombatXp;
 
+	private long startTime;
 	private long actionTimeout;
 
 	private int playerX;
@@ -84,21 +81,7 @@ public class AA_PirateHut extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
-
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
 		setCombatStyle(combatStyle.getIndex());
 		eatAt = getBaseHits() - FOOD_HEAL_AMOUNT;
 		initialCombatXp = getTotalCombatXp();
@@ -109,10 +92,7 @@ public class AA_PirateHut extends AA_Script {
 	@Override
 	public int main() {
 		if (died) {
-			if (isDead()) {
-				return 0;
-			}
-
+			if (isDead()) return 0;
 			died = false;
 		}
 
@@ -136,18 +116,10 @@ public class AA_PirateHut extends AA_Script {
 	@Override
 	public void onServerMessage(final String message) {
 		if (message.startsWith("Warning")) {
-			if (attacked) {
-				return;
-			}
-
+			if (attacked) return;
 			final Matcher matcher = PATTERN_PROJECTILE_SHOT.matcher(message);
-
-			if (!matcher.matches()) {
-				return;
-			}
-
+			if (!matcher.matches()) return;
 			final String rsn = matcher.group(1);
-
 			setAttacked(rsn);
 		} else if (message.startsWith("eat", 4) ||
 			message.startsWith("fail", 4) ||
@@ -193,26 +165,19 @@ public class AA_PirateHut extends AA_Script {
 
 	private int kill() {
 		if (Area.PIRATE_HUT.contains(playerX, playerY)) {
-			if (inCombat()) {
-				return 0;
-			}
+			if (inCombat()) return 0;
 
 			if (getCurrentHits() <= eatAt) {
 				final int pieIndex = getInventoryIndex(ITEM_ID_HALF_A_REDBERRY_PIE);
 
 				if (pieIndex != -1) {
-					if (System.currentTimeMillis() <= actionTimeout) {
-						return 0;
-					}
-
+					if (System.currentTimeMillis() <= actionTimeout) return 0;
 					useItem(pieIndex);
 					actionTimeout = System.currentTimeMillis() + TIMEOUT_ONE_SECOND;
 					return 0;
 				}
 
-				if (!collectPies) {
-					collectPies = true;
-				}
+				if (!collectPies) collectPies = true;
 			}
 
 			final int pieDishIndex = getInventoryIndex(ITEM_ID_PIE_DISH);
@@ -230,11 +195,9 @@ public class AA_PirateHut extends AA_Script {
 			}
 
 			if (getFatigue() >= MAXIMUM_FATIGUE) {
-				if (System.currentTimeMillis() <= actionTimeout) {
-					return 0;
-				}
-
-				atWallObject(Object.PIRATE_HUT_DOOR.coordinate.getX(), Object.PIRATE_HUT_DOOR.coordinate.getY());
+				if (System.currentTimeMillis() <= actionTimeout) return 0;
+				final Coordinate door = Object.PIRATE_HUT_DOOR.getCoordinate();
+				atWallObject(door.getX(), door.getY());
 				actionTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}
@@ -257,8 +220,7 @@ public class AA_PirateHut extends AA_Script {
 				return SLEEP_ONE_TICK;
 			}
 
-			if (nextRespawn != null &&
-				(playerX != nextRespawn.getX() || playerY != nextRespawn.getY())) {
+			if (nextRespawn != null && (playerX != nextRespawn.getX() || playerY != nextRespawn.getY())) {
 				walkTo(nextRespawn.getX(), nextRespawn.getY());
 				return SLEEP_ONE_TICK;
 			}
@@ -267,53 +229,46 @@ public class AA_PirateHut extends AA_Script {
 		}
 
 		if (playerX <= COORDINATE_LOAD_PIRATE_HUT.getX()) {
-			if (playerX == Object.PIRATE_HUT_DOOR.coordinate.getX() &&
-				playerY == Object.PIRATE_HUT_DOOR.coordinate.getY()) {
-				if (getFatigue() >= MAXIMUM_FATIGUE) {
-					return sleep();
-				}
+			final Coordinate door = Object.PIRATE_HUT_DOOR.getCoordinate();
 
-				if (System.currentTimeMillis() <= actionTimeout) {
-					return 0;
-				}
-
-				atWallObject2(Object.PIRATE_HUT_DOOR.coordinate.getX(), Object.PIRATE_HUT_DOOR.coordinate.getY());
+			if (playerX == door.getX() && playerY == door.getY()) {
+				if (getFatigue() >= MAXIMUM_FATIGUE) return sleep();
+				if (System.currentTimeMillis() <= actionTimeout) return 0;
+				atWallObject2(door.getX(), door.getY());
 				actionTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}
 
-			walkTo(Object.PIRATE_HUT_DOOR.coordinate.getX(), Object.PIRATE_HUT_DOOR.coordinate.getY());
+			walkTo(door.getX(), door.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerY < Object.GATE.coordinate.getY()) {
+		final Coordinate gate = Object.GATE.getCoordinate();
+
+		if (playerY < gate.getY()) {
 			walkTo(COORDINATE_LOAD_PIRATE_HUT.getX(), COORDINATE_LOAD_PIRATE_HUT.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (distanceTo(Object.GATE.coordinate.getX(), Object.GATE.coordinate.getY()) <= 1) {
+		if (distanceTo(gate.getX(), gate.getY()) <= 1) {
 			if (inCombat()) {
 				walkTo(playerX, playerY);
 				return SLEEP_ONE_TICK;
 			}
 
-			atObject(Object.GATE.coordinate.getX(), Object.GATE.coordinate.getY());
+			atObject(gate.getX(), gate.getY());
 			return SLEEP_ONE_SECOND;
 		}
 
-		walkTo(Object.GATE.coordinate.getX(), Object.GATE.coordinate.getY());
+		walkTo(gate.getX(), gate.getY());
 		return SLEEP_ONE_TICK;
 	}
 
 	private int bank() {
 		if (Area.BANK.contains(playerX, playerY)) {
-			if (!isBanking()) {
-				return openBank();
-			}
+			if (!isBanking()) return openBank();
 
-			if (System.currentTimeMillis() <= actionTimeout) {
-				return 0;
-			}
+			if (System.currentTimeMillis() <= actionTimeout) return 0;
 
 			final int lootIndex = getInventoryIndex(ITEM_IDS_LOOT);
 
@@ -338,20 +293,14 @@ public class AA_PirateHut extends AA_Script {
 			}
 
 			if (!hasInventoryItem(ITEM_ID_LOCKPICK)) {
-				if (!hasBankItem(ITEM_ID_LOCKPICK)) {
-					return exit("Out of lockpicks.");
-				}
-
+				if (!hasBankItem(ITEM_ID_LOCKPICK)) return exit("Out of lockpicks.");
 				withdraw(ITEM_ID_LOCKPICK, 1);
 				actionTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}
 
 			if (!hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
-				if (!hasBankItem(ITEM_ID_SLEEPING_BAG)) {
-					return exit("Out of sleeping bags.");
-				}
-
+				if (!hasBankItem(ITEM_ID_SLEEPING_BAG)) return exit("Out of sleeping bags.");
 				withdraw(ITEM_ID_SLEEPING_BAG, 1);
 				actionTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
@@ -363,18 +312,19 @@ public class AA_PirateHut extends AA_Script {
 		}
 
 		if (playerX >= COORDINATE_LOAD_DRAYNOR_BANK.getX()) {
-			if (distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= 1) {
-				if (getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY())
-					== Object.BANK_DOORS.id) {
-					atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			final Coordinate doors = Object.BANK_DOORS.getCoordinate();
+
+			if (distanceTo(doors.getX(), doors.getY()) <= 1) {
+				if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.BANK_DOORS.id) {
+					atObject(doors.getX(), doors.getY());
 					return SLEEP_ONE_SECOND;
 				}
 
-				walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY() + 1);
+				walkTo(doors.getX(), doors.getY() + 1);
 				return SLEEP_ONE_TICK;
 			}
 
-			walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			walkTo(doors.getX(), doors.getY());
 			return SLEEP_ONE_TICK;
 		}
 
@@ -389,10 +339,7 @@ public class AA_PirateHut extends AA_Script {
 
 	private int walkback() {
 		if (pathWalker != null) {
-			if (pathWalker.walkPath()) {
-				return 0;
-			}
-
+			if (pathWalker.walkPath()) return 0;
 			pathWalker = null;
 			setState(State.KILL);
 			return 0;
@@ -406,9 +353,7 @@ public class AA_PirateHut extends AA_Script {
 				COORDINATE_WALKBACK_DRAYNOR.getY(), COORDINATE_WALKBACK_ICE_PLATEAU.getX(),
 				COORDINATE_WALKBACK_ICE_PLATEAU.getY());
 
-			if (path == null) {
-				return exit("Failed to calculate path from Draynor to Ice Plateau.");
-			}
+			if (path == null) return exit("Failed to calculate path from Draynor to Ice Plateau.");
 
 			pathWalker.setPath(path);
 			return 0;
@@ -436,9 +381,10 @@ public class AA_PirateHut extends AA_Script {
 				return SLEEP_ONE_TICK;
 			}
 
-			if (getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) ==
-				Object.BANK_DOORS.id) {
-				atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			final Coordinate doors = Object.BANK_DOORS.getCoordinate();
+
+			if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.BANK_DOORS.id) {
+				atObject(doors.getX(), doors.getY());
 				return SLEEP_ONE_SECOND;
 			}
 		}
@@ -460,16 +406,11 @@ public class AA_PirateHut extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_PIRATE;
 
@@ -477,30 +418,19 @@ public class AA_PirateHut extends AA_Script {
 				kills, toUnitsPerHour(kills, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		if (nextRespawn != null) {
-			drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)",
-					nextRespawn.getX(), nextRespawn.getY()),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		if (attackers.isEmpty()) return;
 
-		if (!attackers.isEmpty()) {
-			drawString(String.format("@yel@Attacked by: @whi@%s", attackers),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		drawString(String.format("@yel@Attacked by: @whi@%s", attackers),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 	}
 
 	@Override
 	public void onPlayerDamaged(final java.lang.Object player) {
-		if (!inCombat() || player != bot.getPlayer()) {
-			return;
-		}
+		if (!inCombat() || player != bot.getPlayer()) return;
 
 		if (bot.getPlayerCount() > 1 && !attacked) {
 			final String pkerName = getPkerName();
-
-			if (pkerName != null) {
-				setAttacked(pkerName);
-			}
+			if (pkerName != null) setAttacked(pkerName);
 		}
 
 		if (getCurrentHits() <= MINIMUM_HITS_PROTECT_ITEM &&
@@ -512,25 +442,37 @@ public class AA_PirateHut extends AA_Script {
 
 	@Override
 	public void onNpcSpawned(final java.lang.Object npc) {
-		if (bot.getNpcId(npc) != NPC_ID_PIRATE) {
-			return;
-		}
+		if (bot.getNpcId(npc) != NPC_ID_PIRATE) return;
 
-		final int npcX = bot.getMobLocalX(npc) + bot.getAreaX();
-		final int npcY = bot.getMobLocalY(npc) + bot.getAreaY();
+		final int npcX = getX(npc);
+		final int npcY = getY(npc);
 
-		final int serverIndex = bot.getMobServerIndex(npc);
+		final int serverIndex = getServerIndex(npc);
 
 		final Spawn spawn = spawnMap.get(serverIndex);
 
 		if (spawn != null) {
 			spawn.getCoordinate().set(npcX, npcY);
-			spawn.setTimestamp(System.currentTimeMillis());
+			spawn.setTimestamp(Long.MAX_VALUE);
 		} else {
-			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), System.currentTimeMillis()));
+			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), Long.MAX_VALUE));
 		}
 
-		nextRespawn = spawnMap.isEmpty() ? null : spawnMap.values().stream().sorted().findFirst().get().getCoordinate();
+		nextRespawn = getNextRespawn();
+	}
+
+	@Override
+	public void onNpcDespawned(final java.lang.Object npc) {
+		final int serverIndex = getServerIndex(npc);
+		final Spawn spawn = spawnMap.get(serverIndex);
+		if (spawn == null) return;
+		spawn.setTimestamp(System.currentTimeMillis());
+		nextRespawn = getNextRespawn();
+	}
+
+	private Coordinate getNextRespawn() {
+		if (spawnMap.isEmpty()) return null;
+		return spawnMap.values().stream().min(Comparator.naturalOrder()).get().getCoordinate();
 	}
 
 	private String getPkerName() {

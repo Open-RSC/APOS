@@ -9,7 +9,7 @@ import java.util.Iterator;
  * The script will try to identify all herbs if no herb parameter is provided.
  * <p>
  * Optional Parameter:
- * -h,--herb <guam|ranarr_weed|irit_leaf|...>
+ * <guam|ranarr_weed|irit_leaf|...>
  * <p>
  * Herbs:
  * guam
@@ -57,20 +57,7 @@ public class AA_HerbIdentifier extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-h":
-					case "--herb":
-						herb = Herb.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) herb = Herb.valueOf(parameters.toUpperCase());
 
 		if (!hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
@@ -210,20 +197,18 @@ public class AA_HerbIdentifier extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getAccurateXpForLevel(Skill.HERBLAW.getIndex()) - initialHerblawXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@%s: @whi@%d @cya@(@whi@%s per@cya@/@whi@hr@cya@)",
 				herb, herbsIdentified, toUnitsPerHour(herbsIdentified, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		drawString(String.format("@yel@Remaining: @whi@%d", herbsRemaining),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@Time remaining: @whi@%s",
 				toTimeToCompletion(herbsIdentified, herbsRemaining, startTime)),

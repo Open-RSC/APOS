@@ -5,7 +5,7 @@
  * Start at Falador East Bank with an empty inventory.
  * <p>
  * Required Parameter:
- * -i,--item <wool|flax>
+ * <wool|flax>
  * <p>
  *
  * @Author Chomp
@@ -35,20 +35,7 @@ public class AA_FaladorSpinningWheel extends AA_Script {
 	@Override
 	public void init(final String parameters) {
 		if (parameters.isEmpty()) printInstructions();
-
-		final String[] args = parameters.split(" ");
-
-		for (int i = 0; i < args.length; i++) {
-			switch (args[i].toLowerCase()) {
-				case "-i":
-				case "--item":
-					item = Item.valueOf(args[++i].toUpperCase());
-					break;
-				default:
-					throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-			}
-		}
-
+		item = Item.valueOf(parameters.toUpperCase());
 		initialCraftingXp = getAccurateXpForLevel(Skill.CRAFTING.getIndex());
 		startTime = System.currentTimeMillis();
 	}
@@ -184,22 +171,18 @@ public class AA_FaladorSpinningWheel extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getAccurateXpForLevel(Skill.CRAFTING.getIndex()) - initialCraftingXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@%s: @whi@%s @cya@(@whi@%s per@cya@/@whi@hr@cya@)",
 				item.productName, spinCount, toUnitsPerHour(spinCount, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		drawString(String.format("@yel@Remaining: @whi@%d", materialRemaining),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@Time remaining: @whi@%s",
 				toTimeToCompletion(spinCount, materialRemaining, startTime)),

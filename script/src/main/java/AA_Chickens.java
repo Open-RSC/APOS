@@ -1,3 +1,4 @@
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,7 +9,7 @@ import java.util.Map;
  * Start script at a chicken pen and with sleeping bag in inventory.
  * <p>
  * Optional Parameter
- * -f,--fightmode <controlled|attack|strength|defense>
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  *
  * @Author Chomp
@@ -24,11 +25,12 @@ public class AA_Chickens extends AA_Script {
 	private final Map<Integer, Spawn> spawnMap = new HashMap<>();
 
 	private Coordinate nextRespawn;
-	private long startTime;
 	private ChickenHandler chickenHandler;
 	private Location location;
 
 	private double initialCombatXp;
+
+	private long startTime;
 
 	private int initialFeatherCount;
 
@@ -38,20 +40,7 @@ public class AA_Chickens extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
 
 		for (final Location location : Location.values()) {
 			if (isAtApproxCoords(location.coordinate.getX(), location.coordinate.getY(), 10)) {
@@ -102,19 +91,13 @@ public class AA_Chickens extends AA_Script {
 	public int main() {
 		if (bot.getCombatStyle() != combatStyle.getIndex()) setCombatStyle(combatStyle.getIndex());
 
-		if (inCombat()) {
-			return 0;
-		}
+		if (isInCombat()) return 0;
 
-		if (getFatigue() >= MAXIMUM_FATIGUE) {
-			return sleep();
-		}
+		if (getFatiguePercent() >= MAXIMUM_FATIGUE) return sleep();
 
 		final int[] chicken = getNpcById(NPC_ID_CHICKEN);
 
-		if (chicken[0] != -1) {
-			return chickenHandler.kill(chicken);
-		}
+		if (chicken[0] != -1) return chickenHandler.kill(chicken);
 
 		scanGroundItems();
 
@@ -123,8 +106,7 @@ public class AA_Chickens extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (nextRespawn != null &&
-			(getX() != nextRespawn.getX() || getY() != nextRespawn.getY())) {
+		if (nextRespawn != null && (getPlayerX() != nextRespawn.getX() || getPlayerY() != nextRespawn.getY())) {
 			walkTo(nextRespawn.getX(), nextRespawn.getY());
 			return SLEEP_ONE_TICK;
 		}
@@ -140,27 +122,23 @@ public class AA_Chickens extends AA_Script {
 		for (int index = 0; index < bot.getGroundItemCount(); index++) {
 			final int groundItemId = bot.getGroundItemId(index);
 
-			if (groundItemId != ITEM_ID_FEATHER) {
-				continue;
-			}
+			if (groundItemId != ITEM_ID_FEATHER) continue;
 
 			final int groundItemX = bot.getGroundItemLocalX(index) + bot.getAreaX();
 			final int groundItemY = bot.getGroundItemLocalY(index) + bot.getAreaY();
 
-			if (!chickenHandler.isLootReachable(groundItemX, groundItemY)) {
-				continue;
-			}
+			if (!chickenHandler.isLootReachable(groundItemX, groundItemY)) continue;
 
 			final int distance = distanceTo(groundItemX, groundItemY);
 
-			if (distance < currentDistance) {
-				groundItemFeather[0] = index;
-				groundItemFeather[1] = groundItemX;
-				groundItemFeather[2] = groundItemY;
-				groundItemFeather[3] = groundItemId;
+			if (distance >= currentDistance) continue;
 
-				currentDistance = distance;
-			}
+			currentDistance = distance;
+
+			groundItemFeather[0] = index;
+			groundItemFeather[1] = groundItemX;
+			groundItemFeather[2] = groundItemY;
+			groundItemFeather[3] = groundItemId;
 		}
 	}
 
@@ -173,16 +151,11 @@ public class AA_Chickens extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_CHICKEN;
 
@@ -197,37 +170,47 @@ public class AA_Chickens extends AA_Script {
 				totalFeathers, toUnitsPerHour(gainedFeathers, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		if (nextRespawn != null) {
-			drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)", nextRespawn.getX(), nextRespawn.getY()),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		if (nextRespawn == null) return;
+
+		drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)",
+				nextRespawn.getX(), nextRespawn.getY()),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
 	}
 
 	@Override
 	public void onNpcSpawned(final java.lang.Object npc) {
-		if (bot.getNpcId(npc) != NPC_ID_CHICKEN) {
-			return;
-		}
+		if (bot.getNpcId(npc) != NPC_ID_CHICKEN) return;
 
-		final int npcX = bot.getMobLocalX(npc) + bot.getAreaX();
-		final int npcY = bot.getMobLocalY(npc) + bot.getAreaY();
+		final int npcX = getX(npc);
+		final int npcY = getY(npc);
 
-		if (!chickenHandler.isNpcSpawned(npcX, npcY)) {
-			return;
-		}
+		if (!chickenHandler.isNpcSpawned(npcX, npcY)) return;
 
-		final int serverIndex = bot.getMobServerIndex(npc);
+		final int serverIndex = getServerIndex(npc);
 
 		final Spawn spawn = spawnMap.get(serverIndex);
 
 		if (spawn != null) {
 			spawn.getCoordinate().set(npcX, npcY);
-			spawn.setTimestamp(System.currentTimeMillis());
+			spawn.setTimestamp(Long.MAX_VALUE);
 		} else {
-			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), System.currentTimeMillis()));
+			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), Long.MAX_VALUE));
 		}
 
-		nextRespawn = spawnMap.isEmpty() ? null : spawnMap.values().stream().sorted().findFirst().get().getCoordinate();
+		nextRespawn = getNextRespawn();
+	}
+
+	@Override
+	public void onNpcDespawned(final Object npc) {
+		final Spawn spawn = spawnMap.get(getServerIndex(npc));
+		if (spawn == null) return;
+		spawn.setTimestamp(System.currentTimeMillis());
+		nextRespawn = getNextRespawn();
+	}
+
+	private Coordinate getNextRespawn() {
+		if (spawnMap.isEmpty()) return null;
+		return spawnMap.values().stream().min(Comparator.naturalOrder()).get().getCoordinate();
 	}
 
 	private enum Location {

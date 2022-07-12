@@ -7,8 +7,8 @@ import com.aposbot.Constants;
  * Have sleeping bag, axe, and tinderbox in inventory.
  * Inventory must be full so that cut logs drop to the ground.
  * <p>
- * Optional Parameter:
- * -r,--radius <#> (default 10)
+ * Optional Radius Parameter:
+ * <#> (default 10 radius)
  * <p>
  *
  * @Author Chomp
@@ -53,35 +53,13 @@ public class AA_Firemaking extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-r":
-					case "--radius":
-						radius = Integer.parseInt(args[++i]);
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) radius = Integer.parseInt(parameters);
 
 		if (!hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
 		}
 
-		boolean noAxe = true;
-
-		for (final int itemId : ITEM_IDS_AXES) {
-			if (hasInventoryItem(itemId)) {
-				noAxe = false;
-				break;
-			}
-		}
-
-		if (noAxe) {
+		if (!hasInventoryItem(ITEM_IDS_AXES)) {
 			throw new IllegalStateException("Axe missing from inventory.");
 		}
 
@@ -276,21 +254,17 @@ public class AA_Firemaking extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double woodcutXpGained = getAccurateXpForLevel(Skill.WOODCUT.getIndex()) - initialWoodcuttingXp;
 
 		drawString(String.format("@gr3@Wc Xp: @whi@%s @gr3@(@whi@%s xp@gr3@/@whi@hr@gr3@)",
 				DECIMAL_FORMAT.format(woodcutXpGained), toUnitsPerHour((int) woodcutXpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final double firemakingXpGained = getAccurateXpForLevel(Skill.FIREMAKING.getIndex()) - initialFiremakingXp;
 
 		drawString(String.format("@or1@Fm Xp: @whi@%s @or1@(@whi@%s xp@or1@/@whi@hr@or1@)",
 				DECIMAL_FORMAT.format(firemakingXpGained), toUnitsPerHour((int) firemakingXpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@or1@Burned: @whi@%s @or1@(@whi@%s logs@or1@/@whi@hr@or1@)",
 				DECIMAL_FORMAT.format(logsBurned), toUnitsPerHour(logsBurned, startTime)),

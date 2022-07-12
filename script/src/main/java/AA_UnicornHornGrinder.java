@@ -135,21 +135,17 @@ public class AA_UnicornHornGrinder extends AA_Script {
 		bot.drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		bot.drawString(String.format("@yel@Dust: @whi@%d @cya@(@whi@%s horns@cya@/@whi@hr@cya@)",
 				hornsGround, toUnitsPerHour(hornsGround, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-		if (hornsRemaining > 0) {
-			bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		if (hornsRemaining <= 0) return;
 
-			bot.drawString(String.format("@yel@Remaining: @whi@%d", hornsRemaining),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		bot.drawString(String.format("@yel@Remaining: @whi@%d", hornsRemaining),
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-			bot.drawString(String.format("@yel@Time remaining: @whi@%s",
-					toTimeToCompletion(hornsGround, hornsRemaining, startTime)),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		bot.drawString(String.format("@yel@Time remaining: @whi@%s",
+				toTimeToCompletion(hornsGround, hornsRemaining, startTime)),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
 	}
 }

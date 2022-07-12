@@ -9,13 +9,13 @@ import java.util.Iterator;
  * The script will try to string all amulets if no amulet parameter is provided.
  * <p>
  * Optional Parameter:
- * -a,--amulet <sapphire|emerald|ruby|diamond|dragonstone>
+ * <sapphire|emerald|ruby|diamond|dragonstone>
  * <p>
  *
  * @Author Chomp
  */
 public class AA_AmuletStringer extends AA_Script {
-	private static final Coordinate COORDINATE_SHANTAY_BANK_CHEST = new Coordinate(58, 731);
+	private static final Coordinate COORD_CHEST = new Coordinate(58, 731);
 
 	private static final long STRING_DELAY = 550L; // +- based on latency
 
@@ -46,27 +46,14 @@ public class AA_AmuletStringer extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-a":
-					case "--amulet":
-						amulet = Amulet.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
-
-		if (amulet == null) {
+		if (parameters.isEmpty()) {
 			iterator = EnumSet.allOf(Amulet.class).iterator();
 			amulet = iterator.next();
+		} else {
+			amulet = Amulet.valueOf(parameters.toUpperCase());
 		}
 
-		shantayBanking = distanceTo(COORDINATE_SHANTAY_BANK_CHEST.getX(), COORDINATE_SHANTAY_BANK_CHEST.getY()) < 10;
+		shantayBanking = distanceTo(COORD_CHEST.getX(), COORD_CHEST.getY()) < 10;
 		startTime = System.currentTimeMillis();
 	}
 
@@ -119,13 +106,13 @@ public class AA_AmuletStringer extends AA_Script {
 	}
 
 	private int idle() {
-		if (getX() == COORDINATE_SHANTAY_BANK_CHEST.getX() + 2 &&
-			getY() == COORDINATE_SHANTAY_BANK_CHEST.getY()) {
+		if (getX() == COORD_CHEST.getX() + 2 &&
+			getY() == COORD_CHEST.getY()) {
 			idle = false;
 			return 0;
 		}
 
-		walkTo(COORDINATE_SHANTAY_BANK_CHEST.getX() + 2, COORDINATE_SHANTAY_BANK_CHEST.getY());
+		walkTo(COORD_CHEST.getX() + 2, COORD_CHEST.getY());
 		return SLEEP_ONE_TICK;
 	}
 
@@ -136,7 +123,7 @@ public class AA_AmuletStringer extends AA_Script {
 					return 0;
 				}
 
-				atObject(COORDINATE_SHANTAY_BANK_CHEST.getX(), COORDINATE_SHANTAY_BANK_CHEST.getY());
+				atObject(COORD_CHEST.getX(), COORD_CHEST.getY());
 				openTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}

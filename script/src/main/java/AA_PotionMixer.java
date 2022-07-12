@@ -9,7 +9,7 @@ import java.util.Iterator;
  * The script will try to mix all potions if no potion parameter is provided.
  * <p>
  * Optional Parameter:
- * -p,--potion <attack_potion|restore_prayer_potion|...>
+ * <attack_potion|restore_prayer_potion|...>
  * <p>
  * Potions:
  * attack_potion
@@ -62,20 +62,7 @@ public class AA_PotionMixer extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-p":
-					case "--potion":
-						potion = Potion.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) potion = Potion.valueOf(parameters.toUpperCase());
 
 		if (!hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
@@ -254,20 +241,18 @@ public class AA_PotionMixer extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getAccurateXpForLevel(Skill.HERBLAW.getIndex()) - initialHerblawXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@%s: @whi@%d @cya@(@whi@%s pots@cya@/@whi@hr@cya@)",
 				potion, potionsMixed, toUnitsPerHour(potionsMixed, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		drawString(String.format("@yel@Remaining: @whi@%d", materialsRemaining),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@yel@Time remaining: @whi@%s",
 				toTimeToCompletion(potionsMixed, materialsRemaining, startTime)),

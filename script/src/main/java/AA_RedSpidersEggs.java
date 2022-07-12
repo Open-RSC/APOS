@@ -10,25 +10,26 @@ import java.util.Map;
  * Optional: Sleeping bag, equipment, weapon.
  * <p>
  * Optional Parameter:
- * -f,--fightmode <controlled|attack|strength|defense> (default strength)
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  *
  * @Author Chomp
  */
 public class AA_RedSpidersEggs extends AA_Script {
-	private static final Coordinate COORDINATE_LUMBRIDGE_DEATH_WALK = new Coordinate(120, 648);
-	private static final Coordinate COORDINATE_EDGEVILLE_DEATH_WALK = new Coordinate(213, 456);
-	private static final Coordinate COORDINATE_LOAD_WILDERNESS_GATE = new Coordinate(198, 3248);
+	private static final Coordinate COORD_LUMBRIDGE = new Coordinate(120, 648);
+	private static final Coordinate COORD_EDGEVILLE = new Coordinate(213, 456);
+	private static final Coordinate COORD_WILD_GATE = new Coordinate(198, 3248);
 
 	private static final int[] NPC_IDS_BLOCKING = new int[]{23, 40, 46};
 
-	private static final int COORDINATE_Y_DUNGEON = 3000;
+	private static final int COORD_Y_DUNGEON = 3000;
 
 	private final Map<RedSpidersEggs, Long> spawnMap = new HashMap<>();
 
 	private Coordinate nextEggSpawn;
-	private long startTime;
 	private PathWalker pathWalker;
+
+	private long startTime;
 
 	private int playerX;
 	private int playerY;
@@ -48,21 +49,7 @@ public class AA_RedSpidersEggs extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
-
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
 		setCombatStyle(combatStyle.getIndex());
 		initialEggsCount = getInventoryCount(RedSpidersEggs.ITEM_ID);
 		banking = getInventoryCount() == MAX_INV_SIZE;
@@ -97,10 +84,10 @@ public class AA_RedSpidersEggs extends AA_Script {
 			pathWalker.init(null);
 		}
 
-		final PathWalker.Path path = pathWalker.calcPath(COORDINATE_LUMBRIDGE_DEATH_WALK.getX(),
-			COORDINATE_LUMBRIDGE_DEATH_WALK.getY(),
-			COORDINATE_EDGEVILLE_DEATH_WALK.getX(),
-			COORDINATE_EDGEVILLE_DEATH_WALK.getY());
+		final PathWalker.Path path = pathWalker.calcPath(COORD_LUMBRIDGE.getX(),
+			COORD_LUMBRIDGE.getY(),
+			COORD_EDGEVILLE.getX(),
+			COORD_EDGEVILLE.getY());
 
 		if (path != null) {
 			pathWalker.setPath(path);
@@ -158,8 +145,8 @@ public class AA_RedSpidersEggs extends AA_Script {
 		}
 
 		if (isInWilderness()) {
-			if (playerY < COORDINATE_LOAD_WILDERNESS_GATE.getY()) {
-				walkTo(COORDINATE_LOAD_WILDERNESS_GATE.getX(), COORDINATE_LOAD_WILDERNESS_GATE.getY());
+			if (playerY < COORD_WILD_GATE.getY()) {
+				walkTo(COORD_WILD_GATE.getX(), COORD_WILD_GATE.getY());
 				return SLEEP_ONE_TICK;
 			}
 
@@ -311,7 +298,7 @@ public class AA_RedSpidersEggs extends AA_Script {
 	}
 
 	private boolean isInDungeon() {
-		return playerY >= COORDINATE_Y_DUNGEON;
+		return playerY >= COORD_Y_DUNGEON;
 	}
 
 	private boolean isWithinReach(final Object object) {
@@ -397,15 +384,11 @@ public class AA_RedSpidersEggs extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		final int count = Math.max(0, eggsCollected +
-			getInventoryCount(RedSpidersEggs.ITEM_ID) -
-			initialEggsCount);
+		final int count = Math.max(0, eggsCollected + getInventoryCount(RedSpidersEggs.ITEM_ID) - initialEggsCount);
 
 		drawString(String.format("@yel@Collected: @whi@%s @cya@(@whi@%s eggs@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(count), toUnitsPerHour(count, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		if (eggsBanked > 0) {
 			drawString(String.format("@gre@Banked: @whi@%s", DECIMAL_FORMAT.format(eggsBanked)),

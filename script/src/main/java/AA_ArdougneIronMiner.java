@@ -6,6 +6,7 @@ import java.awt.*;
  * <p>
  * Parameters:
  * p - enable powermining (no banking)
+ * l - enable looting iron ore off the ground
  * s - use the south spot (3 rocks)
  * <p>
  *
@@ -303,7 +304,7 @@ public class AA_ArdougneIronMiner extends AA_Script {
 				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 			bot.drawString(String.format("Fail Rate: @whi@%.2f%%", (fail / swingAttempts) * 100),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, Font.BOLD, 0xE0142D);
+				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0xE0142D);
 		}
 	}
 

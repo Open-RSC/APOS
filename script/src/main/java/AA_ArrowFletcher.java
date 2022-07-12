@@ -6,7 +6,7 @@
  *
  * @Author Chomp
  */
-public class AA_ArrowHeads extends AA_Script {
+public class AA_ArrowFletcher extends AA_Script {
 	private static final int[] ITEM_IDS_ARROW_HEAD = new int[]{669, 670, 671, 672, 673, 674};
 
 	private static final int ITEM_ID_HEADLESS_ARROW = 637;
@@ -30,7 +30,7 @@ public class AA_ArrowHeads extends AA_Script {
 
 	private boolean idle;
 
-	public AA_ArrowHeads(final Extension ex) {
+	public AA_ArrowFletcher(final Extension ex) {
 		super(ex);
 	}
 
@@ -146,24 +146,20 @@ public class AA_ArrowHeads extends AA_Script {
 		bot.drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = bot.getExperience(Skill.FLETCHING.getIndex()) - initialFletchingXp;
 
 		bot.drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		bot.drawString(String.format("@yel@Heads: @whi@%d @cya@(@whi@%s per@cya@/@whi@hr@cya@)",
 				arrowsMade, toUnitsPerHour(arrowsMade, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final int remaining = Math.min(bot.getInventoryStack(arrowHeadsIndex), bot.getInventoryStack(headlessArrowsIndex));
 
 		bot.drawString(String.format("@yel@Remaining: @whi@%d", remaining),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		bot.drawString(String.format("@yel@Time remaining: @whi@%s",
 				toTimeToCompletion(arrowsMade, remaining, startTime)),

@@ -9,7 +9,7 @@ import java.util.TreeMap;
  * Start script at the Chaos Druid Tower or Ardougne North Bank with sleeping bag in inventory.
  * <p>
  * Optional Parameter
- * -f,--fightmode <controlled|attack|strength|defense>
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  *
  * @Author Chomp
@@ -61,20 +61,7 @@ public class AA_ChaosDruidTower extends AA_Script {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
 		}
 
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
 
 		setCombatStyle(combatStyle.getIndex());
 		initialCombatXp = getTotalCombatXp();
@@ -253,16 +240,11 @@ public class AA_ChaosDruidTower extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_CHAOS_DRUID;
 
@@ -270,18 +252,13 @@ public class AA_ChaosDruidTower extends AA_Script {
 				kills, toUnitsPerHour(kills, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		if (nextRespawn != null) {
-			drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)", nextRespawn.getX(), nextRespawn.getY()),
+		if (premiumLoot.isEmpty()) return;
+
+		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+
+		for (final Map.Entry<Integer, Integer> entry : premiumLoot.entrySet()) {
+			drawString(String.format("@gre@%s: @whi@%d", getItemNameId(entry.getKey()), entry.getValue()),
 				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
-
-		if (!premiumLoot.isEmpty()) {
-			drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-			for (final Map.Entry<Integer, Integer> entry : premiumLoot.entrySet()) {
-				drawString(String.format("@gre@%s: @whi@%d", getItemNameId(entry.getKey()), entry.getValue()),
-					PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-			}
 		}
 	}
 
