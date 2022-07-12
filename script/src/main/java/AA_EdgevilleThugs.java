@@ -1,4 +1,8 @@
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,7 +13,7 @@ import java.util.regex.Pattern;
  * Start script at Thugs or at Edgeville Bank.
  * <p>
  * Optional Parameter:
- * -f,--fightmode <controlled|attack|strength|defense> (default strength)
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  * Notes:
  * Sleeping bags will be withdrawn from bank, if there are any, after death walkback.
@@ -71,21 +75,7 @@ public class AA_EdgevilleThugs extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
-
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
 		setCombatStyle(combatStyle.getIndex());
 		state = getInventoryCount() != MAX_INV_SIZE && !isBanking() ? State.KILL : State.BANK;
 		fleeAt = (int) (getBaseHits() * 0.80);
@@ -484,16 +474,11 @@ public class AA_EdgevilleThugs extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_THUGS;
 

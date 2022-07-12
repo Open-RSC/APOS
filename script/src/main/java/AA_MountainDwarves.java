@@ -1,3 +1,4 @@
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,7 +11,7 @@ import java.util.TreeMap;
  * Start script at Catherby bank or at the dwarves with sleeping bag in inventory.
  * <p>
  * Optional Parameter:
- * -f,--fightmode <controlled|attack|strength|defense> (default strength)
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  *
  * @Author Chomp
@@ -46,23 +47,10 @@ public class AA_MountainDwarves extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
+
 		if (!hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
-		}
-
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
 		}
 
 		setCombatStyle(combatStyle.getIndex());
@@ -103,17 +91,19 @@ public class AA_MountainDwarves extends AA_Script {
 		}
 
 		if (playerY < COORDINATE_Y_DUNGEON) {
-			if (distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-				if (getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-					atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			final Coordinate doors = Object.BANK_DOORS.getCoordinate();
+
+			if (distanceTo(doors.getX(), doors.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+				if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.BANK_DOORS.id) {
+					atObject(doors.getX(), doors.getY());
 					return SLEEP_ONE_SECOND;
 				}
 
-				walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY() - 1);
+				walkTo(doors.getX(), doors.getY() - 1);
 				return SLEEP_ONE_TICK;
 			}
 
-			walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			walkTo(doors.getX(), doors.getY());
 			return SLEEP_ONE_TICK;
 		}
 
@@ -123,21 +113,27 @@ public class AA_MountainDwarves extends AA_Script {
 				return SLEEP_ONE_TICK;
 			}
 
-			if (getObjectIdFromCoords(Object.TAVERN_DOORS.coordinate.getX(), Object.TAVERN_DOORS.coordinate.getY()) == Object.TAVERN_DOORS.id) {
-				atObject(Object.TAVERN_DOORS.coordinate.getX(), Object.TAVERN_DOORS.coordinate.getY());
+			final Coordinate doors = Object.TAVERN_DOORS.getCoordinate();
+
+			if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.TAVERN_DOORS.id) {
+				atObject(doors.getX(), doors.getY());
 				return SLEEP_ONE_SECOND;
 			}
 
-			walkTo(Object.STAIRS_UP.coordinate.getX(), Object.STAIRS_UP.coordinate.getY() + 3);
+			final Coordinate stairs = Object.STAIRS_UP.getCoordinate();
+
+			walkTo(stairs.getX(), stairs.getY() + 3);
 			return SLEEP_ONE_TICK;
 		}
 
-		if (distanceTo(Object.STAIRS_UP.coordinate.getX(), Object.STAIRS_UP.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-			atObject(Object.STAIRS_UP.coordinate.getX(), Object.STAIRS_UP.coordinate.getY());
+		final Coordinate stairs = Object.STAIRS_UP.getCoordinate();
+
+		if (distanceTo(stairs.getX(), stairs.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+			atObject(stairs.getX(), stairs.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		walkTo(Object.STAIRS_UP.coordinate.getX(), Object.STAIRS_UP.coordinate.getY() + 3);
+		walkTo(stairs.getX(), stairs.getY() + 3);
 		return SLEEP_ONE_TICK;
 	}
 
@@ -147,9 +143,11 @@ public class AA_MountainDwarves extends AA_Script {
 				return combatCycle();
 			}
 
-			if (distanceTo(Object.TAVERN_DOORS.coordinate.getX(), Object.TAVERN_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-				if (getObjectIdFromCoords(Object.TAVERN_DOORS.coordinate.getX(), Object.TAVERN_DOORS.coordinate.getY()) == Object.TAVERN_DOORS.id) {
-					atObject(Object.TAVERN_DOORS.coordinate.getX(), Object.TAVERN_DOORS.coordinate.getY());
+			final Coordinate doors = Object.TAVERN_DOORS.getCoordinate();
+
+			if (distanceTo(doors.getX(), doors.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+				if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.TAVERN_DOORS.id) {
+					atObject(doors.getX(), doors.getY());
 					return SLEEP_ONE_SECOND;
 				}
 
@@ -158,30 +156,36 @@ public class AA_MountainDwarves extends AA_Script {
 					nextRespawn = null;
 				}
 
-				walkTo(Object.TAVERN_DOORS.coordinate.getX() + 1, Object.TAVERN_DOORS.coordinate.getY() + 1);
+				walkTo(doors.getX() + 1, doors.getY() + 1);
 				return SLEEP_ONE_TICK;
 			}
 
-			walkTo(Object.TAVERN_DOORS.coordinate.getX() + 1, Object.TAVERN_DOORS.coordinate.getY());
+			walkTo(doors.getX() + 1, doors.getY());
 			return SLEEP_ONE_TICK;
 		}
 
 		if (Area.BANK.contains(playerX, playerY)) {
-			if (getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-				atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			final Coordinate doors = Object.BANK_DOORS.getCoordinate();
+
+			if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.BANK_DOORS.id) {
+				atObject(doors.getX(), doors.getY());
 				return SLEEP_ONE_SECOND;
 			}
 
-			walkTo(Object.STAIRS_DOWN.coordinate.getX(), Object.STAIRS_DOWN.coordinate.getY() - 1);
+			final Coordinate stairs = Object.STAIRS_DOWN.getCoordinate();
+
+			walkTo(stairs.getX(), stairs.getY() - 1);
 			return SLEEP_ONE_TICK;
 		}
 
-		if (distanceTo(Object.STAIRS_DOWN.coordinate.getX(), Object.STAIRS_DOWN.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-			atObject(Object.STAIRS_DOWN.coordinate.getX(), Object.STAIRS_DOWN.coordinate.getY());
+		final Coordinate stairs = Object.STAIRS_DOWN.getCoordinate();
+
+		if (distanceTo(stairs.getX(), stairs.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+			atObject(stairs.getX(), stairs.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		walkTo(Object.STAIRS_DOWN.coordinate.getX(), Object.STAIRS_DOWN.coordinate.getY() - 1);
+		walkTo(stairs.getX(), stairs.getY() - 1);
 		return SLEEP_ONE_TICK;
 	}
 
@@ -225,8 +229,7 @@ public class AA_MountainDwarves extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (nextRespawn != null &&
-			(playerX != nextRespawn.getX() || playerY != nextRespawn.getY())) {
+		if (nextRespawn != null && (playerX != nextRespawn.getX() || playerY != nextRespawn.getY())) {
 			walkTo(nextRespawn.getX(), nextRespawn.getY());
 			return SLEEP_ONE_TICK;
 		}
@@ -269,16 +272,11 @@ public class AA_MountainDwarves extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_MOUNTAIN_DWARF;
 
@@ -287,7 +285,8 @@ public class AA_MountainDwarves extends AA_Script {
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		if (nextRespawn != null) {
-			drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)", nextRespawn.getX(), nextRespawn.getY()),
+			drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)",
+					nextRespawn.getX(), nextRespawn.getY()),
 				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 		}
 
@@ -303,24 +302,36 @@ public class AA_MountainDwarves extends AA_Script {
 
 	@Override
 	public void onNpcSpawned(final java.lang.Object npc) {
-		if (bot.getNpcId(npc) != NPC_ID_MOUNTAIN_DWARF) {
-			return;
-		}
+		if (bot.getNpcId(npc) != NPC_ID_MOUNTAIN_DWARF) return;
 
-		final int npcX = bot.getMobLocalX(npc) + bot.getAreaX();
-		final int npcY = bot.getMobLocalY(npc) + bot.getAreaY();
+		final int npcX = getX(npc);
+		final int npcY = getY(npc);
 
-		final int serverIndex = bot.getMobServerIndex(npc);
+		final int serverIndex = getServerIndex(npc);
 		final Spawn spawn = spawnMap.get(serverIndex);
 
 		if (spawn != null) {
 			spawn.getCoordinate().set(npcX, npcY);
-			spawn.setTimestamp(System.currentTimeMillis());
+			spawn.setTimestamp(Long.MAX_VALUE);
 		} else {
-			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), System.currentTimeMillis()));
+			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), Long.MAX_VALUE));
 		}
 
-		nextRespawn = spawnMap.isEmpty() ? null : spawnMap.values().stream().sorted().findFirst().get().getCoordinate();
+		nextRespawn = getNextRespawn();
+	}
+
+	@Override
+	public void onNpcDespawned(final java.lang.Object npc) {
+		final int serverIndex = getServerIndex(npc);
+		final Spawn spawn = spawnMap.get(serverIndex);
+		if (spawn == null) return;
+		spawn.setTimestamp(System.currentTimeMillis());
+		nextRespawn = getNextRespawn();
+	}
+
+	private Coordinate getNextRespawn() {
+		if (spawnMap.isEmpty()) return null;
+		return spawnMap.values().stream().min(Comparator.naturalOrder()).get().getCoordinate();
 	}
 
 	private enum Area implements RSArea {

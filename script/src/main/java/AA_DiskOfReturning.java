@@ -250,16 +250,14 @@ public class AA_DiskOfReturning extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		drawString(String.format("@yel@Bought: @whi@%s @cya@(@whi@%s disks@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(disksBought), toUnitsPerHour(disksBought, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-		if (disksBanked > 0) {
-			drawString(String.format("@gre@Total Banked: @whi@%s", DECIMAL_FORMAT.format(disksBanked)),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		if (disksBanked <= 0) return;
+
+		drawString(String.format("@gre@Total Banked: @whi@%s", DECIMAL_FORMAT.format(disksBanked)),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
 	}
 
 	@Override

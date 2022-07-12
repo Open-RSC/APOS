@@ -9,7 +9,7 @@ import java.util.Iterator;
  * The script will try to make all amulets if no gem parameter is provided.
  * <p>
  * Optional Parameter:
- * -g,--gem <sapphire|emerald|ruby|diamond|dragonstone>
+ * <sapphire|emerald|ruby|diamond|dragonstone>
  * <p>
  *
  * @Author Chomp
@@ -48,19 +48,11 @@ public class AA_AlkharidAmulets extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-g":
-					case "--gem":
-						gem = Gem.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
+		if (parameters.isEmpty()) {
+			iterator = EnumSet.allOf(Gem.class).iterator();
+			gem = iterator.next();
+		} else {
+			gem = Gem.valueOf(parameters.toUpperCase());
 		}
 
 		if (!hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
@@ -69,11 +61,6 @@ public class AA_AlkharidAmulets extends AA_Script {
 
 		if (!hasInventoryItem(ITEM_ID_AMULET_MOULD)) {
 			throw new IllegalStateException("Amulet mould missing from inventory.");
-		}
-
-		if (gem == null) {
-			iterator = EnumSet.allOf(Gem.class).iterator();
-			gem = iterator.next();
 		}
 
 		initialCraftingXp = getAccurateXpForLevel(Skill.CRAFTING.getIndex());

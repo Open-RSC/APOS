@@ -260,6 +260,26 @@ public abstract class AA_Script extends Script {
 	}
 
 	@Override
+	public void acceptTrade() {
+		bot.createPacket(Constants.OP_TRADE_ACCEPT);
+		bot.finishPacket();
+		bot.Mi = true;
+	}
+
+	@Override
+	public void confirmTrade() {
+		bot.createPacket(Constants.OP_TRADE_CONFIRM);
+		bot.finishPacket();
+		bot.Vi = true;
+	}
+
+	@Override
+	public void declineTrade() {
+		bot.createPacket(Constants.OP_TRADE_DECLINE);
+		bot.finishPacket();
+	}
+
+	@Override
 	public String getItemName(final int itemId) {
 		return getItemNameId(itemId);
 	}
@@ -301,6 +321,10 @@ public abstract class AA_Script extends Script {
 
 	protected void offerTradeItem(final int inventoryIndex, final int amount) {
 		bot.offerItemTrade(inventoryIndex, amount);
+	}
+
+	protected boolean isTradeOpen() {
+		return bot.isInTradeOffer() || bot.isInTradeConfirm();
 	}
 
 	protected boolean isTradeConfirmOpen() {

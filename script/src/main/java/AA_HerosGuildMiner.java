@@ -64,16 +64,7 @@ public class AA_HerosGuildMiner extends AA_Script {
 			wearItem(shieldIndex);
 		}
 
-		boolean missingPickaxe = true;
-
-		for (final int pickaxeId : ITEM_IDS_PICKAXE) {
-			if (hasInventoryItem(pickaxeId)) {
-				missingPickaxe = false;
-				break;
-			}
-		}
-
-		if (missingPickaxe) {
+		if (!hasInventoryItem(ITEM_IDS_PICKAXE)) {
 			throw new IllegalStateException("Pickaxe missing from inventory.");
 		}
 

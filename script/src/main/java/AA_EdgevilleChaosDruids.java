@@ -23,9 +23,9 @@ import java.util.regex.Pattern;
  * @Author Chomp
  */
 public class AA_EdgevilleChaosDruids extends AA_Script {
-	private static final Coordinate COORDINATE_LUMBRIDGE_DEATH_WALK = new Coordinate(120, 648);
-	private static final Coordinate COORDINATE_EDGEVILLE_DEATH_WALK = new Coordinate(215, 450);
-	private static final Coordinate COORDINATE_CHAOS_DRUIDS = new Coordinate(213, 3255);
+	private static final Coordinate COORD_LUMBRIDGE = new Coordinate(120, 648);
+	private static final Coordinate COORD_EDGEVILLE = new Coordinate(215, 450);
+	private static final Coordinate COORD_CHAOS_DRUIDS = new Coordinate(213, 3255);
 
 	private static final Pattern PATTERN_PROJECTILE_SHOT = Pattern.compile("Warning! (.+) is shooting at you!");
 
@@ -40,12 +40,12 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 	private static final int NPC_ID_CHAOS_DRUID = 270;
 	private static final int NPC_XP_CHAOS_DRUID = 58;
 
-	private static final int COORDINATE_Y_INSIDE_DUNGEON = 3000;
+	private static final int COORD_Y_DUNGEON = 3000;
 
-	private static final int DISTANCE_FROM_GATE_TO_WILDERNESS = 7;
-	private static final int MAXIMUM_DISTANCE_FROM_LOOT = 4;
-	private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 2;
-	private static final int MAXIMUM_FATIGUE = 100;
+	private static final int DIST_GATE_TO_WILD = 7;
+	private static final int MAX_DIST_FROM_LOOT = 4;
+	private static final int MAX_DIST_FROM_OBJECT = 2;
+	private static final int MAX_FATIGUE = 100;
 
 	private final int[] loot = new int[3];
 
@@ -58,11 +58,11 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 	private String attackers = "";
 	private Spawn nextSpawn;
 	private PathWalker pathWalker;
-	private long startTime;
 	private State state;
 
 	private double initialCombatXp;
 
+	private long startTime;
 	private long syncRequestTimeout;
 	private long doorTimeout;
 
@@ -94,16 +94,9 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 				switch (args[i].toLowerCase()) {
 					case "-a":
 					case "--alt":
-						if (alts == null) {
-							alts = new ArrayList<>();
-						}
-
+						if (alts == null) alts = new ArrayList<>();
 						final String altName = args[++i].replace('_', ' ');
-
-						if (!isFriend(altName)) {
-							addFriend(altName);
-						}
-
+						if (!isFriend(altName)) addFriend(altName);
 						alts.add(altName);
 						break;
 					case "-f":
@@ -115,9 +108,7 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 				}
 			}
 
-			if (alts != null) {
-				this.alts = alts.toArray(new String[0]);
-			}
+			if (alts != null) this.alts = alts.toArray(new String[0]);
 		}
 
 		setCombatStyle(combatStyle.getIndex());
@@ -130,15 +121,10 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 	@Override
 	public int main() {
 		if (died) {
-			if (isDead()) {
-				return 0;
-			}
+			if (isDead()) return 0;
 
 			if (pathWalker != null) {
-				if (pathWalker.walkPath()) {
-					return 0;
-				}
-
+				if (pathWalker.walkPath()) return 0;
 				pathWalker = null;
 			}
 
@@ -158,18 +144,10 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 		if (message.endsWith("shut") || message.endsWith("open")) {
 			doorTimeout = System.currentTimeMillis() + TIMEOUT_ONE_TICK;
 		} else if (message.startsWith("Warning")) {
-			if (attackedByPker || getCurrentHits() > fleeAt) {
-				return;
-			}
-
+			if (attackedByPker || getCurrentHits() > fleeAt) return;
 			final Matcher matcher = PATTERN_PROJECTILE_SHOT.matcher(message);
-
-			if (!matcher.matches()) {
-				return;
-			}
-
+			if (!matcher.matches()) return;
 			final String rsn = matcher.group(1);
-
 			setAttackedByPker(rsn);
 		} else {
 			super.onServerMessage(message);
@@ -183,26 +161,20 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			pathWalker.init(null);
 		}
 
-		final PathWalker.Path path = pathWalker.calcPath(COORDINATE_LUMBRIDGE_DEATH_WALK.getX(), COORDINATE_LUMBRIDGE_DEATH_WALK.getY(),
-			COORDINATE_EDGEVILLE_DEATH_WALK.getX(), COORDINATE_EDGEVILLE_DEATH_WALK.getY());
+		final PathWalker.Path path = pathWalker.calcPath(COORD_LUMBRIDGE.getX(), COORD_LUMBRIDGE.getY(),
+			COORD_EDGEVILLE.getX(), COORD_EDGEVILLE.getY());
 
 		if (path != null) {
 			pathWalker.setPath(path);
-
 			resetSpawns();
-
-			if (alts != null) {
-				resetSync();
-			}
-
+			if (alts != null) resetSync();
 			deathCount++;
 			died = true;
 			state = State.BANK;
-
 		} else {
 			exit(String.format("Failed to calculate path Lumbridge (%d, %d) -> Edgeville (%d,%d).",
-				COORDINATE_LUMBRIDGE_DEATH_WALK.getX(), COORDINATE_LUMBRIDGE_DEATH_WALK.getY(),
-				COORDINATE_EDGEVILLE_DEATH_WALK.getX(), COORDINATE_EDGEVILLE_DEATH_WALK.getY()));
+				COORD_LUMBRIDGE.getX(), COORD_LUMBRIDGE.getY(),
+				COORD_EDGEVILLE.getX(), COORD_EDGEVILLE.getY()));
 		}
 	}
 
@@ -229,71 +201,60 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 		if (Area.THUGS.contains(playerX, playerY)) {
 			if (!spawnMap.isEmpty()) {
 				resetSpawns();
-
-				if (alts != null) {
-					resetSync();
-				}
+				if (alts != null) resetSync();
 			}
 
-			walkTo(COORDINATE_CHAOS_DRUIDS.getX(), COORDINATE_CHAOS_DRUIDS.getY());
+			walkTo(COORD_CHAOS_DRUIDS.getX(), COORD_CHAOS_DRUIDS.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerY > COORDINATE_Y_INSIDE_DUNGEON) {
-			return traverseDungeonToDruids();
-		}
+		if (playerY > COORD_Y_DUNGEON) return traverseDungeonToDruids();
 
 		if (Area.LADDER_ROOM.contains(playerX, playerY)) {
-			atObject(Object.LADDER_DOWN.coordinate.getX(), Object.LADDER_DOWN.coordinate.getY());
+			final Coordinate ladder = Object.LADDER_DOWN.getCoordinate();
+			atObject(ladder.getX(), ladder.getY());
 			return SLEEP_ONE_SECOND;
 		}
 
 		if (Area.BANK.contains(playerX, playerY)) {
-			if (getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-				atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			Coordinate door = Object.BANK_DOORS.getCoordinate();
+
+			if (getObjectIdFromCoords(door.getX(), door.getY()) == Object.BANK_DOORS.id) {
+				atObject(door.getX(), door.getY());
 				return SLEEP_ONE_SECOND;
 			}
 
-			walkTo(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY() - 1);
+			door = Object.DOOR.getCoordinate();
+			walkTo(door.getX(), door.getY() - 1);
 			return SLEEP_ONE_TICK;
 		}
 
-		if (distanceTo(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-			if (getWallObjectIdFromCoords(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY()) == Object.DOOR.id) {
-				if (System.currentTimeMillis() <= doorTimeout) {
-					return 0;
-				}
+		final Coordinate door = Object.DOOR.getCoordinate();
 
-				atWallObject(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY());
+		if (distanceTo(door.getX(), door.getY()) <= MAX_DIST_FROM_OBJECT) {
+			if (getWallObjectIdFromCoords(door.getX(), door.getY()) == Object.DOOR.id) {
+				if (System.currentTimeMillis() <= doorTimeout) return 0;
+				atWallObject(door.getX(), door.getY());
 				doorTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}
 
-			walkTo(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY());
+			walkTo(door.getX(), door.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		walkTo(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY() - 1);
+		walkTo(door.getX(), door.getY() - 1);
 		return SLEEP_ONE_TICK;
 	}
 
 	private int bank() {
 		if (Area.BANK.contains(playerX, playerY)) {
-			if (attackedByPker) {
-				attackedByPker = false;
-			}
-
-			if (!isBanking()) {
-				return openBank();
-			}
+			if (attackedByPker) attackedByPker = false;
+			if (!isBanking()) return openBank();
 
 			for (int index = 0; index < getInventoryCount(); index++) {
 				final int itemId = getInventoryId(index);
-
-				if (!inArray(ITEM_IDS_LOOT, itemId)) {
-					continue;
-				}
-
+				if (!inArray(ITEM_IDS_LOOT, itemId)) continue;
 				deposit(itemId, getInventoryCount(itemId));
 				return SLEEP_ONE_TICK;
 			}
@@ -310,32 +271,33 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 		}
 
 		if (Area.LADDER_ROOM.contains(playerX, playerY)) {
-			if (getWallObjectIdFromCoords(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY()) == Object.DOOR.id) {
-				if (System.currentTimeMillis() <= doorTimeout) {
-					return 0;
-				}
+			final Coordinate door = Object.DOOR.getCoordinate();
 
-				atWallObject(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY());
+			if (getWallObjectIdFromCoords(door.getX(), door.getY()) == Object.DOOR.id) {
+				if (System.currentTimeMillis() <= doorTimeout) return 0;
+				atWallObject(door.getX(), door.getY());
 				doorTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 				return 0;
 			}
 
-			walkTo(Object.DOOR.coordinate.getX(), Object.DOOR.coordinate.getY() - 1);
+			walkTo(door.getX(), door.getY() - 1);
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerY < COORDINATE_Y_INSIDE_DUNGEON) {
-			if (distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-				if (getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-					atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+		if (playerY < COORD_Y_DUNGEON) {
+			final Coordinate doors = Object.BANK_DOORS.getCoordinate();
+
+			if (distanceTo(doors.getX(), doors.getY()) <= MAX_DIST_FROM_OBJECT) {
+				if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.BANK_DOORS.id) {
+					atObject(doors.getX(), doors.getY());
 					return SLEEP_ONE_SECOND;
 				}
 
-				walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY() + 1);
+				walkTo(doors.getX(), doors.getY() + 1);
 				return SLEEP_ONE_TICK;
 			}
 
-			walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			walkTo(doors.getX(), doors.getY());
 			return SLEEP_ONE_TICK;
 		}
 
@@ -344,16 +306,11 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 
 	private int combatCycle() {
 		if (inCombat()) {
-			if (syncWithAlt) {
-				return syncWithAlt();
-			}
-
+			if (syncWithAlt) return syncWithAlt();
 			return 0;
 		}
 
-		if (getFatigue() >= MAXIMUM_FATIGUE && hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
-			return sleep();
-		}
+		if (getFatigue() >= MAX_FATIGUE && hasInventoryItem(ITEM_ID_SLEEPING_BAG)) return sleep();
 
 		final int[] druid = getNpcById(NPC_ID_CHAOS_DRUID);
 
@@ -369,16 +326,14 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (nextSpawn == null) {
-			return 0;
-		}
+		if (nextSpawn == null) return 0;
 
 		final Coordinate spawnCoordinate = nextSpawn.getCoordinate();
 
 		if (playerX != spawnCoordinate.getX() || playerY != spawnCoordinate.getY()) {
 			if (alts != null && isSpawnCoordinateOccupied(spawnCoordinate)) {
-				nextSpawn.setTimestamp(System.currentTimeMillis());
-				nextSpawn = getOldestSpawn();
+				nextSpawn.setTimestamp(Long.MAX_VALUE);
+				nextSpawn = getNextRespawn();
 				return 0;
 			}
 
@@ -386,10 +341,7 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (syncWithAlt) {
-			return syncWithAlt();
-		}
-
+		if (syncWithAlt) return syncWithAlt();
 		return 0;
 	}
 
@@ -414,54 +366,54 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			}
 		}
 
-		if (playerX < Object.GATE_1.coordinate.getX()) {
-			if (getFatigue() != 0 && hasInventoryItem(ITEM_ID_SLEEPING_BAG)) {
-				return sleep();
-			}
+		Coordinate gate = Object.GATE_1.getCoordinate();
 
-			if (distanceTo(Object.GATE_2.coordinate.getX(), Object.GATE_2.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-				atObject(Object.GATE_2.coordinate.getX(), Object.GATE_2.coordinate.getY());
+		if (playerX < gate.getX()) {
+			if (getFatigue() != 0 && hasInventoryItem(ITEM_ID_SLEEPING_BAG)) return sleep();
+
+			gate = Object.GATE_2.getCoordinate();
+
+			if (distanceTo(gate.getX(), gate.getY()) <= MAX_DIST_FROM_OBJECT) {
+				atObject(gate.getX(), gate.getY());
 				return SLEEP_ONE_SECOND;
 			}
 
-			walkTo(Object.GATE_2.coordinate.getX(), Object.GATE_2.coordinate.getY());
+			walkTo(gate.getX(), gate.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (distanceTo(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-			if (getObjectIdFromCoords(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY()) == Object.GATE_1.id) {
-				atObject(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY());
+		if (distanceTo(gate.getX(), gate.getY()) <= MAX_DIST_FROM_OBJECT) {
+			if (getObjectIdFromCoords(gate.getX(), gate.getY()) == Object.GATE_1.id) {
+				atObject(gate.getX(), gate.getY());
 				return SLEEP_ONE_SECOND;
 			}
 
-			walkTo(Object.GATE_1.coordinate.getX() - 1, Object.GATE_1.coordinate.getY());
+			walkTo(gate.getX() - 1, gate.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		walkTo(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY());
+		walkTo(gate.getX(), gate.getY());
 		return SLEEP_ONE_TICK;
 	}
 
 	private void updateBankLoot() {
 		for (final int itemId : ITEM_IDS_PREMIUM_LOOT) {
 			final int bankCount = bankCount(itemId);
-
-			if (bankCount == 0) {
-				continue;
-			}
-
+			if (bankCount == 0) continue;
 			premiumLoot.put(itemId, bankCount);
 		}
 	}
 
 	private int traverseDungeonToBank() {
-		if (playerY < Object.GATE_2.coordinate.getY()) {
-			if (distanceTo(Object.GATE_2.coordinate.getX(), Object.GATE_2.coordinate.getY()) <= DISTANCE_FROM_GATE_TO_WILDERNESS) {
-				atObject(Object.GATE_2.coordinate.getX(), Object.GATE_2.coordinate.getY());
+		Coordinate gate = Object.GATE_2.getCoordinate();
+
+		if (playerY < gate.getY()) {
+			if (distanceTo(gate.getX(), gate.getY()) <= DIST_GATE_TO_WILD) {
+				atObject(gate.getX(), gate.getY());
 				return SLEEP_ONE_SECOND;
 			}
 
-			walkTo(Object.GATE_2.coordinate.getX() + 1, Object.GATE_2.coordinate.getY() - 1);
+			walkTo(gate.getX() + 1, gate.getY() - 1);
 			return SLEEP_ONE_TICK;
 		}
 
@@ -474,27 +426,31 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			}
 		}
 
-		if (playerX < Object.GATE_1.coordinate.getX()) {
-			if (distanceTo(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-				if (getObjectIdFromCoords(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY()) == Object.GATE_1.id) {
-					atObject(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY());
+		gate = Object.GATE_1.getCoordinate();
+
+		if (playerX < gate.getX()) {
+			if (distanceTo(gate.getX(), gate.getY()) <= MAX_DIST_FROM_OBJECT) {
+				if (getObjectIdFromCoords(gate.getX(), gate.getY()) == Object.GATE_1.id) {
+					atObject(gate.getX(), gate.getY());
 					return SLEEP_ONE_SECOND;
 				}
 
-				walkTo(Object.GATE_1.coordinate.getX(), Object.GATE_1.coordinate.getY());
+				walkTo(gate.getX(), gate.getY());
 				return SLEEP_ONE_TICK;
 			}
 
-			walkTo(Object.GATE_1.coordinate.getX() - 1, Object.GATE_1.coordinate.getY());
+			walkTo(gate.getX() - 1, gate.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (distanceTo(Object.LADDER_UP.coordinate.getX(), Object.LADDER_UP.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-			atObject(Object.LADDER_UP.coordinate.getX(), Object.LADDER_UP.coordinate.getY());
+		final Coordinate ladder = Object.LADDER_UP.getCoordinate();
+
+		if (distanceTo(ladder.getX(), ladder.getY()) <= MAX_DIST_FROM_OBJECT) {
+			atObject(ladder.getX(), ladder.getY());
 			return SLEEP_ONE_SECOND;
 		}
 
-		walkTo(Object.LADDER_UP.coordinate.getX(), Object.LADDER_UP.coordinate.getY() - 1);
+		walkTo(ladder.getX(), ladder.getY() - 1);
 		return SLEEP_ONE_TICK;
 	}
 
@@ -508,7 +464,11 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			final Coordinate coordinate = spawn.getCoordinate();
 			final long timestamp = spawn.getTimestamp();
 
-			sendPrivateMessage(String.format("%d,%d,%d,%d", serverIndex, coordinate.getX(), coordinate.getY(), timestamp), syncPlayerName);
+			sendPrivateMessage(
+				String.format("%d,%d,%d,%d", serverIndex, coordinate.getX(), coordinate.getY(), timestamp),
+				syncPlayerName
+			);
+
 			return SLEEP_ONE_TICK;
 		}
 
@@ -524,27 +484,24 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 		for (int index = 0; index < getGroundItemCount(); index++) {
 			final int groundItemId = getGroundItemId(index);
 
-			if (!inArray(ITEM_IDS_LOOT, groundItemId)) {
-				continue;
-			}
+			if (!inArray(ITEM_IDS_LOOT, groundItemId)) continue;
 
 			final int groundItemX = getItemX(index);
 			final int groundItemY = getItemY(index);
 
-			if (distanceTo(groundItemX, groundItemY) > MAXIMUM_DISTANCE_FROM_LOOT ||
+			if (distanceTo(groundItemX, groundItemY) > MAX_DIST_FROM_LOOT ||
 				!Area.CHAOS_DRUIDS.contains(groundItemX, groundItemY)) {
 				continue;
 			}
 
 			final int distance = distanceTo(groundItemX, groundItemY);
 
-			if (distance < currentDistance) {
-				loot[0] = groundItemId;
-				loot[1] = groundItemX;
-				loot[2] = groundItemY;
+			if (distance >= currentDistance) continue;
+			currentDistance = distance;
 
-				currentDistance = distance;
-			}
+			loot[0] = groundItemId;
+			loot[1] = groundItemX;
+			loot[2] = groundItemY;
 		}
 	}
 
@@ -562,21 +519,16 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 		return false;
 	}
 
-	private Spawn getOldestSpawn() {
-		if (spawnMap.isEmpty()) {
-			return null;
-		}
-
-		return spawnMap.values().stream().sorted().findFirst().get();
+	private Spawn getNextRespawn() {
+		if (spawnMap.isEmpty()) return null;
+		return spawnMap.values().stream().min(Comparator.naturalOrder()).get();
 	}
 
 	private int getBlockingNpc(final int playerX, final int playerY) {
 		final int direction = bot.getMobDirection(bot.getPlayer());
 
 		for (int index = 0; index < bot.getNpcCount(); index++) {
-			if (!inArray(NPC_IDS_BLOCKING, getNpcId(index))) {
-				continue;
-			}
+			if (!inArray(NPC_IDS_BLOCKING, getNpcId(index))) continue;
 
 			final int npcX = getNpcX(index);
 			final int npcY = getNpcY(index);
@@ -588,7 +540,8 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			}
 
 			if (npcX == playerX &&
-				((npcY == playerY - 1 && (direction == DIR_NORTH || direction == DIR_NORTHWEST || direction == DIR_EAST || direction == DIR_NORTHEAST)) ||
+				((npcY == playerY - 1 && (direction == DIR_NORTH || direction == DIR_NORTHWEST ||
+					direction == DIR_EAST || direction == DIR_NORTHEAST)) ||
 					(npcY == playerY + 1 && direction >= DIR_WEST && direction <= DIR_SOUTHEAST))) {
 				return index;
 			}
@@ -599,11 +552,8 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 
 	private boolean isAnAlt(final String playerName) {
 		for (final String alt : alts) {
-			if (alt.equalsIgnoreCase(playerName)) {
-				return true;
-			}
+			if (alt.equalsIgnoreCase(playerName)) return true;
 		}
-
 		return false;
 	}
 
@@ -616,16 +566,11 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_CHAOS_DRUID;
 
@@ -655,32 +600,23 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 	}
 
 	@Override
-	public void onPrivateMessage(final String message, final String playerName, final boolean moderator, final boolean administrator) {
-		if (alts == null || !isAnAlt(playerName)) {
-			return;
-		}
+	public void onPrivateMessage(final String message, final String playerName, final boolean moderator,
+								 final boolean administrator) {
+		if (alts == null || !isAnAlt(playerName)) return;
 
 		if (message.equalsIgnoreCase("sync")) {
-			if (syncWithAlt || spawnMap.isEmpty()) {
-				return;
-			}
-
+			if (syncWithAlt || spawnMap.isEmpty()) return;
 			syncWithAlt = true;
 			syncPlayerName = playerName;
 			syncDataIterator = new HashMap<>(spawnMap).entrySet().iterator();
 		} else {
 			final String[] syncData = message.split(",");
 			final int serverIndex = Integer.parseInt(syncData[0]);
-
-			if (spawnMap.containsKey(serverIndex)) {
-				return;
-			}
-
+			if (spawnMap.containsKey(serverIndex)) return;
 			final Coordinate coordinate = new Coordinate(Integer.parseInt(syncData[1]), Integer.parseInt(syncData[2]));
 			final Spawn spawn = new Spawn(coordinate, Long.parseLong(syncData[3]));
-
 			spawnMap.put(serverIndex, spawn);
-			nextSpawn = getOldestSpawn();
+			nextSpawn = getNextRespawn();
 		}
 	}
 
@@ -694,44 +630,44 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 		}
 
 		final String pkerName = getPkerName();
-
-		if (pkerName != null) {
-			setAttackedByPker(pkerName);
-		}
+		if (pkerName != null) setAttackedByPker(pkerName);
 	}
 
 	@Override
 	public void onNpcSpawned(final java.lang.Object npc) {
-		if (bot.getNpcId(npc) != NPC_ID_CHAOS_DRUID ||
-			!Area.CHAOS_DRUIDS.contains(playerX, playerY)) {
-			return;
-		}
+		if (bot.getNpcId(npc) != NPC_ID_CHAOS_DRUID || !Area.CHAOS_DRUIDS.contains(playerX, playerY)) return;
 
-		if (spawnMap.isEmpty() && alts != null) {
-			requestSyncWithAlt();
-		}
+		if (spawnMap.isEmpty() && alts != null) requestSyncWithAlt();
 
-		final int npcX = bot.getMobLocalX(npc) + bot.getAreaX();
-		final int npcY = bot.getMobLocalY(npc) + bot.getAreaY();
+		final int npcX = getX(npc);
+		final int npcY = getY(npc);
 
-		final int serverIndex = bot.getMobServerIndex(npc);
+		final int serverIndex = getServerIndex(npc);
 
 		final Spawn spawn = spawnMap.get(serverIndex);
 
 		if (spawn != null) {
 			spawn.getCoordinate().set(npcX, npcY);
-			spawn.setTimestamp(System.currentTimeMillis());
+			spawn.setTimestamp(Long.MAX_VALUE);
 		} else {
-			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), System.currentTimeMillis()));
+			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), Long.MAX_VALUE));
 		}
 
-		nextSpawn = getOldestSpawn();
+		nextSpawn = getNextRespawn();
 	}
 
+	@Override
+	public void onNpcDespawned(final java.lang.Object npc) {
+		final int serverIndex = getServerIndex(npc);
+		final Spawn spawn = spawnMap.get(serverIndex);
+		if (spawn == null) return;
+		spawn.setTimestamp(System.currentTimeMillis());
+		nextSpawn = getNextRespawn();
+	}
+
+
 	private void requestSyncWithAlt() {
-		if (System.currentTimeMillis() <= syncRequestTimeout) {
-			return;
-		}
+		if (System.currentTimeMillis() <= syncRequestTimeout) return;
 
 		for (final String alt : alts) {
 			sendPrivateMessage("sync", alt);
@@ -754,9 +690,7 @@ public class AA_EdgevilleChaosDruids extends AA_Script {
 			final String playerName = getPlayerName(index);
 
 			for (final String friend : alts) {
-				if (friend.equalsIgnoreCase(playerName)) {
-					return null;
-				}
+				if (friend.equalsIgnoreCase(playerName)) return null;
 			}
 
 			return playerName;

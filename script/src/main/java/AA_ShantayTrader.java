@@ -344,10 +344,8 @@ public class AA_ShantayTrader extends AA_Script {
 		bot.drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		bot.drawString(String.format("@yel@Role: @gr1@%s", trader ? "Trader" : "Receiver"),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
@@ -362,10 +360,8 @@ public class AA_ShantayTrader extends AA_Script {
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		if (item.getRemaining() > 0) {
-			bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 			bot.drawString(String.format("@yel@Remaining: @whi@%d", item.getRemaining()),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 			bot.drawString(String.format("@yel@Est. Time: @whi@%s",
 					toTimeToCompletion(item.getTraded(), item.getRemaining(), startTime)),
@@ -466,10 +462,6 @@ public class AA_ShantayTrader extends AA_Script {
 		tradeTimeout = System.currentTimeMillis() + MAX_TRADE_DURATION;
 		tradeRequestTimeout = System.currentTimeMillis() + 2000L;
 		return 0;
-	}
-
-	private boolean isTradeOpen() {
-		return bot.isInTradeOffer() || bot.isInTradeConfirm();
 	}
 
 	private int bank() {

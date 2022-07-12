@@ -13,9 +13,9 @@ import com.aposbot.Constants;
  * @Author Chomp
  */
 public class AA_EdgevilleCooker extends AA_Script {
-	private static final long MAXIMUM_TRADE_DURATION = 5000L;
+	private static final long MAX_TRADE_DURATION = 5000L;
 
-	private static final int MAXIMUM_FATIGUE = 99;
+	private static final int MAX_FATIGUE = 99;
 	private static final int ITEM_ID_COOKING_GAUNTLETS = 700;
 
 	private Food food;
@@ -76,10 +76,7 @@ public class AA_EdgevilleCooker extends AA_Script {
 
 	@Override
 	public int main() {
-		if (mule == null) {
-			return trading ? trade() : bank();
-		}
-
+		if (mule == null) return trading ? trade() : bank();
 		return trading ? trade() : cook();
 	}
 
@@ -153,10 +150,7 @@ public class AA_EdgevilleCooker extends AA_Script {
 			}
 
 			if (!isMaster()) {
-				if (isInventoryEmpty() || getInventoryItemId(0) != food.rawId) {
-					trading = false;
-				}
-
+				if (isInventoryEmpty() || getInventoryItemId(0) != food.rawId) trading = false;
 				return 0;
 			}
 
@@ -172,15 +166,11 @@ public class AA_EdgevilleCooker extends AA_Script {
 				return SLEEP_ONE_TICK;
 			}
 
-			if (bot.getPlayerCount() == 1 || System.currentTimeMillis() <= tradeRequestTimeout) {
-				return 0;
-			}
+			if (bot.getPlayerCount() == 1 || System.currentTimeMillis() <= tradeRequestTimeout) return 0;
 
 			final java.lang.Object player = getPlayerFromName(mule);
 
-			if (player == null) {
-				return 0;
-			}
+			if (player == null) return 0;
 
 			return requestTrade(player);
 		}
@@ -213,9 +203,7 @@ public class AA_EdgevilleCooker extends AA_Script {
 
 	private int bank() {
 		if (Area.BANK.contains(getPlayerX(), getPlayerY())) {
-			if (!isBankOpen()) {
-				return openBank();
-			}
+			if (!isBankOpen()) return openBank();
 
 			if (isInventoryEmpty()) {
 				if ((foodRemaining = getBankItemIdCount(food.rawId)) < MAX_TRADE_SIZE * 2) {
@@ -232,9 +220,7 @@ public class AA_EdgevilleCooker extends AA_Script {
 				return 0;
 			}
 
-			if (System.currentTimeMillis() <= bankDepositTimeout) {
-				return 0;
-			}
+			if (System.currentTimeMillis() <= bankDepositTimeout) return 0;
 
 			deposit(getInventoryItemId(0), MAX_INVENTORY_SIZE);
 			bankDepositTimeout = System.currentTimeMillis() + TIMEOUT_FIVE_SECONDS;
@@ -283,15 +269,23 @@ public class AA_EdgevilleCooker extends AA_Script {
 			return 0;
 		}
 
-		if (getFatiguePercent() >= MAXIMUM_FATIGUE) {
+		if (getFatiguePercent() >= MAX_FATIGUE) {
 			final Coordinate bed = Object.BED.getCoordinate();
-			atObject(bed.getX(), bed.getY());
+
+			if (getPlayerX() != bed.getX() - 1 || getPlayerY() != bed.getY() + 1) {
+				walkTo(bed.getX() - 1, bed.getY() + 1);
+				return SLEEP_ONE_TICK;
+			}
+
+			bot.createPacket(Constants.OP_OBJECT_ACTION1);
+			bot.put2(bed.getX());
+			bot.put2(bed.getY());
+			bot.finishPacket();
+
 			return SLEEP_ONE_SECOND;
 		}
 
-		if (System.currentTimeMillis() <= cookTimeout) {
-			return 0;
-		}
+		if (System.currentTimeMillis() <= cookTimeout) return 0;
 
 		final Coordinate range = Object.RANGE.getCoordinate();
 
@@ -313,11 +307,7 @@ public class AA_EdgevilleCooker extends AA_Script {
 		return 0;
 	}
 
-	private boolean isTradeOpen() {
-		return bot.isInTradeOffer() || bot.isInTradeConfirm();
-	}
-
-	public java.lang.Object getPlayerFromName(final String playerName) {
+	private java.lang.Object getPlayerFromName(final String playerName) {
 		java.lang.Object player;
 
 		for (int index = 0; index < bot.getPlayerCount(); index++) {
@@ -332,12 +322,9 @@ public class AA_EdgevilleCooker extends AA_Script {
 	}
 
 	private int requestTrade(final java.lang.Object player) {
-		if (System.currentTimeMillis() <= tradeRequestTimeout) {
-			return 0;
-		}
-
+		if (System.currentTimeMillis() <= tradeRequestTimeout) return 0;
 		sendTradeRequest(player);
-		tradeTimeout = System.currentTimeMillis() + MAXIMUM_TRADE_DURATION;
+		tradeTimeout = System.currentTimeMillis() + MAX_TRADE_DURATION;
 		tradeRequestTimeout = System.currentTimeMillis() + TIMEOUT_TWO_SECONDS;
 		return 0;
 	}
@@ -398,23 +385,15 @@ public class AA_EdgevilleCooker extends AA_Script {
 
 	@Override
 	public void onTradeRequest(final String playerName) {
-		if (mule != null) {
-			return;
-		}
-
-		if (master == null) {
-			master = playerName;
-		}
+		if (mule != null) return;
+		if (master == null) master = playerName;
 
 		if (isInventoryEmpty() || getInventoryItemId(0) != food.rawId || !playerName.equals(master)) {
 			return;
 		}
 
 		final java.lang.Object player = getPlayerFromName(master);
-
-		if (player != null) {
-			requestTrade(player);
-		}
+		if (player != null) requestTrade(player);
 	}
 
 	public enum Food {

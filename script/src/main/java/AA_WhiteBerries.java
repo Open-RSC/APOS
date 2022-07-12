@@ -5,23 +5,23 @@
  * Start script at Red Dragon Isle with a weapon in inventory slot 1.
  * <p>
  * Optional Parameters:
- * -s,--spawn <south|north> (Default south spawn)
+ * <south|north> (Default south spawn)
  * <p>
  *
  * @Author Chomp
  */
 public class AA_WhiteBerries extends AA_Script {
-	private static final Coordinate COORDINATE_LUMBRIDGE_DEATH_WALK = new Coordinate(120, 648);
-	private static final Coordinate COORDINATE_ISLE_DEATH_WALK = new Coordinate(142, 174);
+	private static final Coordinate COORD_LUMBRIDGE = new Coordinate(120, 648);
+	private static final Coordinate COORD_ISLE = new Coordinate(142, 174);
 
-	private static final Coordinate COORDINATE_LOAD_MAGE_BANK = new Coordinate(190, 140);
-	private static final Coordinate COORDINATE_LOAD_LEVER_TO_BANK = new Coordinate(128, 140);
-	private static final Coordinate COORDINATE_LOAD_LEVER_TO_ISLE = new Coordinate(192, 140);
-	private static final Coordinate COORDINATE_LOAD_WILDERNESS_GATE_TO_BANK = new Coordinate(114, 159);
-	private static final Coordinate COORDINATE_LOAD_WILDERNESS_GATE_TO_ISLE = new Coordinate(144, 140);
+	private static final Coordinate COORD_MAGE_BANK = new Coordinate(190, 140);
+	private static final Coordinate CORD_LEVER_TO_BANK = new Coordinate(128, 140);
+	private static final Coordinate COORD_LEVER_TO_ISLE = new Coordinate(192, 140);
+	private static final Coordinate COORD_WILD_GATE_TO_BANK = new Coordinate(114, 159);
+	private static final Coordinate COORD_WILD_GATE_TO_ISLE = new Coordinate(144, 140);
 
 	private static final int NPC_ID_GUNDAI = 792;
-	private static final int COORDINATE_Y_MAGE_BANK = 3000;
+	private static final int COORD_Y_MAGE_BANK = 3000;
 	private static final int ITEM_ID_WHITEBERRIES = 471;
 
 	private WhiteBerries whiteBerries;
@@ -49,23 +49,10 @@ public class AA_WhiteBerries extends AA_Script {
 
 	@Override
 	public void init(final String parameters) {
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-s":
-					case "--spawn":
-						whiteBerries = WhiteBerries.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
-
-		if (whiteBerries == null) {
+		if (parameters.isEmpty()) {
 			whiteBerries = WhiteBerries.SOUTH;
+		} else {
+			whiteBerries = WhiteBerries.valueOf(parameters.toUpperCase());
 		}
 
 		initialWhiteBerryCount = getInventoryCount(ITEM_ID_WHITEBERRIES);
@@ -121,8 +108,8 @@ public class AA_WhiteBerries extends AA_Script {
 			pathWalker.init(null);
 		}
 
-		final PathWalker.Path path = pathWalker.calcPath(COORDINATE_LUMBRIDGE_DEATH_WALK.getX(), COORDINATE_LUMBRIDGE_DEATH_WALK.getY(),
-			COORDINATE_ISLE_DEATH_WALK.getX(), COORDINATE_ISLE_DEATH_WALK.getY());
+		final PathWalker.Path path = pathWalker.calcPath(COORD_LUMBRIDGE.getX(), COORD_LUMBRIDGE.getY(),
+			COORD_ISLE.getX(), COORD_ISLE.getY());
 
 		if (path != null) {
 			pathWalker.setPath(path);
@@ -135,7 +122,7 @@ public class AA_WhiteBerries extends AA_Script {
 	}
 
 	private int bank() {
-		if (playerY >= COORDINATE_Y_MAGE_BANK) {
+		if (playerY >= COORD_Y_MAGE_BANK) {
 			if (!isBanking()) {
 				return openShop(NPC_ID_GUNDAI);
 			}
@@ -168,8 +155,8 @@ public class AA_WhiteBerries extends AA_Script {
 			return SLEEP_ONE_SECOND;
 		}
 
-		if (playerY > COORDINATE_LOAD_WILDERNESS_GATE_TO_BANK.getY()) {
-			walkTo(COORDINATE_LOAD_WILDERNESS_GATE_TO_BANK.getX(), COORDINATE_LOAD_WILDERNESS_GATE_TO_BANK.getY());
+		if (playerY > COORD_WILD_GATE_TO_BANK.getY()) {
+			walkTo(COORD_WILD_GATE_TO_BANK.getX(), COORD_WILD_GATE_TO_BANK.getY());
 			return SLEEP_ONE_TICK;
 		}
 
@@ -183,13 +170,13 @@ public class AA_WhiteBerries extends AA_Script {
 			return SLEEP_ONE_SECOND;
 		}
 
-		if (playerX < COORDINATE_LOAD_LEVER_TO_BANK.getX()) {
-			walkTo(COORDINATE_LOAD_LEVER_TO_BANK.getX(), COORDINATE_LOAD_LEVER_TO_BANK.getY());
+		if (playerX < CORD_LEVER_TO_BANK.getX()) {
+			walkTo(CORD_LEVER_TO_BANK.getX(), CORD_LEVER_TO_BANK.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerX < COORDINATE_LOAD_MAGE_BANK.getX()) {
-			walkTo(COORDINATE_LOAD_MAGE_BANK.getX(), COORDINATE_LOAD_MAGE_BANK.getY());
+		if (playerX < COORD_MAGE_BANK.getX()) {
+			walkTo(COORD_MAGE_BANK.getX(), COORD_MAGE_BANK.getY());
 			return SLEEP_ONE_TICK;
 		}
 
@@ -239,7 +226,7 @@ public class AA_WhiteBerries extends AA_Script {
 	}
 
 	private int collect() {
-		if (playerY > COORDINATE_Y_MAGE_BANK) {
+		if (playerY > COORD_Y_MAGE_BANK) {
 			atObject(Object.LADDER_UP.coordinate.getX(), Object.LADDER_UP.coordinate.getY());
 			return SLEEP_ONE_TICK;
 		}
@@ -276,7 +263,7 @@ public class AA_WhiteBerries extends AA_Script {
 			return SLEEP_ONE_SECOND;
 		}
 
-		if (playerX <= COORDINATE_LOAD_WILDERNESS_GATE_TO_ISLE.getX()) {
+		if (playerX <= COORD_WILD_GATE_TO_ISLE.getX()) {
 			if (distanceTo(Object.WILDERNESS_GATE.coordinate.getX(), Object.WILDERNESS_GATE.coordinate.getY()) > 1) {
 				walkTo(Object.WILDERNESS_GATE.coordinate.getX(), Object.WILDERNESS_GATE.coordinate.getY() - 1);
 				return SLEEP_ONE_TICK;
@@ -286,8 +273,8 @@ public class AA_WhiteBerries extends AA_Script {
 			return SLEEP_ONE_SECOND;
 		}
 
-		if (playerX <= COORDINATE_LOAD_LEVER_TO_ISLE.getX()) {
-			walkTo(COORDINATE_LOAD_WILDERNESS_GATE_TO_ISLE.getX(), COORDINATE_LOAD_WILDERNESS_GATE_TO_ISLE.getY());
+		if (playerX <= COORD_LEVER_TO_ISLE.getX()) {
+			walkTo(COORD_WILD_GATE_TO_ISLE.getX(), COORD_WILD_GATE_TO_ISLE.getY());
 			return SLEEP_ONE_TICK;
 		}
 
@@ -327,7 +314,7 @@ public class AA_WhiteBerries extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		walkTo(COORDINATE_LOAD_LEVER_TO_ISLE.getX(), COORDINATE_LOAD_LEVER_TO_ISLE.getY());
+		walkTo(COORD_LEVER_TO_ISLE.getX(), COORD_LEVER_TO_ISLE.getY());
 		return SLEEP_ONE_TICK;
 	}
 
@@ -364,20 +351,16 @@ public class AA_WhiteBerries extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final int count = Math.max(0, whiteBerriesCollected + getInventoryCount() - initialWhiteBerryCount - 1);
 
 		drawString(String.format("@yel@Berries: @whi@%s @cya@(@whi@%s per@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(count), toUnitsPerHour(count, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-		if (whiteBerriesBanked > 0) {
-			drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		if (whiteBerriesBanked <= 0) return;
 
-			drawString(String.format("@gre@Total Banked: @whi@%s", DECIMAL_FORMAT.format(whiteBerriesBanked)),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		drawString(String.format("@gre@Total Banked: @whi@%s", DECIMAL_FORMAT.format(whiteBerriesBanked)),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 	}
 
 	private enum WhiteBerries implements RSObject {

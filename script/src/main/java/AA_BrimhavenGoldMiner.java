@@ -47,16 +47,7 @@ public class AA_BrimhavenGoldMiner extends AA_Script {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
 		}
 
-		boolean missingPickaxe = true;
-
-		for (final int pickaxeId : ITEM_IDS_PICKAXE) {
-			if (hasInventoryItem(pickaxeId)) {
-				missingPickaxe = false;
-				break;
-			}
-		}
-
-		if (missingPickaxe) {
+		if (!hasInventoryItem(ITEM_IDS_PICKAXE)) {
 			throw new IllegalStateException("Pickaxe missing from inventory.");
 		}
 

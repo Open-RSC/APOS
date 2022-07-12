@@ -1,3 +1,4 @@
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -9,16 +10,16 @@ import java.util.TreeMap;
  * Start script at Taverley Dungeon or Falador West Bank with sleeping bag in inventory.
  * <p>
  * Optional Parameter
- * -f,--fightmode <controlled|attack|strength|defense>
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  *
  * @Author Chomp
  */
 public class AA_TaverleyChaosDruids extends AA_Script {
-	private static final Coordinate COORDINATE_CHAOS_DRUIDS = new Coordinate(345, 3318);
-	private static final Coordinate COORDINATE_LOAD_LADDER = new Coordinate(376, 3336);
-	private static final Coordinate COORDINATE_LOAD_FALADOR = new Coordinate(324, 512);
-	private static final Coordinate COORDINATE_LOAD_MEMBERS_GATE = new Coordinate(326, 544);
+	private static final Coordinate COORD_CHAOS_DRUIDS = new Coordinate(345, 3318);
+	private static final Coordinate COORD_LADDER = new Coordinate(376, 3336);
+	private static final Coordinate COORD_FALADOR = new Coordinate(324, 512);
+	private static final Coordinate COORD_MEMBERS_GATE = new Coordinate(326, 544);
 
 	private static final int[] ITEM_IDS_LOOT = new int[]{
 		33, 34, 35, 36, 40, 42,
@@ -31,9 +32,9 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 	private static final int NPC_ID_CHAOS_DRUID = 270;
 	private static final int NPC_XP_CHAOS_DRUID = 58;
 
-	private static final int COORDINATE_Y_DUNGEON = 3000;
-	private static final int MAXIMUM_FATIGUE = 99;
-	private static final int MAXIMUM_DISTANCE_FROM_OBJECT = 18;
+	private static final int COORD_Y_DUNGEON = 3000;
+	private static final int MAX_FATIGUE = 99;
+	private static final int MAX_DIST_FROM_OBJ = 18;
 
 	private final int[] loot = new int[3];
 
@@ -60,20 +61,7 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 			throw new IllegalStateException("Sleeping bag missing from inventory.");
 		}
 
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
 
 		setCombatStyle(combatStyle.getIndex());
 		initialCombatXp = getTotalCombatXp();
@@ -121,38 +109,42 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 			return SLEEP_ONE_SECOND;
 		}
 
-		if (playerY < COORDINATE_Y_DUNGEON) {
-			if (playerX <= Object.MEMBERS_GATE.coordinate.getX()) {
-				if (playerY >= COORDINATE_LOAD_FALADOR.getY()) {
-					if (distanceTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-						if (getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-							atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+		if (playerY < COORD_Y_DUNGEON) {
+			final Coordinate gate = Object.MEMBERS_GATE.getCoordinate();
+
+			if (playerX <= gate.getX()) {
+				if (playerY >= COORD_FALADOR.getY()) {
+					final Coordinate doors = Object.BANK_DOORS.getCoordinate();
+
+					if (distanceTo(doors.getX(), doors.getY()) <= MAX_DIST_FROM_OBJ) {
+						if (getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.BANK_DOORS.id) {
+							atObject(doors.getX(), doors.getY());
 							return SLEEP_ONE_SECOND;
 						}
 
-						walkTo(Object.BANK_DOORS.coordinate.getX() + 1, Object.BANK_DOORS.coordinate.getY());
+						walkTo(doors.getX() + 1, doors.getY());
 						return SLEEP_ONE_TICK;
 					}
 
-					walkTo(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+					walkTo(doors.getX(), doors.getY());
 					return SLEEP_ONE_TICK;
 				}
 
-				walkTo(COORDINATE_LOAD_FALADOR.getX(), COORDINATE_LOAD_FALADOR.getY());
+				walkTo(COORD_FALADOR.getX(), COORD_FALADOR.getY());
 				return SLEEP_ONE_TICK;
 			}
 
-			if (distanceTo(Object.MEMBERS_GATE.coordinate.getX(), Object.MEMBERS_GATE.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+			if (distanceTo(gate.getX(), gate.getY()) <= MAX_DIST_FROM_OBJ) {
 				if (System.currentTimeMillis() <= openGateTimeout) {
 					return 0;
 				}
 
-				atObject(Object.MEMBERS_GATE.coordinate.getX(), Object.MEMBERS_GATE.coordinate.getY());
+				atObject(gate.getX(), gate.getY());
 				openGateTimeout = System.currentTimeMillis() + TIMEOUT_TEN_SECONDS;
 				return 0;
 			}
 
-			walkTo(Object.MEMBERS_GATE.coordinate.getX() + 1, Object.MEMBERS_GATE.coordinate.getY());
+			walkTo(gate.getX() + 1, gate.getY());
 			return SLEEP_ONE_TICK;
 		}
 
@@ -165,12 +157,13 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 			}
 		}
 
-		if (playerY >= COORDINATE_LOAD_LADDER.getY()) {
-			atObject(Object.LADDER_UP.coordinate.getX(), Object.LADDER_UP.coordinate.getY());
+		if (playerY >= COORD_LADDER.getY()) {
+			final Coordinate ladder = Object.LADDER_UP.getCoordinate();
+			atObject(ladder.getX(), ladder.getY());
 			return SLEEP_ONE_SECOND;
 		}
 
-		walkTo(COORDINATE_LOAD_LADDER.getX(), COORDINATE_LOAD_LADDER.getY());
+		walkTo(COORD_LADDER.getX(), COORD_LADDER.getY());
 		return SLEEP_ONE_TICK;
 	}
 
@@ -180,7 +173,7 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 				return 0;
 			}
 
-			if (getFatigue() >= MAXIMUM_FATIGUE) {
+			if (getFatigue() >= MAX_FATIGUE) {
 				return sleep();
 			}
 
@@ -207,7 +200,7 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 			return 0;
 		}
 
-		if (playerY > COORDINATE_Y_DUNGEON) {
+		if (playerY > COORD_Y_DUNGEON) {
 			if (!inCombat()) {
 				final int blockingNpc = getBlockingNpc();
 
@@ -221,42 +214,48 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 				resetSpawns();
 			}
 
-			walkTo(COORDINATE_CHAOS_DRUIDS.getX(), COORDINATE_CHAOS_DRUIDS.getY());
+			walkTo(COORD_CHAOS_DRUIDS.getX(), COORD_CHAOS_DRUIDS.getY());
 			return SLEEP_ONE_TICK;
 		}
 
-		if (playerX > Object.MEMBERS_GATE.coordinate.getX()) {
-			if (distanceTo(Object.LADDER_DOWN.coordinate.getX(), Object.LADDER_DOWN.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
-				atObject(Object.LADDER_DOWN.coordinate.getX(), Object.LADDER_DOWN.coordinate.getY());
+		final Coordinate gate = Object.MEMBERS_GATE.getCoordinate();
+
+		if (playerX > gate.getX()) {
+			final Coordinate ladder = Object.LADDER_DOWN.getCoordinate();
+
+			if (distanceTo(ladder.getX(), ladder.getY()) <= MAX_DIST_FROM_OBJ) {
+				atObject(ladder.getX(), ladder.getY());
 				return SLEEP_ONE_SECOND;
 			}
 
-			walkTo(Object.LADDER_DOWN.coordinate.getX(), Object.LADDER_DOWN.coordinate.getY() + 1);
+			walkTo(ladder.getX(), ladder.getY() + 1);
 			return SLEEP_ONE_TICK;
 		}
 
-		if (distanceTo(Object.MEMBERS_GATE.coordinate.getX(), Object.MEMBERS_GATE.coordinate.getY()) <= MAXIMUM_DISTANCE_FROM_OBJECT) {
+		if (distanceTo(gate.getX(), gate.getY()) <= MAX_DIST_FROM_OBJ) {
 			if (System.currentTimeMillis() <= openGateTimeout) {
 				return 0;
 			}
 
-			atObject(Object.MEMBERS_GATE.coordinate.getX(), Object.MEMBERS_GATE.coordinate.getY());
+			atObject(gate.getX(), gate.getY());
 			openGateTimeout = System.currentTimeMillis() + TIMEOUT_TEN_SECONDS;
 			return 0;
 		}
 
-		if (playerY <= COORDINATE_LOAD_MEMBERS_GATE.getY()) {
-			walkTo(Object.MEMBERS_GATE.coordinate.getX(), Object.MEMBERS_GATE.coordinate.getY());
+		if (playerY <= COORD_MEMBERS_GATE.getY()) {
+			walkTo(gate.getX(), gate.getY());
 			return SLEEP_ONE_TICK;
 		}
 
+		final Coordinate doors = Object.BANK_DOORS.getCoordinate();
+
 		if (Area.BANK.contains(playerX, playerY) &&
-			getObjectIdFromCoords(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY()) == Object.BANK_DOORS.id) {
-			atObject(Object.BANK_DOORS.coordinate.getX(), Object.BANK_DOORS.coordinate.getY());
+			getObjectIdFromCoords(doors.getX(), doors.getY()) == Object.BANK_DOORS.id) {
+			atObject(doors.getX(), doors.getY());
 			return SLEEP_ONE_SECOND;
 		}
 
-		walkTo(COORDINATE_LOAD_MEMBERS_GATE.getX(), COORDINATE_LOAD_MEMBERS_GATE.getY());
+		walkTo(COORD_MEMBERS_GATE.getX(), COORD_MEMBERS_GATE.getY());
 		return SLEEP_ONE_TICK;
 	}
 
@@ -289,7 +288,8 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 			}
 
 			if (npcX == playerX &&
-				((npcY == playerY - 1 && (direction == DIR_NORTH || direction == DIR_NORTHEAST)) || (npcY == playerY + 1 && (direction == DIR_SOUTH || direction == DIR_SOUTHWEST)))) {
+				((npcY == playerY - 1 && (direction == DIR_NORTH || direction == DIR_NORTHEAST)) ||
+					(npcY == playerY + 1 && (direction == DIR_SOUTH || direction == DIR_SOUTHWEST)))) {
 				return index;
 			}
 		}
@@ -342,16 +342,11 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_CHAOS_DRUID;
 
@@ -377,25 +372,37 @@ public class AA_TaverleyChaosDruids extends AA_Script {
 
 	@Override
 	public void onNpcSpawned(final java.lang.Object npc) {
-		if (bot.getNpcId(npc) != NPC_ID_CHAOS_DRUID) {
-			return;
-		}
+		if (bot.getNpcId(npc) != NPC_ID_CHAOS_DRUID) return;
 
-		final int npcX = bot.getMobLocalX(npc) + bot.getAreaX();
-		final int npcY = bot.getMobLocalY(npc) + bot.getAreaY();
+		final int npcX = getX(npc);
+		final int npcY = getY(npc);
 
-		final int serverIndex = bot.getMobServerIndex(npc);
+		final int serverIndex = getServerIndex(npc);
 
 		final Spawn spawn = spawnMap.get(serverIndex);
 
 		if (spawn != null) {
 			spawn.getCoordinate().set(npcX, npcY);
-			spawn.setTimestamp(System.currentTimeMillis());
+			spawn.setTimestamp(Long.MAX_VALUE);
 		} else {
-			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), System.currentTimeMillis()));
+			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), Long.MAX_VALUE));
 		}
 
-		nextRespawn = spawnMap.isEmpty() ? null : spawnMap.values().stream().sorted().findFirst().get().getCoordinate();
+		nextRespawn = getNextRespawn();
+	}
+
+	@Override
+	public void onNpcDespawned(final java.lang.Object npc) {
+		final int serverIndex = getServerIndex(npc);
+		final Spawn spawn = spawnMap.get(serverIndex);
+		if (spawn == null) return;
+		spawn.setTimestamp(System.currentTimeMillis());
+		nextRespawn = getNextRespawn();
+	}
+
+	private Coordinate getNextRespawn() {
+		if (spawnMap.isEmpty()) return null;
+		return spawnMap.values().stream().min(Comparator.naturalOrder()).get().getCoordinate();
 	}
 
 	private enum Area implements RSArea {

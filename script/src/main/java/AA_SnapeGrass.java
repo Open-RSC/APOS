@@ -156,20 +156,16 @@ public class AA_SnapeGrass extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final int count = Math.max(0, snapeGrassCollected + getInventoryCount() - initialSnapeGrassCount - 1);
 
 		drawString(String.format("@yel@Snapes: @whi@%s @cya@(@whi@%s grass@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(count), toUnitsPerHour(count, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
-		if (snapeGrassBanked > 0) {
-			drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		if (snapeGrassBanked <= 0) return;
 
-			drawString(String.format("@gre@Total Banked: @whi@%s", DECIMAL_FORMAT.format(snapeGrassBanked)),
-				PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
-		}
+		drawString(String.format("@gre@Total Banked: @whi@%s", DECIMAL_FORMAT.format(snapeGrassBanked)),
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 	}
 
 	@Override

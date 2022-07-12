@@ -275,7 +275,7 @@ public class AA_FireGiantsWilderness extends AA_Script {
 			}
 
 			bot.drawString(String.format("%s: @whi@%d", getItemNameId(itemId), entry.getValue()),
-				xOffset, y += PAINT_OFFSET_Y_INCREMENT, Font.BOLD, getItemColor(itemId));
+				xOffset, y += PAINT_OFFSET_Y_INCREMENT, 1, getItemColor(itemId));
 		}
 	}
 

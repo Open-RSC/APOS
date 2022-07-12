@@ -1,3 +1,4 @@
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -9,7 +10,7 @@ import java.util.TreeMap;
  * Start script at Yanille Bank with sleeping bag and lockpick in inventory.
  * <p>
  * Optional Parameter
- * -f,--fightmode <controlled|attack|strength|defense>
+ * <controlled|attack|strength|defense> (default strength)
  * <p>
  *
  * @Author Chomp
@@ -22,7 +23,8 @@ public class AA_YanilleChaosDruids extends AA_Script {
 		157, 158, 159, 160, 165, 220,
 		435, 436, 437, 438, 439, 440, 441, 442, 443, 464, 469, 471, 473, 497,
 		526, 527, 1092, 1277};
-	private static final int[] ITEM_IDS_PREMIUM_LOOT = new int[]{220, 438, 439, 441, 442, 443, 469, 471, 473, 526, 527, 1092, 1277};
+	private static final int[] ITEM_IDS_PREMIUM_LOOT = new int[]{
+		220, 438, 439, 441, 442, 443, 469, 471, 473, 526, 527, 1092, 1277};
 	private static final int[] NPC_IDS_CHAOS_DRUID = new int[]{270, 555};
 
 	private static final int NPC_XP_CHAOS_DRUID = 58;
@@ -69,20 +71,7 @@ public class AA_YanilleChaosDruids extends AA_Script {
 			throw new IllegalStateException("Lockpick missing from inventory.");
 		}
 
-		if (!parameters.isEmpty()) {
-			final String[] args = parameters.split(" ");
-
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i].toLowerCase()) {
-					case "-f":
-					case "--fightmode":
-						combatStyle = CombatStyle.valueOf(args[++i].toUpperCase());
-						break;
-					default:
-						throw new IllegalArgumentException("Error: malformed parameters. Try again ...");
-				}
-			}
-		}
+		if (!parameters.isEmpty()) combatStyle = CombatStyle.valueOf(parameters.toUpperCase());
 
 		setCombatStyle(combatStyle.getIndex());
 		initialCombatXp = getTotalCombatXp();
@@ -244,8 +233,7 @@ public class AA_YanilleChaosDruids extends AA_Script {
 			return SLEEP_ONE_TICK;
 		}
 
-		if (nextRespawn != null &&
-			(playerX != nextRespawn.getX() || playerY != nextRespawn.getY())) {
+		if (nextRespawn != null && (playerX != nextRespawn.getX() || playerY != nextRespawn.getY())) {
 			walkTo(nextRespawn.getX(), nextRespawn.getY());
 			return SLEEP_ONE_TICK;
 		}
@@ -418,16 +406,11 @@ public class AA_YanilleChaosDruids extends AA_Script {
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString(String.format("@yel@Pid: @whi@%d", bot.getMobServerIndex(bot.getPlayer())),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double xpGained = getTotalCombatXp() - initialCombatXp;
 
 		drawString(String.format("@yel@Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(xpGained), toUnitsPerHour((int) xpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		final int kills = (int) xpGained / NPC_XP_CHAOS_DRUID;
 
@@ -436,7 +419,8 @@ public class AA_YanilleChaosDruids extends AA_Script {
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		if (nextRespawn != null) {
-			drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)", nextRespawn.getX(), nextRespawn.getY()),
+			drawString(String.format("@yel@Next spawn: @cya@(@whi@%d@cya@, @whi@%d@cya@)",
+					nextRespawn.getX(), nextRespawn.getY()),
 				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 		}
 
@@ -454,28 +438,38 @@ public class AA_YanilleChaosDruids extends AA_Script {
 	public void onNpcSpawned(final java.lang.Object npc) {
 		final int npcId = bot.getNpcId(npc);
 
-		if (npcId != NPC_IDS_CHAOS_DRUID[0] && npcId != NPC_IDS_CHAOS_DRUID[1]) {
-			return;
-		}
+		if (npcId != NPC_IDS_CHAOS_DRUID[0] && npcId != NPC_IDS_CHAOS_DRUID[1]) return;
 
-		final int npcX = bot.getMobLocalX(npc) + bot.getAreaX();
-		final int npcY = bot.getMobLocalY(npc) + bot.getAreaY();
+		final int npcX = getX(npc);
+		final int npcY = getY(npc);
 
-		if (!Area.CHAOS_DRUIDS.contains(npcX, npcY)) {
-			return;
-		}
+		if (!Area.CHAOS_DRUIDS.contains(npcX, npcY)) return;
 
-		final int serverIndex = bot.getMobServerIndex(npc);
+		final int serverIndex = getServerIndex(npc);
 		final Spawn spawn = spawnMap.get(serverIndex);
 
 		if (spawn != null) {
 			spawn.getCoordinate().set(npcX, npcY);
-			spawn.setTimestamp(System.currentTimeMillis());
+			spawn.setTimestamp(Long.MAX_VALUE);
 		} else {
-			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), System.currentTimeMillis()));
+			spawnMap.put(serverIndex, new Spawn(new Coordinate(npcX, npcY), Long.MAX_VALUE));
 		}
 
-		nextRespawn = spawnMap.isEmpty() ? null : spawnMap.values().stream().sorted().findFirst().get().getCoordinate();
+		nextRespawn = getNextRespawn();
+	}
+
+	@Override
+	public void onNpcDespawned(final java.lang.Object npc) {
+		final int serverIndex = getServerIndex(npc);
+		final Spawn spawn = spawnMap.get(serverIndex);
+		if (spawn == null) return;
+		spawn.setTimestamp(System.currentTimeMillis());
+		nextRespawn = getNextRespawn();
+	}
+
+	private Coordinate getNextRespawn() {
+		if (spawnMap.isEmpty()) return null;
+		return spawnMap.values().stream().min(Comparator.naturalOrder()).get().getCoordinate();
 	}
 
 	private enum Area implements RSArea {

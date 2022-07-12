@@ -249,25 +249,19 @@ public class AA_WineOfZamorak extends AA_Script {
 		bot.drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		if (winesCollected == 0) {
-			return;
-		}
-
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+		if (winesCollected == 0) return;
 
 		bot.drawString(String.format("@yel@Collected: @whi@%d @cya@(@whi@%s wines@cya@/@whi@hr@cya@)",
 				winesCollected, toUnitsPerHour(winesCollected, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		bot.drawString(String.format("@yel@Banked: @whi@%d", winesBanked),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		bot.drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final int lawRuneCount = bot.getInventoryStack(lawRuneIndex);
 
 		bot.drawString(String.format("@yel@Law Runes: @whi@%d", lawRuneCount),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		bot.drawString(String.format("@yel@Time remaining: @whi@%s",
 				toTimeToCompletion(winesCollected, lawRuneCount, startTime)),

@@ -380,32 +380,29 @@ public class AA_FishingGuild extends AA_Script {
 		int y = PAINT_OFFSET_Y;
 
 		drawString("@yel@Fishing Guild", PAINT_OFFSET_X, y, 1, 0);
+
 		drawString(String.format("@yel@Catching: @gr1@%s", fish.cookedCertName),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		drawString(String.format("@yel@Runtime: @whi@%s", toDuration(startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		final double fishingXpGained = getAccurateXpForLevel(Skill.FISHING.getIndex()) - initialFishingXp;
 
 		drawString(String.format("@cya@Fishing Xp: @whi@%s @cya@(@whi@%s xp@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(fishingXpGained), toUnitsPerHour((int) fishingXpGained, startTime)),
-			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 		drawString(String.format("@cya@Fish Caught: @whi@%s @cya@(@whi@%s fish@cya@/@whi@hr@cya@)",
 				DECIMAL_FORMAT.format(fishCaught), toUnitsPerHour(fishCaught, startTime)),
 			PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
 
 		if (cooking) {
-			drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 			final double cookingXpGained = getAccurateXpForLevel(Skill.COOKING.getIndex()) - initialCookingXp;
 
 			drawString(String.format("@or1@Cooking Xp: @whi@%s @or1@(@whi@%s xp@or1@/@whi@hr@or1@)",
 					DECIMAL_FORMAT.format(cookingXpGained), toUnitsPerHour((int) cookingXpGained, startTime)),
-				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
+				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 
 			drawString(String.format("@or1@Fish Cooked: @whi@%s", DECIMAL_FORMAT.format(fishCooked)),
 				PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
@@ -416,10 +413,8 @@ public class AA_FishingGuild extends AA_Script {
 			}
 		}
 
-		drawString("", PAINT_OFFSET_X, y += PAINT_OFFSET_Y_INCREMENT, 1, 0);
-
 		drawString(String.format("@gre@Fish Certed: @whi@%s", DECIMAL_FORMAT.format(fishCerted)),
-			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT, 1, 0);
+			PAINT_OFFSET_X, y + PAINT_OFFSET_Y_INCREMENT * 2, 1, 0);
 	}
 
 	@Override
