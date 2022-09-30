@@ -1,15 +1,13 @@
-import java.awt.event.KeyEvent;
-
 public class Abyte0_FlyFisher extends Abyte0_Script
 {
 
 	int extraDelay = 0;
-
+	
 	int initialXp = 0;
 	long initialTime = 0;
 	int defaultTime = 420;
 	boolean needToMove = false;
-
+	
 	@Override
 	public String[] getRandomQuotes()
 	{
@@ -20,8 +18,8 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 	public Abyte0_FlyFisher(Extension e)
 	{
 		super(e);
-	}
-
+	}    
+	
 	public void init( String params )
 	{
 		print("Abyte0 : Power Fly Fisher V0.4");
@@ -29,11 +27,11 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 		print("Abyte0 : F2 reset counters");
 		print("Abyte0 : Numpad + increase delay");
 		print("Abyte0 : Numpad - decrease delay");
-
+		
 		initialXp = getFishingXp();
 		initialTime = System.currentTimeMillis();
 	}
-
+	
 	public int main()
 	{
 		SayRandomQuote();
@@ -42,48 +40,48 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 			changePosition();
 			return 500;
 		}
-
+		
 		if(getFightMode() != 3)
 		{
 			setFightMode(3);
 		}
-
+		
 		if(getFatigue() > 95)
 		{
 			useSleepingBag();
 			return 1000;
 		}
-
+		
 		atObject(208,501);
 		return defaultTime + extraDelay;
 	}
-
+	
 	private void decreaseDelay()
 	{
 		extraDelay -= 10;
 		print("extra delay is now " + extraDelay);
 	}
-
+	
 	private void increaseDelay()
 	{
 		extraDelay += 10;
 		print("extra delay is now " + extraDelay);
 	}
-
+	
 	private void resetCounters()
 	{
 		initialXp = getFishingXp();
 		initialTime = System.currentTimeMillis();
 	}
-
-	private void reportXpChange()
+	
+	protected void reportXpChange()
 	{
-
+		
 		int xpDifference = getFishingXp() - initialXp;
 		long timeSpan = System.currentTimeMillis() - initialTime;
 		long secondSpan = timeSpan / 1000;
 		long xpRatio = xpDifference * 3600L / secondSpan; //The L set 3600 as long variable Forcing to calculate as long to avoid overflow
-
+		
 
 		print("=================================");
 		print("initialXp: " + initialXp);
@@ -94,7 +92,7 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 		print("=================================");
 		print("fish time = " + (defaultTime + extraDelay));
 	}
-
+	
 	private int getFishingXp()
 	{
 		return getXpForLevel(10);
@@ -106,50 +104,50 @@ public class Abyte0_FlyFisher extends Abyte0_Script
         if (s.contains("standing here for 5 mins!")) {
 			needToMove = true;
         }
-
+		
     }
 
     @Override
     public void onChatMessage(String msg, String name, boolean mod, boolean admin) {
-
+        
 		//Do not reply to yourself
-		final String lname = client.getPlayerName(client.getPlayer());
+		final String lname = client.getPlayerName(client.getPlayer());		
         if(name.equalsIgnoreCase(lname)) return;
-
+		
 		String receivedLC = msg.toLowerCase();
-
+		
         if (receivedLC.contains("feather") && receivedLC.contains("?")) {
 			if(receivedLC.contains("you"))
 				Say("Nice, I still have " + getInventoryCount(381) + " feathers...");
 			else
 				Say("I got " + getInventoryCount(381) + " feathers left, what about you?");
         }
-
+		
         if (receivedLC.contains("miami") || receivedLC.contains("landed") || receivedLC.contains("fisherman") || receivedLC.contains("hunting")) {
 			Say("hehe, where are you from?");
 		}
-
+		
 		super.onChatMessage(msg, name, mod, admin);
     }
 
-	public void onKeyPress(int keyCode) {
+    public void onKeyPress(int keyCode) {
 		if (keyCode == 192 || keyCode == 128) { //#, ` next to 1 above tab
 			reportXpChange();
-		}
+        }
 		if (keyCode == 107) { //+
 			increaseDelay();
-		}
+        }
 		if (keyCode == 109) { //-
 			decreaseDelay();
-		}
+        }
 		if (keyCode == 113) { //F2
 			resetCounters();
-		}
-
-
+        }
+		
+		
 		//print(""+keyCode);
-	}
-
+    }
+    
 	private void changePosition()
 	{
 		if(getX() == 210)
@@ -157,11 +155,11 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 		else
 			walkTo(210,501);
 	}
-
+	
 	//97 fishing
 	//240 = 53k / h after 37500 s
 	//330 = 52k / h after 5700s
 	//420 = 53k / h after 10300s
 	//990 = 47k / h after 5200s
-
+	
 }

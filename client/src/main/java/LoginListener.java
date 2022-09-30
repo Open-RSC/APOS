@@ -5,7 +5,7 @@ import com.aposbot.gui.BotFrame;
 /**
  * Handles auto-login.
  */
-final class LoginListener implements ILoginListener {
+public final class LoginListener implements ILoginListener {
 	private static final LoginListener instance = new LoginListener();
 
 	private final IClient client;
@@ -56,7 +56,7 @@ final class LoginListener implements ILoginListener {
 		next_attempt = System.currentTimeMillis() + 5000L;
 	}
 
-	static LoginListener getInstance() {
+	public static LoginListener getInstance() {
 		return instance;
 	}
 

@@ -15,39 +15,55 @@
 		//2.0.1 2022-01-08 - Bank half full wine if you drink wines as food, support 330 as full cake
 		//2.0.2 2022-01-08 - Pickup rares from ground, will stay in inv...
 		//2.1 2022-01-27 - Will try to move to avoid reloggin [Require Abyte0_Script 1.7.3+]
-
-import java.awt.event.KeyEvent;
-
-public class Abyte0_Paladin extends Abyte0_Script
+		//2.2 2022-01-28 - degelated some task to the super class [Require Abyte0_Script 1.7.4+]
+		//2.3 2022-02-14 - Updated to work with abyte0_Script 1.8  [require abyte0_Script 1.8+]
+		
+public class Abyte0_Paladin extends Abyte0_Script 
 {
-	//============ CONFIG START ============//
+	//============ CONFIG START ============//	
 	boolean eatFoodToPickMITH_BAR_ID = false; //change this to true if you want to eat food to be able to pick mith bar....
 	boolean keepOneExtraInventorySpace = true; //This will try to leave bank with one remaining empty space
 	int fightMode = 3; //0 Controlled, 1 Strength, 2 Attack, 3 Defence
 	//============= CONFIG END= ============//
-
-	public String SCRIPT_VERSION = "2.1";
-
+	
+	private final String SCRIPT_VERSION = "2.3";
+	
 	@Override
 	public String[] getRandomQuotes()
 	{
 		String[] result = {
-};
+			"Thieving level?",
+			"Nice wallet",
+			"Once a thief, always a thief",
+			"give me that wallet!",
+			"fking bots!",
+			"Wanna buy a watch?",
+			"I stole a million from that guy over there!",
+			"I stole his keys, kill him you'll see he wont drop any!",
+			"nice xp!",
+			"yo!",
+			"I am what I am, but I'm not a thief",
+			"Nice hat bro",
+			"is that a rune armore?",
+			"what food do you use?",
+			"this is so quick xp",
+			"anyone here?",
+			"why such low pid?",
+			"so hard to thieve these with so many bots",
+			"almost 92 thieving legit",
+			"I bet your thief lvl is like 99?!",
+			"bro"};
 		return result;
 	}
 
-	public Abyte0_Paladin(Extension e) {super(e);}
-	public void init(String params)
+	public Abyte0_Paladin(Extension e) {super(e);}		
+	public void init(String params) 
 	{
-		print("Abyte0_Paladin");
-		print("Thiever for Paladin Tower in Ardougne");
+		print("Abyte0_Paladin Thiever for Paladin Tower in Ardougne");
 		print("Version " + SCRIPT_VERSION);
 
-		print("Press # or ' for stats");
-		print("Press F2 to reset stats");
-
-		print("Abyte0_paladin fmode,foodId,foodId,...");
-
+		printHelp();
+		
 		if(params.equals(""))
 		{
 			loadAllFoods();
@@ -55,7 +71,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 		}
 		else
 		{
-			String[] in = params.split(",");
+			String[] in = params.split(",");		
 			fightMode = Integer.parseInt(in[0]);
 			if(in.length > 1)
 			{
@@ -66,7 +82,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 				}
 				else
 				{
-					foodIDs = new int[in.length - 1];
+					foodIDs = new int[in.length - 1];		
 					for(int i = 0; i < foodIDs.length; i++)
 						foodIDs[i] = Integer.parseInt(in[i + 1]);
 				}
@@ -77,124 +93,127 @@ public class Abyte0_Paladin extends Abyte0_Script
 				print("@or3@No food id provided, script will use any known food found in bank");
 			}
 		}
-
+		
 		initialXp = getThievingXp();
 		initialTime = System.currentTimeMillis();
-	}
-
+		
+		//Do not change
+		hasStatistics = true;
+	}	
+	
 	private void loadAllFoods()
 	{
-		foodIDs = new int[ALL_KNOWN_FOODS.length];
+		foodIDs = new int[ALL_KNOWN_FOODS.length];		
 		for(int i = 0; i < ALL_KNOWN_FOODS.length; i++)
-			foodIDs[i] = ALL_KNOWN_FOODS[i];
+			foodIDs[i] = ALL_KNOWN_FOODS[i];			
 	}
-
-	public int main()
+	
+	public int main() 
 	{
 		SayRandomQuote();
-
-		if(getFightMode() != fightMode)
+		
+		if(getFightMode() != fightMode)			
 			setFightMode(fightMode);
-
+		
 		if(getCurrentLevel(3) <= 10)
 		{
 			tryTeleportingToCamelot();
 			return 3000;
-		}
-
+		}		
+		
 		if(inCombat())
-		{
-			walkTo(getX(), getY());
-			return 800;
+		{			
+			walkTo(getX(), getY());			
+			return 800;		
 		}
-
+		
 		if(needToMove)
 		{
 			changePosition();
 			return 500;
 		}
-
-		if(getFatigue() > 90)
-		{
-			useSleepingBag();
-			return 1000;
+		
+		if(getFatigue() > 90) 
+		{			
+			useSleepingBag();			
+			return 1000;		
 		}
-
-		if(getInventoryCount(JUG_ID) > 0) {
+		
+		if(getInventoryCount(JUG_ID) > 0) {			
 			dropItem(getInventoryIndex(JUG_ID));
 			return 2000;
-		}
-
-		if(isBanking())
+		}		
+		
+		if(isBanking()) 
 		{
 			//deposit money and keep 1 gp
-			if(getInventoryCount(10) > 1)
-			{
+			if(getInventoryCount(10) > 1) 
+			{				
 				deposit(10,getInventoryCount(10)-1);
 				return 1800;
 			}
-			else if(getInventoryCount(10) < 1)
-			{
+			else if(getInventoryCount(10) < 1) 
+			{				
 				withdraw(10,1);
 				return 1800;
 			}
 			//deposit chaos and keep 1 chaos
-			if(getInventoryCount(41) > 1)
-			{
+			if(getInventoryCount(41) > 1) 
+			{				
 				deposit(41,getInventoryCount(41)-1);
 				return 1800;
 			}
-			else if(getInventoryCount(41) < 1)
-			{
+			else if(getInventoryCount(41) < 1) 
+			{				
 				withdraw(41,1);
 				return 1800;
 			}
-
+			
 			//On Depose Scimitar
-			if(getInventoryCount(427) > 0)
-			{
+			if(getInventoryCount(427) > 0) 
+			{				
 				deposit(427,getInventoryCount(427));
-				return 500;
+				return 500;			
 			}
 			//On Depose Raw Shark
-			if(getInventoryCount(545) > 0)
-			{
+			if(getInventoryCount(545) > 0) 
+			{				
 				deposit(545,getInventoryCount(545));
-				return 500;
+				return 500;			
 			}
 			//On Depose Uncut Saphire
-			if(getInventoryCount(160) > 0)
-			{
+			if(getInventoryCount(160) > 0) 
+			{				
 				deposit(160,getInventoryCount(160));
 				return 500;
 			}
 			//On Depose Addy Ore
-			if(getInventoryCount(154) > 0)
-			{
+			if(getInventoryCount(154) > 0) 
+			{				
 				deposit(154,getInventoryCount(154));
-				return 500;
+				return 500;			
 			}
 			//On Depose Steel Bar
-			if(getInventoryCount(STEEL_BAR_ID) > 0)
-			{
+			if(getInventoryCount(STEEL_BAR_ID) > 0) 
+			{				
 				deposit(STEEL_BAR_ID,getInventoryCount(STEEL_BAR_ID));
-				return 500;
+				return 500;			
 			}
 			//On Depose Mith Bar
-			if(getInventoryCount(MITH_BAR_ID) > 0)
-			{
+			if(getInventoryCount(MITH_BAR_ID) > 0) 
+			{				
 				deposit(MITH_BAR_ID,getInventoryCount(MITH_BAR_ID));
-				return 500;
+				return 500;			
 			}
 			//Lets deposite a generated half wine
-			if(getInventoryCount(halfFullWine) > 0)
-			{
+			if(getInventoryCount(halfFullWine) > 0) 
+			{				
 				deposit(halfFullWine,getInventoryCount(halfFullWine));
 				print("Half full wine banked!");
 				Say("Half wine banked by Abyte0_Paladin script version " + SCRIPT_VERSION);
-				return 500;
+				return 500;			
 			}
-
+			
 			//Lets withdraw foods
 			int i = 0;
 			while(getInventoryCount() < getMaxInventoryCount())
@@ -204,34 +223,34 @@ public class Abyte0_Paladin extends Abyte0_Script
 					closeBank();
 					return 1000;
 				}
-
+				
 				if(foodIDs.length <= i)
 				{
 					print("No more food....");
 					return 10000;
 				}
-
+				
 				if(bankCount(foodIDs[i]) > 0)
 				{
 					withdraw(foodIDs[i], getMaxInventoryCount() - getInventoryCount());
 					return 2500;
 				}
-
+				
 				i++;
 			}
 		}
-
+		
 		if(isQuestMenu())
 		{
 			answer(0);
 			return 2500;
 		}
-
-		//On verifie si on a de la nourriture
+		
+		//On verifie si on a de la nourriture		
 		if(getInventoryCount(foodIDs) > 0)
 		{
-			if(getHpPercent() < 70)
-			{
+			if(getHpPercent() < 70) 
+			{	
 				return eatFood();
 			}
 			//on regarde si on est dans la sale des paladins
@@ -239,11 +258,11 @@ public class Abyte0_Paladin extends Abyte0_Script
 			{
 				int rareItemsFoundResult = pickupRareItems(4);
 				if(rareItemsFoundResult > 0) return rareItemsFoundResult;
-
+				
 				//On regarde si on peut ramasser des mith bars
 				if(getInventoryCount() < 30)
 				{
-
+					
 					//y a t il des bars sur le plancher
 					int[] groundItemSteel = getItemById(STEEL_BAR_ID);
 					if(groundItemSteel[0] != -1)
@@ -264,11 +283,11 @@ public class Abyte0_Paladin extends Abyte0_Script
 					if(eatFoodToPickMITH_BAR_ID)
 						return eatFood();
 				}
-
+				
 				//On thieve les paladins
-				int[] npc = getNpcById(npcID);
+				int[] npc = getNpcById(npcID);		
 				if(npc[0] != -1)
-				{
+				{		
 					thieveNpc(npc[0]);
 					isChestReady = true;
 					return 300;
@@ -278,11 +297,11 @@ public class Abyte0_Paladin extends Abyte0_Script
 			{
 				int[] doorObj;
 				int[] stairs;
-
+				
 				//Si pret a SORTIR de la BANQUE
 				if(getX() == 551 && getY() == 612)
 				{
-					stairs = getObjectById(64);
+					stairs = getObjectById(64);				
 					if(stairs[0] != -1)
 					{
 						atObject(stairs[1], stairs[2]);
@@ -291,25 +310,25 @@ public class Abyte0_Paladin extends Abyte0_Script
 					walkTo(550,612);
 					return 600;
 				}
-
+				
 				//si on est cacher derriere les marches on veut monte
 				if(getX() == 613 && getY() == 601)
 				{
-					stairs = getObjectById(342);
+					stairs = getObjectById(342);				
 					if(stairs[0] != -1)
 					{
 						atObject(stairs[1], stairs[2]);
 						return 2000;
 					}
 				}
-
+				
 				//Si DANS la banque
 				if(getX() >= 551 && getX() <= 554 && getY() >= 609 && getY() <= 616)
 				{
 					walkTo(551,612);
 					return 600;
 				}
-
+				
 				//Si on est en bas de smarche on veut aller a coter se cacher
 				if(getX() >= 608 && getY() >= 597 && getY() <= 609)
 				{
@@ -319,7 +338,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 				//Si on est en haut des marche et on veut entrer
 				if(getX() >= 602 && getX() <= 615 && getY() > 1500 && getY() < 1548)
 				{
-					int[] door = getWallObjectById(97);
+					int[] door = getWallObjectById(97);			
 					if(door[0] != -1 && isAtApproxCoords(door[1], door[2],5))
 					{
 						atWallObject2(door[1], door[2]);
@@ -348,7 +367,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 				if(getX() < 599)
 				{
 					//Passing the Metal Gate
-					stairs = getObjectById(57);
+					stairs = getObjectById(57);				
 					if(stairs[0] != -1 && isAtApproxCoords(stairs[1], stairs[2],10))
 					{
 						atObject(stairs[1], stairs[2]);
@@ -360,7 +379,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 				if(getX() < 608)
 				{
 					//Passing the Wooden Door
-					stairs = getObjectById(64);
+					stairs = getObjectById(64);				
 					if(stairs[0] != -1)
 					{
 						if(stairs[1] >= 605 && stairs[1] <= 610 && stairs[2] >= 600 && stairs[2] <= 608)
@@ -386,7 +405,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 				if(isChestReady)
 				{
 					//On Monde lechele
-					stairs = getObjectById(5);
+					stairs = getObjectById(5);				
 					if(stairs[0] != -1 && isAtApproxCoords(stairs[1], stairs[2],10))
 					{
 						atObject(stairs[1], stairs[2]);
@@ -397,18 +416,18 @@ public class Abyte0_Paladin extends Abyte0_Script
 				{
 					doorObj = getWallObjectById(97);
 					if(doorObj[0] != -1 && isAtApproxCoords(doorObj[1], doorObj[2],10))
-					{
+					{			
 						atWallObject(doorObj[1], doorObj[2]);
 						return 1000;
-					}
+					}	
 				}
 				return 800;
 			}
-
+			
 			//Si devant Banque
 			if(getX() == 550)
 			{
-				stairs = getObjectById(64);
+				stairs = getObjectById(64);				
 				if(stairs[0] != -1 && isAtApproxCoords(stairs[1], stairs[2],5))
 				{
 					atObject(stairs[1], stairs[2]);
@@ -420,18 +439,18 @@ public class Abyte0_Paladin extends Abyte0_Script
 			//Si DANS la banque
 			if(getX() >= 551 && getX() <= 554 && getY() >= 609 && getY() <= 616)
 			{
-				int banker[] = getNpcByIdNotTalk(BANKERS);
+				int banker[] = getNpcByIdNotTalk(BANKERS);	        
 				if(banker[0] != -1)
-				{
-					talkToNpc(banker[0]);
-					return 3000;
+				{			
+					talkToNpc(banker[0]);	        
+					return 3000;		
 				}
 			}
-
+			
 			//-----
 			//Walking To Bank Manualy
 			//-----
-
+			
 			//Si on est en haut ou il y a le chest
 			if(isAtApproxCoords(611,2491,10))
 			{
@@ -461,7 +480,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 			//Si on est a coter des escalier et on veut descendre
 			if(getX() >= 602 && getX() <= 615 && getY() > 1500 && getY() < 1548) //Added safet to avoid going down after chest
 			{
-				stairs = getObjectById(44);
+				stairs = getObjectById(44);				
 				if(stairs[0] != -1)
 				{
 					atObject(stairs[1], stairs[2]);
@@ -472,7 +491,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 			if(getX() >= 608 && getY() >= 597 && getY() <= 609)
 			{
 				//Passing the Wooden Door
-				stairs = getObjectById(64);
+				stairs = getObjectById(64);				
 				if(stairs[0] != -1 && isAtApproxCoords(stairs[1], stairs[2],5))
 				{
 					atObject(stairs[1], stairs[2]);
@@ -485,7 +504,7 @@ public class Abyte0_Paladin extends Abyte0_Script
 			if(getX() >= 599)
 			{
 				//Passing the Metal Gate
-				stairs = getObjectById(57);
+				stairs = getObjectById(57);				
 				if(stairs[0] != -1 && isAtApproxCoords(stairs[1], stairs[2],10))
 				{
 					atObject(stairs[1], stairs[2]);
@@ -512,11 +531,11 @@ public class Abyte0_Paladin extends Abyte0_Script
 				walkTo(550,608);
 				return 500;
 			}
-
+			
 			//-----
 			//----- Walking to Bank By Teleport
 			//-----
-
+			
 			//Si on est proche du Teleport
 			if(isAtApproxCoords(523,606,5))
 			{
@@ -538,37 +557,37 @@ public class Abyte0_Paladin extends Abyte0_Script
 			return 500;
 		}
 	}
-
+	
 	private void tryTeleportingToCamelot()
 	{
 		if(getCurrentLevel(6) < 45) return; //magic is too low
 		if(getInventoryCount(LAW_RUNE_ID) < 1) return; //not enoug law runes
 		if(getInventoryCount(AIR_RUNE_ID) < 5 && getInventoryCount(AIR_STAFF_ID) < 1) return; //No air
-
+		
 		if(getInventoryCount(AIR_STAFF_ID) >= 1)
 			wearItem(getInventoryIndex(AIR_STAFF_ID));
-
+			
 		castOnSelf(camelotTeleport);
 		castOnSelf(camelotTeleport);
 		castOnSelf(camelotTeleport);
-
+		
 		print("Emergency teleport exit and stop");
-
+		
 		setAutoLogin(false);
 		logout();
 		//stopScript();
 	}
-
+	
 	private int eatFood()
 	{
-		int idx = getInventoryIndex(foodIDs);
-		if(idx == -1)
+		int idx = getInventoryIndex(foodIDs);	    	
+		if(idx == -1) 
 		{
-			if(getHpPercent() < 30)
+			if(getHpPercent() < 30) 
 			{
 				tryTeleportingToCamelot();
-				print("hp is dangerously low with no food.");
-				stopScript();
+				print("hp is dangerously low with no food.");	    		
+				stopScript();	    		
 				return 0;
 			}
 			else
@@ -576,56 +595,106 @@ public class Abyte0_Paladin extends Abyte0_Script
 				return 10000;
 			}
 		}
-
-		useItem(idx);
-
+		
+		EatFood(foodIDs);
+		
 		if(getInventoryCount(halfFullWine) > 0)
 			Say("Woot! Half-Full-Wine generated!");
-
+				
 		return 800;
 	}
-
-	public void onKeyPress(int keyCode) {
-
+	
+    public void onKeyPress(int keyCode) {
 		if (keyCode == 192 || keyCode == 128) { //# or '
-
 			reportXpChange();
-
-		}
-
+        }
 		//if (keyCode == 107) { //+
-
 		//	increaseDelay();
-
-		//}
-
+        //}
 		//if (keyCode == 109) { //-
-
 		//	decreaseDelay();
-
-		//}
-
+        //}
 		if (keyCode == 113) { //F2
-
 			resetCounters();
-
-		}
-
-
-
+        }
+		
+		
 		//print(""+keyCode);
-
-	}
-
+    }
+    
+	
 	private void resetCounters()
 	{
 		initialXp = getThievingXp();
 		initialTime = System.currentTimeMillis();
 	}
-
-	private void reportXpChange()
+	
+	private int getMaxInventoryCount()
 	{
+		if(keepOneExtraInventorySpace) return 29;
+		return 30;
+	}
+	
+	@Override
+	public String getSctiptVersion()
+	{
+		return SCRIPT_VERSION;
+	}
+	
+    @Override
+    public void onServerMessage(String s) {
 
+        if (s.contains("standing here for 5 mins!")) {
+			needToMoveFromX = getX();
+			needToMoveFromY = getY();
+			needToMove = true;
+        }
+		
+    }
+
+    @Override
+    public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
+		
+		super.onChatMessage(msg, name, pmod, jmod);
+    }
+
+	@Override
+	protected void printHelp()
+	{
+		super.printHelp();
+		
+		print("Params = fmode,foodid,foodid,food,etc");
+		print("Example= 3,330,333,335,373 would use defence to use full cake and lobsters");
+	}
+	
+	@Override
+	protected void printParams()
+	{
+		print("Fmode is @or3@" + FIGHTMODES[fightMode]);
+		
+		double eatAt = getLevel(3) * 0.70;
+	
+		if(foodIDs.length > 7)
+			print("Script use most known food to eat @or3@when hp <= " + eatAt);
+		else if(foodIDs.length > 1)
+		{
+			String foods = "Script use ";
+			for(int i = 0; i < foodIDs.length; i++)
+				foods += foodIDs[i] + " ";
+			print(foods + "to eat @or3@when hp <= " + eatAt);
+		}
+		else
+			print("Script use food : " + foodIDs[0] + " to eat @or3@when hp <= " + eatAt);
+
+		if(eatFoodToPickMITH_BAR_ID)
+			print("Script will eat fod to pickup item from ground");
+
+	}
+	
+	@Override
+	protected void reportXpChange()
+	{
+		
 		int xpDifference = getThievingXp() - initialXp;
 		long timeSpan = System.currentTimeMillis() - initialTime;
 		long secondSpan = timeSpan / 1000;
@@ -640,43 +709,22 @@ public class Abyte0_Paladin extends Abyte0_Script
 		print("=================================");
 		print("Chaos: " + thieveCount + " && coins: " + (thieveCount * 80));
 	}
-
-	public int getThievingXp()
-	{
-		return getXpForLevel(17);
-	}
-
-	private int getMaxInventoryCount()
-	{
-		if(keepOneExtraInventorySpace) return 29;
-		return 30;
-	}
-
-	@Override
-	public String getSctiptVersion()
-	{
-		return SCRIPT_VERSION;
-	}
-
-    @Override
-    public void onServerMessage(String s) {
-
-        if (s.contains("standing here for 5 mins!")) {
-			needToMoveFromX = getX();
-			needToMoveFromY = getY();
-			needToMove = true;
-        }
-
-    }
-
+	
 	private void changePosition()
 	{
+		int pid = getSelfPid();
+		if(pid < 250 && pid > 15)
+		{
+			print("bad pid, we can relog");
+			needToMove = false;
+		}
+			
 		if(getX() != needToMoveFromX || getY() != needToMoveFromY)
 			needToMove = false;
 		else
 			walkTo(needToMoveFromX + random(0,2) - 1, needToMoveFromY + random(0,2) - 1);
 	}
-
+	
 	int[] foodIDs;
 	int camelotTeleport = 22;
 	int AIR_RUNE_ID = 33;
@@ -684,9 +732,9 @@ public class Abyte0_Paladin extends Abyte0_Script
 	int LAW_RUNE_ID = 42;
 	boolean isChestReady = true;
 	int[] npcID = new int[]
-	{
+	{ 
 		323 //Paladin
-	};
+	};		
 	int STEEL_BAR_ID = 171;
 	int MITH_BAR_ID = 173;
 	int halfFullWine = 246;
@@ -696,5 +744,5 @@ public class Abyte0_Paladin extends Abyte0_Script
 	boolean needToMove = false;
 	int initialXp = 0;
 	long initialTime = 0;
-
+	
 }
