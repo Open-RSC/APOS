@@ -24,8 +24,14 @@ import java.time.LocalDateTime;
 import com.aposbot.*;
 import com.aposbot._default.*;
 import com.aposbot.gui.*;
+import com.aposbot.utility.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import java.net.MalformedURLException;
 
 public class Abyte0_Script extends Storm_Script 
 {
@@ -208,9 +214,31 @@ public class Abyte0_Script extends Storm_Script
 		return true;
     }
 	
-    public IScript initJavaScript(String name) {
-        ScriptFrame scriptLoader = new ScriptFrame(client,null);
-		return scriptLoader.initJavaScript(name);
+	public IScript initJavaScript(final String name) {
+		
+		final Class<?> c;
+
+		try {
+			c = new ScriptClassLoader().loadClass(name.substring(0, name.indexOf(".class")));
+		} catch (final ClassNotFoundException | MalformedURLException e) {
+			System.out.println("Error loading script:");
+			e.printStackTrace();
+			return null;
+		}
+
+		if (!IScript.class.isAssignableFrom(c)) {
+			System.out.println("Error: " + name + " is not a valid Java script.");
+			return null;
+		}
+
+		try {
+			return (IScript) c.getConstructor(Class.forName("Extension")).newInstance(client);
+		} catch (final Throwable t) {
+			System.out.println("Failed to load script " + name + ":");
+			t.printStackTrace();
+		}
+
+		return null;
     }
 
 	protected boolean switchUserForNextRelog(String name, String password) {

@@ -11,7 +11,7 @@ import java.util.Set;
  * Listens for client events to pass to running scripts.
  * Calls the main script loop every game tick.
  */
-final class ScriptListener implements IScriptListener {
+public final class ScriptListener implements IScriptListener {
 	private static final String ERROR_MESSAGE = "Error processing script. Send this output to the script's author:";
 
 	private static final ScriptListener instance = new ScriptListener();
@@ -33,7 +33,7 @@ final class ScriptListener implements IScriptListener {
 		sleepListener = SleepListener.getInstance();
 	}
 
-	static IScriptListener getInstance() {
+	public static IScriptListener getInstance() {
 		return instance;
 	}
 
