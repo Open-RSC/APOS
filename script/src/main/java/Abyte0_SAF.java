@@ -7,13 +7,11 @@
 //2011-01-20 - Version 2.0 Fixed more default food, fixed specific food, fixed normal bones [require abyte0_Script 1.7+]
 //2011-01-21 - Version 2.1 Support multiple npc separated by a dot [require abyte0_Script 1.7+]
 
-import java.awt.event.KeyEvent;
-
 public class Abyte0_SAF extends Abyte0_Script
 {
 
 	private final String SCRIPT_VERSION = "2.1.1";
-
+	
 	@Override
 	public String[] getRandomQuotes()
 	{
@@ -36,10 +34,10 @@ public class Abyte0_SAF extends Abyte0_Script
     public void init(String params) {
 
 		print("Abyte0_SAF Version " + SCRIPT_VERSION);
-
+		
 		printHelp();
 		loadAllFoods();
-
+	
         String[] in;
 
         try {
@@ -56,7 +54,7 @@ public class Abyte0_SAF extends Abyte0_Script
 
                         throw new Exception("Invalid fight mode (" + fmode + ")");
 
-
+                        
 					print("fmode set " + fmode);
 
                     continue;
@@ -67,7 +65,7 @@ public class Abyte0_SAF extends Abyte0_Script
 
 					String[] npcs = (in[i].substring(2)).split("[.]");
 					npcIDs = new int[npcs.length];
-
+				
 					for(int j = 0; j < npcs.length; j++)
 					{
 						npcIDs[j] = Integer.parseInt(npcs[j]);
@@ -86,9 +84,9 @@ public class Abyte0_SAF extends Abyte0_Script
 
                     pickupID = flag;
 					isPickupEnabled = true;
-
+					
 					print("Pickup enabled for item " + pickupID);
-
+					
                     continue;
                 }
 
@@ -97,11 +95,11 @@ public class Abyte0_SAF extends Abyte0_Script
                     radius = Integer.parseInt(in[i].substring(2));
 
 					print("radius set " + radius);
-
+					
                     continue;
 
                 }
-
+				
                 if(in[i].startsWith("stopat=")) {
 
 					print("Reached " );
@@ -109,11 +107,11 @@ public class Abyte0_SAF extends Abyte0_Script
 
 					print("Script will stop once " + FIGHTMODES[fmode] + " will have reached " + targetFmodeLevel);
 					print("@ran@DO NOT USE THIS 'StopAt' FEATURE ON AGRESSIVE NPC");
-
+					
                     continue;
 
                 }
-
+				
                 if(in[i].startsWith("s=")) {
 
                     sleepAt = Integer.parseInt(in[i].substring(2));
@@ -122,7 +120,7 @@ public class Abyte0_SAF extends Abyte0_Script
 
                         throw new Exception("Invalid sleep at (" + sleepAt + ")");
 
-
+                        
 					print("sleepAt set " + sleepAt);
 
                     continue;
@@ -137,7 +135,7 @@ public class Abyte0_SAF extends Abyte0_Script
 
                         throw new Exception("Invalid eat at (" + eatAt + ")");
 
-
+                    
 					print("eatAt set " + eatAt);
 
 
@@ -150,11 +148,11 @@ public class Abyte0_SAF extends Abyte0_Script
                     foodIDs = new int[] {Integer.parseInt(in[i].substring(2))};
 
 					print("foodIDs set " + in[i].substring(2));
-
+					
                     continue;
 
                 }
-
+				
 				if(in[i].startsWith("b=")) {
 
                     int flag = Integer.parseInt(in[i].substring(2));
@@ -168,9 +166,9 @@ public class Abyte0_SAF extends Abyte0_Script
 						print("we bury bones");
 					else
 						print("we DO NOT bury bones");
-
+					
 					continue;
-
+					 
                 }
 
                 if(in[i].startsWith("w=")) {
@@ -184,15 +182,15 @@ public class Abyte0_SAF extends Abyte0_Script
                     walkBack = (flag == 0 ? false : true);
 
 					print("walkBack set " + walkBack);
-
+					
 					continue;
-
+					
                 }
 
                 throw new Exception("parsing fucked up");
 
             }
-
+			
         } catch (Exception _ex) {
 
             System.out.println("Error while initiating simple autofighter, invalid input");
@@ -224,7 +222,7 @@ public class Abyte0_SAF extends Abyte0_Script
         }
 
 		setAutoLogin(true);
-
+	
         if(fmode == -1) {
 
             System.out.println("No fight mode set, type f=fmode in the params");
@@ -242,13 +240,13 @@ public class Abyte0_SAF extends Abyte0_Script
             stopScript();
 
         }
-
-
+		
+	
 		initialXp = getFmodeXp(fmode);
 		initialTime = System.currentTimeMillis();
-
+		
 		print("@mag@type --help in public chat to view help while script is running");
-
+	
     }
 
 	public final void BuryBone(int boneId)
@@ -257,7 +255,7 @@ public class Abyte0_SAF extends Abyte0_Script
 		System.out.println("Bury Bones at position : " + boneIndex);
 		useItem(boneIndex);
 	}
-
+	
 	public int TryPickup()
 	{
 		if(isPickupEnabled && getInventoryCount() < 30)
@@ -265,10 +263,10 @@ public class Abyte0_SAF extends Abyte0_Script
 			int[] item = getItemById(pickupID);
 			if(item[0] != -1)
 			{
-
+				
 				int difX = item[1] - startX;
 				int difY = item[2] - startY;
-
+				
 				if(difX <= radius && difX >= -radius && difY <= radius && difY >= -radius)
 				{
 					pickupItem(item[0], item[1], item[2]);
@@ -278,23 +276,23 @@ public class Abyte0_SAF extends Abyte0_Script
 		}
 		return -1;
 	}
-
+	
 	public int TryBury()
 	{
 		if(bury)
 		{
 			int anyBigBones = tryBury(bigBonesID);
 			if(anyBigBones > 0) return anyBigBones;
-
+			
 			int anyNormalBones = tryBury(normalBonesID);
 			if(anyNormalBones > 0) return anyNormalBones;
 		}
 		return -1;
 	}
-
+	
 	private int tryBury(int boneId)
 	{
-
+		
 		if(getInventoryCount(boneId) > 0)
 		{
 			if(inCombat())
@@ -315,15 +313,15 @@ public class Abyte0_SAF extends Abyte0_Script
 					RunFromCombat();
 					return 150;
 				}
-
+				
 				pickupItem(groundBone[0], groundBone[1], groundBone[2]);
 				return 250;
 			}
 		}
-
+		
 		return -1;
 	}
-
+	
     public int getUntrapped()
     {
 		for(int i = 1; i < 8; i++)
@@ -331,10 +329,10 @@ public class Abyte0_SAF extends Abyte0_Script
 			int result = getUntrappedByMaxDistance(i);
 			if(result != 0) return result;
 		}
-
+		
 		return 0;
 	}
-
+	
 	public int getUntrappedByMaxDistance(int maxDistance)
     {
         //Gate
@@ -383,8 +381,8 @@ public class Abyte0_SAF extends Abyte0_Script
 	return 0;
     }
 
-
-
+	
+	
 
     public int main() {
 
@@ -396,7 +394,8 @@ public class Abyte0_SAF extends Abyte0_Script
             startY = getY();
 
         }
-
+		//print("fmode is :" + fmode);
+		//print("get fmode return :" + getFightMode());
         if(getFightMode() != fmode) {
 
             setFightMode(fmode);
@@ -421,11 +420,11 @@ public class Abyte0_SAF extends Abyte0_Script
 					return 1500;
 				else //no food found
 				{
-					if(getHpPercent() < 10)
+					if(getHpPercent() < 10) 
 					{
 						System.out.println("hp is dangerously low with no food.");
 						setAutoLogin(false);
-						stopScript();
+						stopScript();                
 						return 0;
 					}
 					else
@@ -440,7 +439,7 @@ public class Abyte0_SAF extends Abyte0_Script
             int unTrap = getUntrapped();
             if(unTrap != 0)
                 return unTrap;
-
+	
 			int nombre = TryBury();
 			if(nombre != -1)
 				return nombre;
@@ -454,7 +453,7 @@ public class Abyte0_SAF extends Abyte0_Script
 				setAutoLogin(false);
 				stopScript();
 			}
-
+		
             int npc[];
 			for(int i = 0; i < npcIDs.length; i++)
 			{
@@ -485,38 +484,39 @@ public class Abyte0_SAF extends Abyte0_Script
 
     }
 
-	public void onKeyPress(int keyCode) {
+    public void onKeyPress(int keyCode) {
 		if (keyCode == 192 || keyCode == 128) { //# or '
 			reportXpChange();
-		}
+        }
 		//if (keyCode == 107) { //+
 		//	increaseDelay();
-		//}
+        //}
 		//if (keyCode == 109) { //-
 		//	decreaseDelay();
-		//}
+        //}
 		if (keyCode == 113) { //F2
 			resetCounters();
-		}
-
-
+        }
+		
+		
 		//print(""+keyCode);
-	}
-
+    }
+    
 	private void resetCounters()
 	{
 		initialXp = getFmodeXp(fmode);
 		initialTime = System.currentTimeMillis();
 	}
-
-	private void reportXpChange()
+	
+	@Override
+	protected void reportXpChange()
 	{
-
+		
 		int xpDifference = getFmodeXp(fmode) - initialXp;
 		long timeSpan = System.currentTimeMillis() - initialTime;
 		long secondSpan = timeSpan / 1000;
 		long xpRatio = xpDifference * 3600L / secondSpan; //The L set 3600 as long variable Forcing to calculate as long to avoid overflow
-
+		
 
 		print("=================================");
 		print("initialXp: " + initialXp);
@@ -526,27 +526,22 @@ public class Abyte0_SAF extends Abyte0_Script
 		print("xpRatio: " + xpRatio + "/h");
 		print("=================================");
 	}
-
+	
     @Override
     public void onChatMessage(String msg, String name, boolean pmod, boolean jmod) {
-
+		
 		//Do not reply to yourself
-		//final String lname = client.getPlayerName(client.getPlayer());
+		//final String lname = client.getPlayerName(client.getPlayer());		
         //if(name.equalsIgnoreCase(lname)) return;
-
+		
 		String receivedLC = msg.toLowerCase();
-
-		final String lname = client.getPlayerName(client.getPlayer());
+		
+		final String lname = client.getPlayerName(client.getPlayer());		
         if(name.equalsIgnoreCase(lname))
 		{
-			if (receivedLC.equals("--params") || receivedLC.equals("--param"))
-				printParams();
-			if (receivedLC.equals("--help"))
-				printHelp();
-			if (receivedLC.equals("--status"))
-				reportXpChange();
+			
 		}
-
+		
 		super.onChatMessage(msg, name, pmod, jmod);
     }
 
@@ -555,27 +550,29 @@ public class Abyte0_SAF extends Abyte0_Script
 	{
 		return SCRIPT_VERSION;
 	}
-
-	private void printHelp()
+	
+	@Override
+	protected void printHelp()
 	{
 		print("Press # or ' or type --status to display xp stats");
-
+		
 		print("type --help in public chat to view help");
 		print("type --param in public chat to view currently runnign parameters");
-
+		
 		print("USAGE = abyte0_saf f=3,stopAt=98,n=321,r=25,h=20,e=373,w=1,b=1");
 		print("Result= Train Def to lvl 98 on guard in radius of 25 + eat lob at 20hp + bury + walkback");
 	}
-
-	private void printParams()
+	
+	@Override
+	protected void printParams()
 	{
 		print("Fmode is " + FIGHTMODES[fmode]);
 		if(targetFmodeLevel < 100)
 			print(FIGHTMODES[fmode] + " will stop once reached " + targetFmodeLevel);
-
+		
 		if(bury)
 			print("Script bury normal & big bones");
-
+		
 		if(eatAt < 100)
 		{
 			if(foodIDs.length > 1)
@@ -585,12 +582,12 @@ public class Abyte0_SAF extends Abyte0_Script
 		}
 		else
 			print("Script won't eat");
-
+		
 		if(pickupID > 0)
 		{
 			print("Script will pickup " + pickupID);
 		}
-
+		
 		if(npcIDs.length > 0)
 		{
 			String npcs = "Script will fight ";
@@ -598,23 +595,23 @@ public class Abyte0_SAF extends Abyte0_Script
 				npcs += npcIDs[i] + " ";
 			print(npcs);
 		}
-
+		
 		if(walkBack)
 		{
 			print("Script will walkback to initial position when waiting");
 		}
-
+		
 		print("Script npc scan radius set to : " + radius);
-
+		
 	}
-
+	
 	private void loadAllFoods()
 	{
-		foodIDs = new int[ALL_KNOWN_FOODS.length];
+		foodIDs = new int[ALL_KNOWN_FOODS.length];		
 		for(int i = 0; i < ALL_KNOWN_FOODS.length; i++)
-			foodIDs[i] = ALL_KNOWN_FOODS[i];
+			foodIDs[i] = ALL_KNOWN_FOODS[i];			
 	}
-
+	
     int fmode = -1;
     int[] npcIDs;
     int sleepAt = 90;
@@ -630,5 +627,5 @@ public class Abyte0_SAF extends Abyte0_Script
 
 	int initialXp = 0;
 	long initialTime = 0;
-
+	
 }
