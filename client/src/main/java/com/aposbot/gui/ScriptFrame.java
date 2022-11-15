@@ -327,7 +327,7 @@ public final class ScriptFrame extends Frame {
 	}
 
 	private void update() {
-		final String[] files = Constants.PATH_SCRIPT.toFile().list();
+		final File[] files = Constants.PATH_SCRIPT.toFile().listFiles();
 
 		if (files == null) {
 			return;
@@ -335,13 +335,8 @@ public final class ScriptFrame extends Frame {
 
 		final java.util.List<String> list = new ArrayList<>();
 
-		for (final String file : files) {
+		for (final File file : files) {
 			process(file, list);
-		}
-
-		if (list.isEmpty()) {
-			System.err.println("Did yah forget to compile yer scripts!?");
-			return;
 		}
 
 		Collections.sort(list);
@@ -352,26 +347,28 @@ public final class ScriptFrame extends Frame {
 			displayed_list.add(str);
 		}
 
-		displayed_list.select(lastSelectedIndex);
+		if (lastSelectedIndex >= 0 && lastSelectedIndex < displayed_list.getItemCount())
+			displayed_list.select(lastSelectedIndex);
+
+		if (list.isEmpty()) {
+			System.err.println("Did yah forget to compile yer scripts!?");
+		}
 	}
 
-	private void process(final String fileName, final List<String> list) {
-		if (!fileName.endsWith(".class") || fileName.indexOf('$') != -1) {
-			return;
-		}
-
-		final File file = new File(fileName);
-
+	private void process(final File file, final List<String> list) {
 		if (file.isDirectory()) {
-			final String[] fileList = file.list();
-
+			final File[] fileList = file.listFiles();
 			if (fileList != null) {
-				for (final String name : fileList) {
-					process(name, list);
+				for (final File subfile : fileList) {
+					process(subfile, list);
 				}
 			}
 		}
 
-		list.add(fileName);
+		if (!file.getName().endsWith(".class") || file.getName().indexOf('$') != -1) {
+			return;
+		}
+
+		list.add(file.getName());
 	}
 }
