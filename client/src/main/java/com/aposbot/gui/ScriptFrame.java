@@ -37,6 +37,8 @@ public final class ScriptFrame extends Frame {
 	private final TextField field;
 	private final TextField scriptSearchField;
 
+	private String latestScriptSearchFieldText = ""; // Needed because the last char in keyPressed is not yet in scriptSearchField.getText()
+
 	private ScriptEngineManager manager;
 
 	private int lastSelectedIndex;
@@ -81,8 +83,47 @@ public final class ScriptFrame extends Frame {
 
 			@Override
 			public void keyPressed(final KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					displayed_list.select(getMatchedScriptIndex());
+				// Get the current search text (little complicated to get the last char)
+				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && scriptSearchField.getSelectedText().length() > 0)
+					latestScriptSearchFieldText = scriptSearchField.getText().substring(0, scriptSearchField.getSelectionStart());
+				else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE && scriptSearchField.getText().length() > 0)
+					latestScriptSearchFieldText = scriptSearchField.getText().substring(0, scriptSearchField.getText().length() - 1);
+				else
+					latestScriptSearchFieldText = scriptSearchField.getText() + e.getKeyChar();
+
+				String currentSelection = displayed_list.getItemCount() > 0 ? displayed_list.getSelectedItem() : "";
+				update();
+				if (displayed_list.getItemCount() > 0) displayed_list.select(0);
+				// if the current selection is still in the list, select it again
+				for (int i = 0; i < displayed_list.getItemCount(); i++) {
+					if (displayed_list.getItem(i).equals(currentSelection)) {
+						displayed_list.select(i);
+						break;
+					}
+				}
+
+				// If Ctrl-A is pressed, select all the text
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+					scriptSearchField.selectAll();
+				}
+
+				// If Esc is pressed, close the window
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					setVisible(false);
+				}
+
+				// If Down is pressed, select the next item
+				if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+					if (displayed_list.getSelectedIndex() < displayed_list.getItemCount() - 1) {
+						displayed_list.select(displayed_list.getSelectedIndex() + 1);
+					}
+				}
+
+				// If Up is pressed, select the previous item
+				if (e.getKeyCode() == KeyEvent.VK_UP) {
+					if (displayed_list.getSelectedIndex() > 0) {
+						displayed_list.select(displayed_list.getSelectedIndex() - 1);
+					}
 				}
 			}
 
@@ -208,40 +249,6 @@ public final class ScriptFrame extends Frame {
 		return null;
 	}
 
-	private int getMatchedScriptIndex() {
-		final String searchedScriptName = scriptSearchField.getText().toLowerCase();
-		final String[] availableScriptNames = displayed_list.getItems();
-		if (availableScriptNames.length == 0)
-			return -1;
-
-		final Map<String, Integer> scriptSearchMatches = new TreeMap<>((s1, s2) -> {
-			if (s1.length() > s2.length()) {
-				return 1;
-			} else if (s1.length() < s2.length()) {
-				return -1;
-			} else {
-				return s1.compareTo(s2);
-			}
-		});
-
-		for (int i = 0; i < availableScriptNames.length; i++) {
-			final String availableScriptName = availableScriptNames[i].toLowerCase();
-
-			if (searchedScriptName.equals(availableScriptName)) {
-				return i;
-			}
-
-			if (availableScriptName.contains(searchedScriptName)) {
-				scriptSearchMatches.put(availableScriptName, i);
-			}
-		}
-
-		if (scriptSearchMatches.isEmpty())
-			return -1;
-
-		return scriptSearchMatches.values().stream().findFirst().get();
-	}
-
 	private void initScript() {
 		final IScriptListener listener = clientInit.getScriptListener();
 
@@ -327,7 +334,7 @@ public final class ScriptFrame extends Frame {
 	}
 
 	private void update() {
-		final File[] files = Constants.PATH_SCRIPT.toFile().listFiles();
+		final String[] files = Constants.PATH_SCRIPT.toFile().list();
 
 		if (files == null) {
 			return;
@@ -335,7 +342,7 @@ public final class ScriptFrame extends Frame {
 
 		final java.util.List<String> list = new ArrayList<>();
 
-		for (final File file : files) {
+		for (final String file : files) {
 			process(file, list);
 		}
 
@@ -347,28 +354,50 @@ public final class ScriptFrame extends Frame {
 			displayed_list.add(str);
 		}
 
-		if (lastSelectedIndex >= 0 && lastSelectedIndex < displayed_list.getItemCount())
+		if (lastSelectedIndex > 0 && lastSelectedIndex < displayed_list.getItemCount())
 			displayed_list.select(lastSelectedIndex);
-
-		if (list.isEmpty()) {
-			System.err.println("Did yah forget to compile yer scripts!?");
-		}
 	}
 
-	private void process(final File file, final List<String> list) {
+	private void process(final String fileName, final List<String> list) {
+		if (!fileName.endsWith(".class") || fileName.indexOf('$') != -1) {
+			return;
+		}
+
+		final File file = new File(fileName);
+
 		if (file.isDirectory()) {
-			final File[] fileList = file.listFiles();
+			final String[] fileList = file.list();
+
 			if (fileList != null) {
-				for (final File subfile : fileList) {
-					process(subfile, list);
+				for (final String name : fileList) {
+					process(name, list);
 				}
 			}
 		}
 
-		if (!file.getName().endsWith(".class") || file.getName().indexOf('$') != -1) {
-			return;
+		String search = latestScriptSearchFieldText;
+		// If all the letters of search are in fileName, add it to the list
+		// Create a dictionary of the letters in search, and subtract from it as we find them in fileName
+		// If the dictionary is empty, all the letters in search were found in fileName
+		final Map<Character, Integer> searchLetters = new HashMap<>();
+		for (final char c : search.toLowerCase().toCharArray()) {
+			if (!Character.isLetterOrDigit(c))
+				continue;
+			searchLetters.put(c, searchLetters.getOrDefault(c, 0) + 1);
 		}
-
-		list.add(file.getName());
+		String filenameBeforeExtension = fileName.toLowerCase().substring(0, fileName.lastIndexOf('.'));
+		for (final char c : filenameBeforeExtension.toCharArray()) {
+			if (!searchLetters.containsKey(c))
+				continue;
+			final int count = searchLetters.get(c);
+			if (count == 1) {
+				searchLetters.remove(c);
+			} else {
+				searchLetters.put(c, count - 1);
+			}
+		}
+		if (searchLetters.isEmpty()) {
+			list.add(fileName);
+		}
 	}
 }
