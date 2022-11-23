@@ -24,6 +24,7 @@ public final class Constants {
 	public static final Path PATH_ACCOUNT = Paths.get("accounts");
 	public static final Path PATH_SCREENSHOT = Paths.get("screenshots");
 	public static final Path PATH_SCRIPT = Paths.get("script", "out");
+	public static final Path PATH_SCRIPT_SOURCE = Paths.get("script", "src", "main", "java");
 
 	public static final Image ICON_16 = readImage("icon16.png");
 	public static final Image ICON_22 = readImage("icon22.png");

@@ -15,11 +15,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 
@@ -68,24 +67,6 @@ public final class ScriptFrame extends Frame {
 		scroll.add(displayed_list);
 		add(scroll, BorderLayout.CENTER);
 
-		final Panel buttonPanel = new Panel();
-
-		final Button okButton = new Button("OK");
-		okButton.setFont(Constants.UI_FONT);
-		okButton.addActionListener(e -> {
-			if (displayed_list.getSelectedIndex() == -1) {
-				System.out.println("Script not selected.");
-			} else {
-				new Thread(this::initScript, "ScriptInit").start();
-			}
-		});
-		buttonPanel.add(okButton);
-
-		final Button cancelButton = new Button("Cancel");
-		cancelButton.setFont(Constants.UI_FONT);
-		cancelButton.addActionListener(e -> setVisible(false));
-		buttonPanel.add(cancelButton);
-
 		final Panel searchPanel = new Panel();
 		searchPanel.setLayout(new GridLayout(1, 0));
 		final Label searchLabel = new Label("Search:");
@@ -113,10 +94,74 @@ public final class ScriptFrame extends Frame {
 		searchPanel.add(scriptSearchField);
 		scriptSearchField.setFont(Constants.UI_FONT);
 
+		final Panel okCancelButtonPanel = new Panel();
+
+		final Button okButton = new Button("OK");
+		okButton.setFont(Constants.UI_FONT);
+		okButton.addActionListener(e -> {
+			if (displayed_list.getSelectedIndex() == -1) {
+				System.out.println("Script not selected.");
+			} else {
+				new Thread(this::initScript, "ScriptInit").start();
+			}
+		});
+		okCancelButtonPanel.add(okButton);
+
+		final Button cancelButton = new Button("Cancel");
+		cancelButton.setFont(Constants.UI_FONT);
+		cancelButton.addActionListener(e -> setVisible(false));
+		okCancelButtonPanel.add(cancelButton);
+
+		final Panel openCompileScriptsPanel = new Panel();
+
+		final Button openScriptsButton = new Button("Scripts Folder");
+		openScriptsButton.setFont(Constants.UI_FONT);
+		openScriptsButton.addActionListener(e -> {
+			try {
+				Desktop.getDesktop().open(Constants.PATH_SCRIPT_SOURCE.toFile());
+			} catch (final Exception ex) {
+				ex.printStackTrace();
+			}
+		});
+		openCompileScriptsPanel.add(openScriptsButton);
+
+		final Button compileScriptsButton = new Button("Compile Scripts");
+		compileScriptsButton.setFont(Constants.UI_FONT);
+		compileScriptsButton.addActionListener(e -> {
+			try {
+				final ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "compile_scripts.cmd");
+				// If we're on Linux, use bash instead of cmd
+				if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+					pb.command("bash", "-c", "./compile_scripts-linux.sh");
+				}
+				// execute
+				final Process p = pb.start();
+				// get both the output and the error stream
+				final SequenceInputStream merged = new SequenceInputStream(p.getInputStream(), p.getErrorStream());
+				final BufferedReader br = new BufferedReader(new InputStreamReader(merged));
+				// read the output
+				br.lines().forEach(System.out::println);
+				// wait for the process to finish
+				p.waitFor();
+				// get the exit code
+				final int exitCode = p.exitValue();
+				// Close the streams
+				br.close();
+				System.out.println("Exit code: " + exitCode);
+
+				// Close the frame
+				setVisible(false);
+			} catch (final Exception ex) {
+				ex.printStackTrace();
+			}
+		});
+		openCompileScriptsPanel.add(compileScriptsButton);
+
 		final Panel southPanel = new Panel();
 		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
 		southPanel.add(searchPanel);
-		southPanel.add(buttonPanel);
+		southPanel.add(okCancelButtonPanel);
+		southPanel.add(openCompileScriptsPanel);
 		add(southPanel, BorderLayout.SOUTH);
 
 		pack();
