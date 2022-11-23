@@ -192,7 +192,7 @@ public class AA_TaverleyBlackDragons extends AA_Script {
 		// Choose Role
 		final JComboBox<Role> roleComboBox = new JComboBox<>(Role.values());
 		roleComboBox.addActionListener(e -> {
-			final JComboBox<Role> cb = (JComboBox<Role>) e.getSource();
+			final JComboBox cb = (JComboBox) e.getSource();
 			for (final Component component : masterPanel.getComponents()) {
 				component.setEnabled(cb.getSelectedItem() == Role.MASTER);
 			}
