@@ -8,5 +8,4 @@ IF NOT EXIST bot.jar (
     echo Compiling scripts ...
     echo.
     call %antpath%ant -f build.xml compile-scripts
-    pause
 )
