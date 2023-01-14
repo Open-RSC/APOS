@@ -173,7 +173,7 @@ public final class ScriptFrame extends Frame {
 				final ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "compile_scripts.cmd");
 				// If we're on Linux, use bash instead of cmd
 				if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-					pb.command("bash", "-c", "./compile_scripts-linux.sh");
+					pb.command("bash", "-c", "chmod +x compile_scripts-linux.sh && ./compile_scripts-linux.sh");
 				}
 				// execute
 				final Process p = pb.start();
