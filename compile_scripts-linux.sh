@@ -5,4 +5,5 @@ if [ ! -f bot.jar ]; then
     ./compile_all_linux.sh
 fi
 
+chmod +x apache-ant-1.10.12/bin/ant
 ./apache-ant-1.10.12/bin/ant -f build.xml compile-scripts
