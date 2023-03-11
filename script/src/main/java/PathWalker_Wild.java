@@ -211,7 +211,7 @@ public class PathWalker_Wild extends Script
 	public static final Location[] locations = new Location[]{
 		new Location("Edgeville", 215, 450, true),
 		new Location("Varrock East", 102, 511, true),
-		new Location("Caslte", 271, 352, false),
+		new Location("Dark Warriors' Fortress", 271, 352, false),
 		new Location("Lvl 11 Alter", 115, 357, false),
 		new Location("Graveyard", 162, 311, false),
 		new Location("Black Unicorns", 120, 302, false),
