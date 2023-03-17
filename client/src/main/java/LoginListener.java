@@ -58,28 +58,21 @@ public final class LoginListener implements ILoginListener {
 	public void onLoginResponse(final String arg0, final String arg1) {
 		long loginDelay;
 		long quickLoginDelay;
-		long fastLoginDelay;
 		System.out.printf("%s %s%n", arg0, arg1);
 		System.out.println("Current Login Attempts: " + loginCount);
-		if (loginCount <= 1) { //wait 5s for autolog the first 2 times it relogs (preserves current behavior)
-			fastLoginDelay = (long) (Math.random() * 1000L);
-			System.out.println("Waiting " + ((fastLoginDelay + 5000L)/1000L) + " seconds for the next autologin attempt.");
-			next_attempt = System.currentTimeMillis() + 5000L + fastLoginDelay;
-			loginCount++;
-		} else if (loginCount > 1 && loginCount <= 10) { //wait 15-20s for autolog the first 10 times (i.e. for ~ 2-3 mins)
-			quickLoginDelay = (long) (Math.random() * 5000L);
-			System.out.println("Waiting " + ((quickLoginDelay + 15000L)/1000L) + " seconds for the next autologin attempt.");
-			next_attempt = System.currentTimeMillis() + 15000L + quickLoginDelay;
-			loginCount++;
-		} else if (loginCount > 8) {
+		 if (loginCount <= 10) { //wait 25-45s for autolog the first 10 times (i.e. for ~ 2-3 mins)
+			quickLoginDelay = (long) (Math.random() * 10000L);
+			next_attempt = System.currentTimeMillis() + 25000L + quickLoginDelay;
+			System.out.println("Waiting " + ((quickLoginDelay + 25000L)/1000L) + " seconds for the next autologin attempt.");
+		} else if (loginCount > 10) {
 			int i = loginCount - 9;
 			loginDelay = (long) (Math.random() * 30000L)
 				+ (((i * 15L) / (i + 60L)) * 15000L)
 				+ 35000L; //calculate our delay. Approaches 4.6 mins at very high "i" values. Average wait value at i = 9 is about 1 minute
-			System.out.println("Waiting " + (loginDelay/1000L) + " seconds for the next autologin attempt.");
 			next_attempt = System.currentTimeMillis() + loginDelay;
-			loginCount++;
+			System.out.println("Waiting " + (loginDelay/1000L) + " seconds for the next autologin attempt.");
 		}
+		loginCount++;
 	}
 	public static LoginListener getInstance() {
 		return instance;
