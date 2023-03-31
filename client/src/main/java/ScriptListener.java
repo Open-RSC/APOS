@@ -71,7 +71,7 @@ public final class ScriptListener implements IScriptListener {
 				client.setRendering(true);
 				nextDeRefresh = System.currentTimeMillis() + 20L;
 				nextRefresh = System.currentTimeMillis() + 60000L; //wait for 1 min till refreshing
-				System.out.println("Next screen refresh in: " + ((nextRefresh - System.currentTimeMillis())/1000L) + "s");
+				//System.out.println("Next screen refresh in: " + ((nextRefresh - System.currentTimeMillis())/1000L) + "s");
 		}
 		if (running) {
 			if (s1 != null) {
