@@ -1,6 +1,5 @@
 package com.aposbot.handler;
 
-import com.aposbot.Constants;
 import com.aposbot._default.IClient;
 
 import javax.imageio.ImageIO;
@@ -14,7 +13,11 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Executors;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 /**
  * @author see <https://github.com/RSCPlus/rscplus>
@@ -116,7 +119,7 @@ public final class KeyboardHandler implements KeyListener {
 				break;
 			case KeyEvent.VK_F12:
 			case KeyEvent.VK_PRINTSCREEN:
-				screenshot();
+				takeScreenshot("");
 				e.consume();
 				return;
 		}
@@ -126,6 +129,7 @@ public final class KeyboardHandler implements KeyListener {
 		if (keyListener != null && !e.isConsumed()) {
 			keyListener.keyPressed(e);
 		}
+
 	}
 
 	@Override
@@ -159,7 +163,82 @@ public final class KeyboardHandler implements KeyListener {
 			keyListener.keyReleased(e);
 		}
 	}
+	/**
+	 * Makes the "unique" file name for each screenshot to prevent screenshot file over writing. could be shortened?
+	 * Theoretically allows 1 screenshot to be saved per second forever, also screenshots will autosort by date/time when sorted by filename.
+	 * This uses an almost identical save file structure and (I assume) similar method as to Runelite.
+	 */
+	private static final SimpleDateFormat screenshotNameFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+	public void takeScreenshot(final String fileName) {
+		boolean temporaryToggledInterlacing = false;
+		boolean temporaryToggledGFX = false;
+		if (client.isSkipLines()) { // to be uncommented 2.4
+			client.setSkipLines(false);
+			temporaryToggledInterlacing = true;
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		if (!client.isRendering()) {
+			client.setRendering(true); //If it's off, turn it on for the screenshot
+			temporaryToggledGFX = true;
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String playerTime = screenshotNameFormat.format(timestamp);
+		String playerName = client.getPlayerName(client.getPlayer());
+		String directory = "";
+		String saveLocPath = "";
+
+
+		final Image image = client.getImage();
+		final BufferedImage b = new BufferedImage(image.getWidth(null),
+			image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+		final Graphics g = b.createGraphics();
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+		try {
+			if (!Objects.equals(playerName, "")) {
+				directory = "screenshots/" + playerName + "/";
+			} else {
+				directory = "screenshots/";
+			}
+			if (!Objects.equals(fileName, "")) {
+				saveLocPath = directory + fileName + "_" + playerName + "_" + playerTime + ".png";
+			} else {
+				saveLocPath = directory + playerName + "_" + playerTime + ".png";
+			}
+			Files.createDirectories(Paths.get(directory));
+			ImageIO.write( b,"png", new File(saveLocPath));
+			boolean newImageExists = Files.exists(Paths.get(saveLocPath));
+			if (newImageExists) {
+				client.displayMessage(
+					"@cya@Screenshot successfully saved to ./APOS/" + saveLocPath);
+				System.out.println(
+					"Screenshot successfully saved to ./APOS/" + saveLocPath);
+			} else {
+				client.displayMessage(
+					"@red@Error: @cya@Screenshot not detected at ./APOS/" + saveLocPath);
+				System.out.println(
+					"Error: @cya@Screenshot not detected at ./APOS/" + saveLocPath);
+			}
+		} catch (final Throwable t) {
+			System.out.println("Error taking screenshot: " + t);
+		}
+		if (temporaryToggledGFX) {
+			client.setRendering(false);
+		}
+		if (temporaryToggledInterlacing) {
+			client.setSkipLines(true);
+		}
+	}
 	private void paste() {
 		if (!client.isLoggedIn()) {
 			return;
@@ -180,34 +259,5 @@ public final class KeyboardHandler implements KeyListener {
 		} catch (final UnsupportedFlavorException | IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void screenshot() {
-		if (!client.isLoggedIn()) {
-			return;
-		}
-
-		Executors.newSingleThreadExecutor().execute(() -> {
-			final String fileName = String.valueOf(System.currentTimeMillis());
-
-			final File file = Constants.PATH_SCREENSHOT.resolve(fileName + ".png").toFile();
-
-			final Image screenImage = client.getImage();
-
-			final BufferedImage bufferedImage = new BufferedImage(screenImage.getWidth(null),
-				screenImage.getHeight(null), BufferedImage.TYPE_INT_RGB);
-
-			final Graphics g = bufferedImage.createGraphics();
-			g.drawImage(screenImage, 0, 0, null);
-			g.dispose();
-
-			try {
-				ImageIO.write(bufferedImage, "png", file);
-				System.out.printf("Screenshot saved: %s%n", fileName);
-				client.displayMessage(String.format("@mag@Screenshot saved: %s", fileName));
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
-		});
 	}
 }

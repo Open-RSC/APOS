@@ -12,8 +12,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The main GUI wrapper for the mudclient Extension applet.
@@ -193,7 +198,7 @@ public final class BotFrame extends Frame {
 		final Button scrButton = new Button("Screenshot");
 		scrButton.setPreferredSize(buttonSize);
 		setButtonColours(scrButton);
-		scrButton.addActionListener(e -> new Thread(() -> takeScreenshot(String.valueOf(System.currentTimeMillis())), "ScreenshotThread").start());
+		scrButton.addActionListener(e -> new Thread(() -> takeScreenshot(""), "ScreenshotThread").start());
 
 		final Button exitButton = new Button("Exit");
 		exitButton.setPreferredSize(buttonSize);
@@ -377,8 +382,41 @@ public final class BotFrame extends Frame {
 			System.out.println("No script selected!");
 		}
 	}
+	/**
+	 * Makes the "unique" file name for each screenshot to prevent screenshot file over writing. could be shortened?
+	 * Theoretically allows 1 screenshot to be saved per second forever, also screenshots will autosort by date/time when sorted by filename.
+	 * This uses an almost identical save file structure and (I assume) similar method as to Runelite.
+	 */
+	private static final SimpleDateFormat screenshotNameFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+	public void takeScreenshot(final String fileName) {
+		boolean temporaryToggledInterlacing = false;
+		boolean temporaryToggledGFX = false;
+		if (client.isSkipLines()) { // to be uncommented 2.4
+			client.setSkipLines(false);
+			temporaryToggledInterlacing = true;
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		if (!client.isRendering()) {
+			client.setRendering(true); //If it's off, turn it on for the screenshot
+			temporaryToggledGFX = true;
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
-	private void takeScreenshot(final String fileName) {
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		String playerTime = screenshotNameFormat.format(timestamp);
+		String playerName = client.getPlayerName(client.getPlayer());
+		String directory = "";
+		String saveLocPath = "";
+
+
 		final Image image = client.getImage();
 		final BufferedImage b = new BufferedImage(image.getWidth(null),
 			image.getHeight(null), BufferedImage.TYPE_INT_RGB);
@@ -386,11 +424,38 @@ public final class BotFrame extends Frame {
 		g.drawImage(image, 0, 0, null);
 		g.dispose();
 		try {
-			final File file = Constants.PATH_SCREENSHOT.resolve(fileName + ".png").toFile();
-			ImageIO.write(b, "png", file);
-			System.out.println("Saved screenshot: " + file);
+			if (!Objects.equals(playerName, "")) {
+				directory = "screenshots/" + playerName + "/";
+			} else {
+				directory = "screenshots/";
+			}
+			if (!Objects.equals(fileName, "")) {
+				saveLocPath = directory + fileName + "_" + playerName + "_" + playerTime + ".png";
+			} else {
+				saveLocPath = directory + playerName + "_" + playerTime + ".png";
+			}
+			Files.createDirectories(Paths.get(directory));
+			ImageIO.write( b,"png", new File(saveLocPath));
+			boolean newImageExists = Files.exists(Paths.get(saveLocPath));
+			if (newImageExists) {
+				client.displayMessage(
+					"@cya@Screenshot successfully saved to ./APOS/" + saveLocPath);
+				System.out.println(
+					"Screenshot successfully saved to ./APOS/" + saveLocPath);
+			} else {
+				client.displayMessage(
+					"@red@Error: @cya@Screenshot not detected at ./APOS/" + saveLocPath);
+				System.out.println(
+					"Error: @cya@Screenshot not detected at ./APOS/" + saveLocPath);
+			}
 		} catch (final Throwable t) {
 			System.out.println("Error taking screenshot: " + t);
+		}
+		if (temporaryToggledGFX) {
+			client.setRendering(false);
+		}
+		if (temporaryToggledInterlacing) {
+			client.setSkipLines(true);
 		}
 	}
 
