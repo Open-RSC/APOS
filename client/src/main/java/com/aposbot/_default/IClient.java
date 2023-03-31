@@ -237,9 +237,13 @@ public interface IClient {
 	void setFatigueTraining(boolean fatigueTraining);
 
 	int getPlayerCount();
-
+	/**
+	*Get the object mob for your player
+	 */
 	Object getPlayer();
-
+	/**
+	 *Get the object mob for a different player, using server index values
+	 */
 	Object getPlayer(int index);
 
 	String getPlayerName(Object mob);

@@ -20,7 +20,8 @@ public final class ScriptListener implements IScriptListener {
 
 	private final IClient client;
 	private final SleepListener sleepListener;
-
+	long nextRefresh = -1;
+	long nextDeRefresh = -1;
 	private IScript script;
 	private BotFrame botFrame;
 
@@ -42,13 +43,13 @@ public final class ScriptListener implements IScriptListener {
 	}
 
 	private void onRunScript() {
+
 		if (!running) return;
 
 		if (client.isSleeping()) {
 			sleepListener.onGameTick();
 			return;
 		}
-
 		if (System.currentTimeMillis() < next) return;
 
 		try {
@@ -66,6 +67,12 @@ public final class ScriptListener implements IScriptListener {
 
 	private void onGameMessage(final boolean flag, String s1, final int i1, final String s2, final int j1, final int k1, final String s3,
 							   final String s4) {
+		if(!client.isRendering() && (System.currentTimeMillis() > nextRefresh)) {
+				client.setRendering(true);
+				nextDeRefresh = System.currentTimeMillis() + 20L;
+				nextRefresh = System.currentTimeMillis() + 60000L; //wait for 1 min till refreshing
+				System.out.println("Next screen refresh in: " + ((nextRefresh - System.currentTimeMillis())/1000L) + "s");
+		}
 		if (running) {
 			if (s1 != null) {
 				s1 = s1.replace((char) 160, ' ');
@@ -260,7 +267,6 @@ public final class ScriptListener implements IScriptListener {
 		if (!running) {
 			return;
 		}
-
 		try {
 			script.onPlayerCoord(x + client.getAreaX(), y + client.getAreaY());
 		} catch (final Throwable t) {
@@ -276,6 +282,10 @@ public final class ScriptListener implements IScriptListener {
 
 	@Override
 	public void onPaintTick() {
+		if(System.currentTimeMillis() > nextDeRefresh && nextDeRefresh != -1) {
+			client.setRendering(false);
+			nextDeRefresh = System.currentTimeMillis() + 500000L;
+		}
 		if (running) {
 			try {
 				script.paint();

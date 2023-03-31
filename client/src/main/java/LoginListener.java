@@ -1,5 +1,6 @@
 import com.aposbot._default.IClient;
 import com.aposbot._default.ILoginListener;
+import com.aposbot._default.IScriptListener;
 import com.aposbot.gui.BotFrame;
 
 /**
@@ -19,7 +20,7 @@ public final class LoginListener implements ILoginListener {
 	private boolean autoLogin;
 	private boolean initialized;
 
-	private long next_attempt;
+	private long nextAttempt;
 
 	private LoginListener() {
 		client = Extension.getInstance();
@@ -42,7 +43,7 @@ public final class LoginListener implements ILoginListener {
 			initialized = true;
 		}
 
-		if (!autoLogin || username == null || System.currentTimeMillis() < next_attempt) return;
+		if (!autoLogin || username == null || System.currentTimeMillis() < nextAttempt) return;
 
 		client.login(username, password);
 		System.out.printf("Logging into account: %s%n", username);
@@ -58,20 +59,20 @@ public final class LoginListener implements ILoginListener {
 	public void onLoginResponse(final String arg0, final String arg1) {
 		long loginDelay;
 		long quickLoginDelay;
-		if(System.currentTimeMillis() >= next_attempt) {
+		if(System.currentTimeMillis() >= nextAttempt) {
 			loginCount++;
 			System.out.printf("%s %s%n", arg0, arg1);
 			System.out.println("Current Login Attempts: " + loginCount);
 			if (loginCount <= 10) { //wait 45s or longer for autolog the first 10 times (i.e. for ~ 2-3 mins)
 				quickLoginDelay = (long) (Math.random() * 10000L);
-				next_attempt = System.currentTimeMillis() + 45000L + quickLoginDelay;
+				nextAttempt = System.currentTimeMillis() + 45000L + quickLoginDelay;
 				System.out.println("Waiting " + ((quickLoginDelay + 45000L) / 1000L) + " seconds for the next autologin attempt.");
 			} else {
 				int i = loginCount - 6;
 				loginDelay = (long) (Math.random() * 60000L)
 					+ (((i * 15L) / (i + 60L)) * 10000L)
 					+ 90000L; //calculate our delay. Approaches 4.6 mins at very high "i" values. Average wait is about 3-5 minute
-				next_attempt = System.currentTimeMillis() + loginDelay;
+				nextAttempt = System.currentTimeMillis() + loginDelay;
 				System.out.println("Waiting " + (loginDelay / 1000L) + " seconds for the next autologin attempt.");
 			}
 		}
@@ -89,7 +90,7 @@ public final class LoginListener implements ILoginListener {
 	public void setEnabled(final boolean enabled) {
 		autoLogin = enabled;
 		botFrame.updateAutoLoginCheckBox(enabled);
-		if (enabled) next_attempt = 0;
+		if (enabled) nextAttempt = 0;
 	}
 
 	@Override
