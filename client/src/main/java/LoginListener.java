@@ -63,15 +63,15 @@ public final class LoginListener implements ILoginListener {
 			loginCount++;
 			System.out.printf("%s %s%n", arg0, arg1);
 			System.out.println("Current Login Attempts: " + loginCount);
-			if (loginCount <= 10) { //wait 45s or longer for autolog the first 10 times (i.e. for ~ 2-3 mins)
-				quickLoginDelay = (long) (Math.random() * 10000L);
-				nextAttempt = System.currentTimeMillis() + 45000L + quickLoginDelay;
-				System.out.println("Waiting " + ((quickLoginDelay + 45000L) / 1000L) + " seconds for the next autologin attempt.");
+			if (loginCount <= 10) { //wait 60s-80s or longer for autolog the first 10 times (i.e. for ~ 10 mins)
+				quickLoginDelay = (long) (Math.random() * 20000L);
+				nextAttempt = System.currentTimeMillis() + 60000L + quickLoginDelay;
+				System.out.println("Waiting " + ((quickLoginDelay + 60000L) / 1000L) + " seconds for the next autologin attempt.");
 			} else {
 				int i = loginCount - 6;
-				loginDelay = (long) (Math.random() * 60000L)
+				loginDelay = (long) (Math.random() * 30000L)
 					+ (((i * 15L) / (i + 60L)) * 10000L)
-					+ 90000L; //calculate our delay. Approaches 4.6 mins at very high "i" values. Average wait is about 3-5 minute
+					+ 100000L; //Waits for ~ 120-150s the first few times. Approaches 5+ mins at higher "i" values. Average wait is about 5 minute
 				nextAttempt = System.currentTimeMillis() + loginDelay;
 				System.out.println("Waiting " + (loginDelay / 1000L) + " seconds for the next autologin attempt.");
 			}
