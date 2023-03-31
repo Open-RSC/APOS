@@ -12,4 +12,7 @@ public interface IPaintListener {
 	void setRenderTextures(boolean b);
 
 	void setRenderSolid(boolean b);
+
+	void setInterlaceMode(boolean b);
+
 }

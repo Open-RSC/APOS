@@ -24,6 +24,7 @@ final class PaintListener implements IPaintListener {
 
 	public static volatile boolean renderSolid = true;
 	public static volatile boolean renderTextures = true;
+	public static volatile boolean interlaceMode = false;
 	public static volatile boolean renderGraphics = true;
 
 	private final DecimalFormat decimalFormat = new DecimalFormat("#,##0.0#");
@@ -156,6 +157,11 @@ final class PaintListener implements IPaintListener {
 	@Override
 	public void setRenderSolid(final boolean renderSolid) {
 		PaintListener.renderSolid = renderSolid;
+	}
+
+	@Override
+	public void setInterlaceMode(final boolean interlaceMode) {
+		PaintListener.interlaceMode = interlaceMode;
 	}
 
 	static IPaintListener getInstance() {
