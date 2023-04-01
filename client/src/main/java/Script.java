@@ -1,5 +1,6 @@
 import com.aposbot.Constants;
 import com.aposbot._default.IClient;
+import com.aposbot._default.IPaintListener;
 import com.aposbot._default.IScript;
 import com.aposbot.utility.LocalRouteCalc;
 import com.aposbot.utility.RasterOps;
