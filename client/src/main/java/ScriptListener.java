@@ -284,7 +284,7 @@ public final class ScriptListener implements IScriptListener {
 	public void onPaintTick() {
 		if(System.currentTimeMillis() > nextDeRefresh && nextDeRefresh != -1) {
 			client.setRendering(false);
-			nextDeRefresh = System.currentTimeMillis() + 500000L;
+			nextDeRefresh = -1;
 		}
 		if (running) {
 			try {

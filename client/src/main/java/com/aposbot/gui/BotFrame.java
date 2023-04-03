@@ -57,7 +57,7 @@ public final class BotFrame extends Frame {
 			}
 		});
 
-		if (SystemTray.isSupported()) {
+		/*if (SystemTray.isSupported()) {
 			TrayIcon icon = null;
 			if (Constants.ICON_16 != null) {
 				icon = new TrayIcon(Constants.ICON_16, "APOS (" + account + ")");
@@ -76,7 +76,7 @@ public final class BotFrame extends Frame {
 			} catch (final Throwable t) {
 				t.printStackTrace();
 			}
-		}
+		}*/
 
 		client = clientInit.getClient();
 		((Component) client).setBackground(Color.BLACK);
