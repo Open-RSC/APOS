@@ -7,7 +7,7 @@ import com.aposbot.gui.BotFrame;
  * Handles auto-login.
  */
 public final class LoginListener implements ILoginListener {
-	int loginCount = 0;
+	private static long loginCount = 0;
 	private static final LoginListener instance = new LoginListener();
 
 	private final IClient client;
@@ -48,7 +48,7 @@ public final class LoginListener implements ILoginListener {
 		client.login(username, password);
 		System.out.printf("Logging into account: %s%n", username);
 		if(client.isLoggedIn()) {
-			loginCount = 0;
+			loginCount = 0L;
 		}
 	}
 
@@ -68,10 +68,10 @@ public final class LoginListener implements ILoginListener {
 				nextAttempt = System.currentTimeMillis() + 60000L + quickLoginDelay;
 				System.out.println("Waiting " + ((quickLoginDelay + 60000L) / 1000L) + " seconds for the next autologin attempt.");
 			} else {
-				int i = loginCount - 6;
+				long i = loginCount - 6L;
 				loginDelay = (long) (Math.random() * 30000L)
-					+ (((i * 15L) / (i + 60L)) * 10000L)
-					+ 100000L; //Waits for ~ 120-150s the first few times. Approaches 5+ mins at higher "i" values. Average wait is about 5 minute
+					+ (((i * 15L) / (i + 60L)) * 30000L)
+					+ 60000L; //Waits for ~ 120-150s the first few times. Approaches 5+ mins at higher "i" values. Average wait is about 5 minute
 				nextAttempt = System.currentTimeMillis() + loginDelay;
 				System.out.println("Waiting " + (loginDelay / 1000L) + " seconds for the next autologin attempt.");
 			}
