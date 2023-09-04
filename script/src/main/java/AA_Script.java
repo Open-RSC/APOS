@@ -98,7 +98,12 @@ public abstract class AA_Script extends Script {
 		stopScript();
 		System.out.println("Oh dear, you are dead.");
 	}
-
+	/**
+	 * Overrides walkTo and walks to the given tile.
+	 *
+	 * @param  x	the x coordinate to walk to
+	 * @param  y	the y coordinate to walk to
+	 */
 	@Override
 	public void walkTo(final int x, final int y) {
 		bot.walkDirectly(x - bot.getAreaX(), y - bot.getAreaY(), false);

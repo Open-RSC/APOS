@@ -97,7 +97,11 @@ public final class ScriptListener implements IScriptListener {
 	static void playerDamagedHook(final ta player) {
 		instance.onPlayerDamaged(player);
 	}
-
+	/**
+	 * Executes when a player is damaged.
+	 *
+	 * @param  player  the player object that was damaged
+	 */
 	private void onPlayerDamaged(final Object player) {
 		if (!running) {
 			return;

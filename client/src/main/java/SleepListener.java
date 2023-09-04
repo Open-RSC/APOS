@@ -50,11 +50,19 @@ final class SleepListener implements ISleepListener {
 
 	private void onSleepStart() {
 	}
-
+	/**
+	 * Hook to call an instance of the onSleepWord(data) method
+	 *
+	 * @param  data  the byte array data
+	 */
 	static void sleepWordHook(final byte[] data) {
 		instance.onSleepWord(data);
 	}
-
+	/**
+	 * Processes the given byte array data to handle sleep words.
+	 *
+	 * @param  data  the byte array data to process
+	 */
 	private void onSleepWord(final byte[] data) {
 		if (client.isFatigueTraining() && client.getSleepFatigue() == 0) {
 			client.setSleeping(false);
@@ -95,7 +103,13 @@ final class SleepListener implements ISleepListener {
 			default:
 		}
 	}
-
+	/**
+	 * Saves the given bitmap data to the specified output stream.
+	 *
+	 * @param  out   the output stream to write the bitmap data to
+	 * @param  data  the byte array containing the bitmap data
+	 * @throws IOException  if an I/O error occurs while writing the data to the output stream
+	 */
 	private static void saveBitmap(final OutputStream out, final byte[] data) throws IOException {
 		out.write(66);
 		out.write(77);
@@ -182,7 +196,12 @@ final class SleepListener implements ISleepListener {
 			var4 -= 510;
 		}
 	}
-
+	/**
+	 * Convert an image represented as a byte array.
+	 *
+	 * @param  data  the byte array representing the image data
+	 * @return       the converted image as a byte array
+	 */
 	private static byte[] convertImage(final byte[] data) {
 		int var1 = 1;
 		byte var2 = 0;
@@ -214,7 +233,11 @@ final class SleepListener implements ISleepListener {
 		}
 		return var4;
 	}
-
+	/**
+	 * Updates the sleep fatigue and takes appropriate actions based on the fatigue level.
+	 *
+	 * @param  fatigue	the fatigue level to update
+	 */
 	private void onSleepFatigueUpdate(final int fatigue) {
 		if (sleepWord == null) {
 			if (fatigue == 0 && ocrType != OCRType.MANUAL && ocrType != OCRType.EXTERNAL) client.setSleeping(false);
@@ -236,17 +259,23 @@ final class SleepListener implements ISleepListener {
 
 		if (fatigue == 0) sendSleepWord();
 	}
-
+	/**
+	 * Sends the sleep word using the client's CAPTCHA service.
+	 */
 	private void sendSleepWord() {
 		client.sendCAPTCHA(sleepWord);
 		System.out.println("Sent CAPTCHA: " + sleepWord);
 		sleepWord = null;
 	}
-
+	/**
+	 * Hook that is called when sleep word is entered incorrectly
+	 */
 	static void sleepWordIncorrectHook() {
 		instance.onSleepWordIncorrect();
 	}
-
+	/**
+	 * Called when sleep word is entered incorrectly, if greater than maximum tries, it will log out.
+	 */
 	private void onSleepWordIncorrect() {
 		if (client.isFatigueTraining() && ++incorrectSleepTries > MAXIMUM_INCORRECT_SLEEP_TRIES) {
 			onSleepStop();
@@ -265,7 +294,12 @@ final class SleepListener implements ISleepListener {
 	private void onSleepStop() {
 		incorrectSleepTries = 0;
 	}
-
+/**
+ * Overrides the onGameTick method.
+ * This method is called every game tick. It checks if the lastModified flag is true and if so, it retrieves the
+ * last modified time of the slword file.
+ * If the last modified time is the same as the lastModified field of the class, it returns without
+ */
 	@Override
 	public void onGameTick() {
 		if (!checkLastModified) return;
@@ -276,7 +310,11 @@ final class SleepListener implements ISleepListener {
 		sleepWord = readLine(slword);
 		onSleepFatigueUpdate(client.getSleepFatigue());
 	}
-
+	/**
+	 * Sets the OCR type for the client
+	 *
+	 * @param  ocrType	the OCRType to be set
+	 */
 	@Override
 	public void setOCRType(final OCRType ocrType) {
 		this.ocrType = ocrType;
@@ -310,7 +348,12 @@ final class SleepListener implements ISleepListener {
 				break;
 		}
 	}
-
+	/**
+	 * Reads a line from the specified file.
+	 *
+	 * @param  file  the file to read from
+	 * @return       the line read from the file, or null if an exception occurred
+	 */
 	private static String readLine(final File file) {
 		try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			return reader.readLine().trim();
