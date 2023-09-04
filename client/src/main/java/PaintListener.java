@@ -39,7 +39,12 @@ final class PaintListener implements IPaintListener {
 	static void paintHook() {
 		instance.onPaint();
 	}
-
+	/**
+	 * This function is called when the paint is updated.
+	 * It draws the gradient, resizes the game window if necessary,
+	 * and displays information about the player's hits, prayer level,
+	 * current tile, fatigue, and PID.
+	 */
 	@Override
 	public void onPaint() {
 		drawGradient();
@@ -109,7 +114,16 @@ final class PaintListener implements IPaintListener {
 		y += 1;
 		RasterOps.fillRect(pixels, rw, rh, x, y, rw, 3, BOTTOM_LIGHT);
 	}
-
+	/**
+	 * Draws a stat bar at the specified coordinates with the given current and base values.
+	 *
+	 * @param  x       the x-coordinate of the stat bar
+	 * @param  y       the y-coordinate of the stat bar
+	 * @param  current the current value of the stat bar
+	 * @param  base    the base value of the stat bar
+	 * @param  front   the color of the front part of the bar
+	 * @param  back    the color of the back part of the bar
+	 */
 	private void drawStatBar(final int x, int y,
 							 final double current, final double base, final int front, final int back) {
 		final int rw = client.getGameWidth();
@@ -125,17 +139,30 @@ final class PaintListener implements IPaintListener {
 			x + width, y, BAR_WIDTH - width, BAR_HEIGHT,
 			65, back);
 	}
-
+	/**
+	 * Returns whether painting is enabled.
+	 *
+	 * @return true if painting is enabled, false otherwise
+	 */
 	@Override
 	public boolean isPaintingEnabled() {
 		return enabled;
 	}
-
+	/**
+	 * Sets painting enabled/disabled
+	 *
+	 * @param  enabled  boolean value for the painting enabled flag
+	 */
 	@Override
 	public void setPaintingEnabled(final boolean enabled) {
 		this.enabled = enabled;
 	}
-
+	/**
+	 * Resizes the object with the given width and height.
+	 *
+	 * @param  width  the new width for the object
+	 * @param  height the new height for the object
+	 */
 	@Override
 	public void doResize(final int width, final int height) {
 		synchronized (dimension) {

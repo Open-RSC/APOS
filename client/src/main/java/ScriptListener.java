@@ -20,8 +20,8 @@ public final class ScriptListener implements IScriptListener {
 
 	private final IClient client;
 	private final SleepListener sleepListener;
-	long nextRefresh = -1;
-	long nextDeRefresh = -1;
+	private long nextRefresh = -1;
+	private long nextDeRefresh = -1;
 	private IScript script;
 	private BotFrame botFrame;
 
@@ -67,7 +67,7 @@ public final class ScriptListener implements IScriptListener {
 
 	private void onGameMessage(final boolean flag, String s1, final int i1, final String s2, final int j1, final int k1, final String s3,
 							   final String s4) {
-		if(!client.isRendering() && (System.currentTimeMillis() > nextRefresh)) {
+		if(!client.isRendering() && (System.currentTimeMillis() > nextRefresh) && (nextRefresh != -1)) {
 				client.setRendering(true);
 				nextDeRefresh = System.currentTimeMillis() + 20L;
 				nextRefresh = System.currentTimeMillis() + 60000L; //wait for 1 min till refreshing
@@ -97,7 +97,11 @@ public final class ScriptListener implements IScriptListener {
 	static void playerDamagedHook(final ta player) {
 		instance.onPlayerDamaged(player);
 	}
-
+	/**
+	 * Executes when a player is damaged.
+	 *
+	 * @param  player  the player object that was damaged
+	 */
 	private void onPlayerDamaged(final Object player) {
 		if (!running) {
 			return;
@@ -282,7 +286,7 @@ public final class ScriptListener implements IScriptListener {
 
 	@Override
 	public void onPaintTick() {
-		if(System.currentTimeMillis() > nextDeRefresh && nextDeRefresh != -1) {
+		if(System.currentTimeMillis() > nextDeRefresh && (nextDeRefresh != -1) && (nextRefresh != -1)) {
 			client.setRendering(false);
 			nextDeRefresh = -1;
 		}

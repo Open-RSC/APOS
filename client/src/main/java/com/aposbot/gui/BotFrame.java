@@ -330,7 +330,7 @@ public final class BotFrame extends Frame {
 
 	private static Map<String, String> getBaseParameters() {
 		final Map<String, String> params = new HashMap<>();
-		params.put("nodeid", "3235");
+		params.put("nodeid", "3601"); //was 3235
 		params.put("modewhere", "1");
 		params.put("modewhat", "0");
 		params.put("servertype", "1");
@@ -352,7 +352,7 @@ public final class BotFrame extends Frame {
 		final String serverType;
 		try {
 			url = new URL("http://game.openrsc.com/");
-			nodeid = "3235";
+			nodeid = "3601"; //was 3235
 			serverType = "1";
 
 			stub.setDocumentBase(url);

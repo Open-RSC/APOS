@@ -744,7 +744,13 @@ public abstract class Script implements IScript {
 		}
 		return true;
 	}
-
+	/**
+	 * Checks for amount of provided runeId, also checks elemental staffs and returns the corresponding runes
+	 *
+	 * @param  id     the ID of the rune to check
+	 * @param  amount the desired number of runes (does not matter if you have a staff)
+	 * @return        true if the specified number of runes is available (or staff exists), false otherwise
+	 */
 	private boolean ensureRunes(final int id, final int amount) {
 		switch (id) {
 			case 31:
@@ -770,7 +776,12 @@ public abstract class Script implements IScript {
 		}
 		return getInventoryCount(id) >= amount;
 	}
-
+	/**
+	 * Determines if the given ID is present in the inventory and if the corresponding item is equipped.
+	 *
+	 * @param  id  the ID to check
+	 * @return     true if the item is equipped, false otherwise
+	 */
 	private boolean isEquippedId(final int id) {
 		for (int i = 0; i < getInventoryCount(); i++) {
 			if (client.getInventoryId(i) == id) {
@@ -1174,7 +1185,13 @@ public abstract class Script implements IScript {
 	public void useItemOnObject(final int item_id, final int object_x, final int object_y) {
 		useSlotOnObject(getInventoryIndex(item_id), object_x, object_y);
 	}
-
+	/**
+	 * Uses the given item slot index on the object at the specified coordinates.
+	 *
+	 * @param  slot       the item slot index to use
+	 * @param  object_x   the x-coordinate of the object
+	 * @param  object_y   the y-coordinate of the object
+	 */
 	public void useSlotOnObject(final int slot, final int object_x, final int object_y) {
 		if (slot == -1)
 			return;
@@ -1190,7 +1207,13 @@ public abstract class Script implements IScript {
 			client.finishPacket();
 		}
 	}
-
+	/**
+	 * Finds the index of the object at the specified coordinates relative to the client's area.
+	 *
+	 * @param  x  the x-coordinate of the object
+	 * @param  y  the y-coordinate of the object
+	 * @return    the index of the object, or -1 if no object is found at the specified coordinates
+	 */
 	private int getObjectIndex(final int x, final int y) {
 		final int lx = x - client.getAreaX();
 		final int ly = y - client.getAreaY();
@@ -1900,7 +1923,13 @@ public abstract class Script implements IScript {
 			client.finishPacket();
 		}
 	}
-
+	/**
+	 * Returns the index of the bound at the specified coordinates.
+	 *
+	 * @param  x  the x-coordinate of the bound
+	 * @param  y  the y-coordinate of the bound
+	 * @return    the index of the bound, or -1 if not found
+	 */
 	private int getBoundIndex(final int x, final int y) {
 		final int lx = x - client.getAreaX();
 		final int ly = y - client.getAreaY();
@@ -2372,14 +2401,25 @@ public abstract class Script implements IScript {
 	public int getOurTradedItemCount() {
 		return client.getLocalTradeItemCount();
 	}
-
+	/**
+	 * Retrieves the local(your) trade itemID at the specified trade window index
+	 *
+	 * @param  i  the index of the local trade item
+	 * @return    the local trade item ID at the specified index, or -1 if the index is out of bounds
+	 */
 	public int getLocalTradeItemId(final int i) {
 		if (i >= client.getLocalTradeItemCount()) {
 			return -1;
 		}
 		return client.getLocalTradeItemId(i);
 	}
-
+	/**
+	 * Retrieves the local(your) trade item stack at the specified trade window index
+	 *
+	 * @param  i  the index of the item stack to retrieve
+	 * @return    the item stack at the specified index, or -1 if the index is
+	 *            out of range
+	 */
 	public int getLocalTradeItemStack(final int i) {
 		if (i >= client.getLocalTradeItemCount()) {
 			return -1;
@@ -2401,21 +2441,36 @@ public abstract class Script implements IScript {
 	public int getTheirTradedItemCount() {
 		return client.getRemoteTradeItemCount();
 	}
-
+	/**
+	 * Retrieves the remote (the other person) trade itemID at the specified trade window index
+	 *
+	 * @param  i  the index of the remote trade item
+	 * @return    the remote trade item ID at the specified index, or -1 if the index is out of bounds
+	 */
 	public int getRemoteTradeItemId(final int i) {
 		if (i >= client.getRemoteTradeItemCount()) {
 			return -1;
 		}
 		return client.getRemoteTradeItemId(i);
 	}
-
+	/**
+	 * Retrieves the remote (the other person) trade item stack at the specified trade window index
+	 *
+	 * @param  i  the index of the remote item stack to retrieve
+	 * @return    the item stack at the specified index, or -1 if the index is
+	 *            out of range
+	 */
 	public int getRemoteTradeItemStack(final int i) {
 		if (i >= client.getRemoteTradeItemCount()) {
 			return -1;
 		}
 		return client.getRemoteTradeItemStack(i);
 	}
-
+	/**
+	 * Determines if the local(self) client has accepted the trade
+	 *
+	 * @return  true if the client has a local accepted trade, false otherwise
+	 */
 	public boolean hasLocalAcceptedTrade() {
 		if (isInTradeConfirm()) {
 			return client.hasLocalConfirmedTrade();
@@ -2432,7 +2487,11 @@ public abstract class Script implements IScript {
 	public boolean isInTradeConfirm() {
 		return client.isInTradeConfirm();
 	}
-
+	/**
+	 * Determines if the remote (the other person) trade has been accepted.
+	 *
+	 * @return true if the remote trade has been accepted, false otherwise.
+	 */
 	public boolean hasRemoteAcceptedTrade() {
 		return client.hasRemoteAcceptedTrade();
 	}
@@ -2649,7 +2708,16 @@ public abstract class Script implements IScript {
 		drawBuf(buf, start_x, start_y, client.getPixels(),
 			client.getGameWidth(), client.getGameHeight());
 	}
-
+	/**
+	 * Draws a portion of an image onto an array of pixels.
+	 *
+	 * @param  image    the source image to draw from
+	 * @param  start_x  the starting x-coordinate of the portion to draw
+	 * @param  start_y  the starting y-coordinate of the portion to draw
+	 * @param  pixels   the array of pixels to draw onto
+	 * @param  rw       the maximum width of the portion to draw
+	 * @param  rh       the maximum height of the portion to draw
+	 */
 	private static void drawBuf(final BufferedImage image,
 								final int start_x, final int start_y,
 								final int[] pixels, final int rw, final int rh) {
@@ -2913,7 +2981,12 @@ public abstract class Script implements IScript {
 			client.sendPrivateMessage(msg, name);
 		}
 	}
-
+	/**
+	 * Determines whether a given name is a friend.
+	 *
+	 * @param  name  the name to check
+	 * @return       true if the name is a friend, false otherwise
+	 */
 	public boolean isFriend(final String name) {
 		final int count = StaticAccess.getInstance().getFriendCount();
 		for (int i = 0; i < count; ++i) {
@@ -2923,33 +2996,54 @@ public abstract class Script implements IScript {
 		}
 		return false;
 	}
-
+	/**
+	 * Adds a friend with the given name.
+	 *
+	 * @param  name  the name of the friend to be added
+	 */
 	public void addFriend(final String name) {
 		final String lname = client.getPlayerName(client.getPlayer());
 		if (name.length() > 0 && !name.equalsIgnoreCase(lname)) {
 			client.addFriend(name);
 		}
 	}
-
+	/**
+	 * Removes a friend with the given name.
+	 *
+	 * @param  name  the name of the friend to be removed
+	 */
 	public void removeFriend(final String name) {
 		if (isFriend(name)) {
 			client.removeFriend(name);
 		}
 	}
-
+	/**
+	 * Adds a player to the ignore list.
+	 *
+	 * @param  name  the name of the player to ignore
+	 */
 	public void addIgnore(final String name) {
 		final String lname = client.getPlayerName(client.getPlayer());
 		if (name.length() > 0 && !name.equalsIgnoreCase(lname)) {
 			client.addIgnore(name);
 		}
 	}
-
+	/**
+	 * Removes the specified name from the ignore list.
+	 *
+	 * @param  name  the name to be removed from the ignore list
+	 */
 	public void removeIgnore(final String name) {
 		if (isIgnored(name)) {
 			client.removeIgnore(name);
 		}
 	}
-
+	/**
+	 * Determines if the given name is ignored.
+	 *
+	 * @param  name the name to check
+	 * @return      true if the name is ignored, false otherwise
+	 */
 	public boolean isIgnored(final String name) {
 		final int count = StaticAccess.getInstance().getIgnoredCount();
 		for (int i = 0; i < count; ++i) {

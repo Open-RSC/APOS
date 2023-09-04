@@ -26,10 +26,15 @@ public final class LoginListener implements ILoginListener {
 		client = Extension.getInstance();
 	}
 
+	/**
+	 * Hooks the instance.onLoginScreen() method
+	 */
 	static void loginScreenHook() {
 		instance.onLoginScreen();
 	}
-
+	/**
+	 * Executes the logic when the user is on the login screen.
+	 */
 	public void onLoginScreen() {
 		if (!initialized) {
 			final String font = ClientInit.getBotLoader().getFont();
@@ -55,7 +60,9 @@ public final class LoginListener implements ILoginListener {
 	static void loginResponseHook(final String arg0, final String arg1) {
 		instance.onLoginResponse(arg0, arg1);
 	}
-
+	/**
+	 * Handles the bots response when a login attempt is made.
+	 */
 	public void onLoginResponse(final String arg0, final String arg1) {
 		long loginDelay;
 		long quickLoginDelay;
@@ -85,14 +92,23 @@ public final class LoginListener implements ILoginListener {
 	public boolean isEnabled() {
 		return autoLogin;
 	}
-
+	/**
+	 * Sets autologin enabled
+	 *
+	 * @param  enabled true to enable autologin
+	 */
 	@Override
 	public void setEnabled(final boolean enabled) {
 		autoLogin = enabled;
 		botFrame.updateAutoLoginCheckBox(enabled);
 		if (enabled) nextAttempt = 0;
 	}
-
+	/**
+	 * Sets the account username and password.
+	 *
+	 * @param  username the username to set
+	 * @param  password the password to set
+	 */
 	@Override
 	public void setAccount(final String username, final String password) {
 		this.username = username;
