@@ -234,33 +234,43 @@ public class PathWalker extends Script {
 			final int y = n.y;
 			if (isAtApproxCoords(331, 487, 10) && (n.x > 341)) {
 				atObject(341, 487);
+				System.out.println("Opening Tav gate going west");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(352, 487, 10) && (n.x <= 341)) {
 				atObject(341, 487);
+				System.out.println("Opening Tav gate going east");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(343, 591, 10) && (n.y < 581)) {
 				atObject(343, 581);
+				System.out.println("Opening Tav gate going north");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(343, 570, 10) && (n.y >= 581)) {
 				atObject(343, 581);
+				System.out.println("Opening Tav gate going south");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(703, 542, 10) && (n.y <= 531)) {
 				atObject(703, 531);
+				System.out.println("Opening Gnome Tree gate going north");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(703, 521, 10) && (n.y > 531)) {
 				atObject(703, 531);
+				System.out.println("Opening Gnome Tree gate going south");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(445, 682, 10) && (n.x < 435)) {
 				atObject(434, 682);
+				System.out.println("Opening Karamja gate, going East");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(424, 521, 10) && (n.x >= 435)) {
 				atObject(434, 682);
+				System.out.println("Opening Karamja gate, going West");
 				wait_time = c_time + 8000;
 			} else if (isAtApproxCoords(111, 152, 10) && (n.y < 142)) {
 				atObject(111, 142);
+				System.out.println("Opening Wilderness gate, going north");
 				c_time = wait_time;
 			} else if (isAtApproxCoords(117, 131, 10) && (n.y >= 142)) {
 				atObject(111, 142);
+				System.out.println("Opening Wilderness gate, going south");
 				c_time = wait_time;
 			} else if (isAtApproxCoords(102, 649, 10) && (n.x < 92)) { // enter alkharid
 				// node.x represents value on the other side of the gate
