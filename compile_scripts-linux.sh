@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # If there's not bot.jar in the folder, first call ./compile_all_linux.sh
 if [ ! -f bot.jar ]; then

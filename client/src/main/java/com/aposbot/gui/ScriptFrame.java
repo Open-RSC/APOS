@@ -171,10 +171,13 @@ public final class ScriptFrame extends Frame {
 		compileScriptsButton.addActionListener(e -> {
 			try {
 				final ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "compile_scripts.cmd");
-				// If we're on Linux, use bash instead of cmd
-				if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-					pb.command("bash", "-c", "chmod +x compile_scripts-linux.sh && ./compile_scripts-linux.sh");
-				}
+				// If we're on anything with sh, use the shell script instead
+        String os = System.getProperty("os.name").toLowerCase();
+
+        // Check if the OS is Unix-like (Linux, Mac, BSD, etc.)
+        if (os.contains("linux") || os.contains("mac") || os.contains("unix") || os.contains("bsd")) {
+            pb.command("sh", "-c", "chmod +x compile_scripts-linux.sh && ./compile_scripts-linux.sh");
+        }
 				// execute
 				final Process p = pb.start();
 				// get both the output and the error stream
