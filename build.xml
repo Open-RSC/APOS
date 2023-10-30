@@ -27,7 +27,7 @@
         <delete file="${jar}"/>
         <delete dir="${build}"/>
         <mkdir dir="${build}"/>
-        <javac srcdir="${clientsrc}" destdir="${build}" debug="on" includeantruntime="false" target="${javac.target}"
+        <javac srcdir="${clientsrc}" destdir="${build}" debug="on" includeantruntime="false" target="${javac.target}" encoding="UTF-8"
                source="${javac.source}" classpathref="compile.path">
             <compilerarg line="-Xlint:unchecked"/>
         </javac>
@@ -48,7 +48,7 @@
                 </not>
             </condition>
         </fail>
-        <javac srcdir="${scriptsrc}" destdir="${scripts}" debug="on" includeantruntime="false" target="${javac.target}"
+        <javac srcdir="${scriptsrc}" destdir="${scripts}" debug="on" includeantruntime="false" target="${javac.target}" encoding="UTF-8"
                source="${javac.source}" classpathref="compile.path">
             <compilerarg line="-Xlint:unchecked -Xlint:deprecation"/>
         </javac>
