@@ -1,5 +1,6 @@
 package com.aposbot.gui;
 
+import com.aposbot.BotLoader;
 import com.aposbot._default.*;
 import com.aposbot.applet.AVStub;
 import com.aposbot.Constants;
@@ -219,7 +220,7 @@ public final class BotFrame extends Frame {
 		setColours(checkPanel);
 		checkPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 0));
 
-		loginCheck = new Checkbox("Autologin");
+		loginCheck = new Checkbox("Autologin", false);
 		setColours(loginCheck);
 		loginCheck.addItemListener(e -> {
 			final ILoginListener al = clientInit.getLoginListener();
@@ -271,16 +272,6 @@ public final class BotFrame extends Frame {
 		checkPanel.add(t3d);
 		checkPanel.add(i3d);
 
-		((Component) client)
-			.addComponentListener(new ComponentAdapter() {
-				@Override
-				public void componentResized(final ComponentEvent e) {
-					final int w = ((Component) client).getWidth();
-					final int h = ((Component) client).getHeight();
-					clientInit.getPaintListener().doResize(w, h);
-				}
-			});
-
 		add((Component) client, BorderLayout.CENTER);
 		add(sidePanel, BorderLayout.EAST);
 
@@ -296,12 +287,67 @@ public final class BotFrame extends Frame {
 			add(checkPanel, BorderLayout.SOUTH);
 		}
 
-		pack();
-		setMinimumSize(getSize());
+		if (BotLoader.getHeightWidth() == null) {
+			pack();
+			setMinimumSize(getSize());
+		}
 
 		client.init();
 		stub.setActive(true);
 		client.start();
+
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentMoved(final ComponentEvent e) {
+				if (isVisible() && ((Component) client).isDisplayable() && ((Applet) client).isVisible()) {
+					final Point location = ((Component) client).getLocationOnScreen();
+
+					if (location != null) {
+						final int windowWidth = getWidth();
+						final int windowHeight = getHeight();
+						final int x = location.x;
+						final int y = location.y;
+						setTitle(String.format("APOS (%s) - Window [H: %s, W: %s], Location [X: %s, Y: %s]", account, windowHeight, windowWidth, x, y));
+					}
+				}
+			}
+		});
+
+		((Component) client)
+			.addComponentListener(new ComponentAdapter() {
+
+				private boolean initialSizeSet = false;
+
+				@Override
+				public void componentResized(final ComponentEvent e) {
+					final int w = ((Component) client).getWidth();
+					final int h = ((Component) client).getHeight();
+
+					if (isVisible() && ((Component) client).isDisplayable() && ((Applet) client).isVisible()) {
+						final Point location = ((Component) client).getLocationOnScreen();
+
+						if (location != null) {
+							final int windowWidth = getWidth();
+							final int windowHeight = getHeight();
+							final int x = location.x;
+							final int y = location.y;
+							setTitle(String.format("APOS (%s) - Window [H: %s, W: %s], Location [X: %s, Y: %s]", account, windowHeight, windowWidth, x, y));
+						}
+					}
+
+					if (BotLoader.getHeightWidth() != null && BotLoader.getLocation() != null) {
+						if (!initialSizeSet) {
+							initialSizeSet = true;
+							pack();
+							setMinimumSize(getSize());
+							setBounds(BotLoader.getLocation().x, BotLoader.getLocation().y, BotLoader.getHeightWidth().width, BotLoader.getHeightWidth().height);
+						}
+					}
+
+					clientInit.getPaintListener().doResize(w, h);
+				}
+			});
+
 	}
 
 	private void quit() {
