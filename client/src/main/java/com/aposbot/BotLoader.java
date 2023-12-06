@@ -35,10 +35,10 @@ public final class BotLoader {
 		System.out.println("Command-line args:");
 		System.out.println("--no-console		Launches the bot without console");
 		System.out.println("--username:username	Default account name for launcher. Must already be added as account.");
-		System.out.println("--height:558		Also: --h. Window height.");
-		System.out.println("--width:670			Also: --w. Window width.");
-		System.out.println("--x:200				X Location on screen");
-		System.out.println("--y:200				Y Location on screen");
+		System.out.println("--height:558		Also: --h. Window height. Height and Width must both be set together.");
+		System.out.println("--width:670			Also: --w. Window width. Height and Width must both be set together.");
+		System.out.println("--x:200				X Location on screen. X and Y must both be set together.");
+		System.out.println("--y:200				Y Location on screen. X and Y must both be set together.");
 		System.out.println("------------------------------------------------");
 
 		for (String s : argv) {
@@ -132,13 +132,13 @@ public final class BotLoader {
 	}
 
 	public static Dimension getHeightWidth(){
-		if (cmdWindowHeight > 0 && cmdWindowWidth > 0)
+		if (cmdWindowHeight != 0 && cmdWindowWidth != 0)
 			return new Dimension(cmdWindowWidth, cmdWindowHeight);
 
 		return null;
 	}
 	public static Point getLocation(){
-		if (cmdLocationX > 0 && cmdLocationY > 0)
+		if (cmdLocationX != 0 && cmdLocationY != 0)
 			return new Point(cmdLocationX, cmdLocationY);
 
 		return null;

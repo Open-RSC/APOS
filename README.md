@@ -62,3 +62,16 @@ font=Comic Neue
 with "Comic Neue" replaced with the font you want to use. Unless you want to use Comic Neue.
 
 RSC by default tries to use Helvetica/Arial, but can't if you don't have it installed.
+
+Using command line arguments
+------------------
+
+Execute the bot passing in the arguments below. An account must already be setup and added to the bot
+before using the auto launch --username: parameter.
+
+--no-console		Launches the bot without console
+--username:username	Default account name for launcher. Must already be added as account.
+--height:558		Also: --h. Window height. Height and Width must both be set together.
+--width:670			Also: --w. Window width. Height and Width must both be set together.
+--x:200				X Location on screen. X and Y must both be set together.
+--y:200				Y Location on screen. X and Y must both be set together.
