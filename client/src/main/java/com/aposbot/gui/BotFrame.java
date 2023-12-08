@@ -169,12 +169,7 @@ public final class BotFrame extends Frame {
 
 		});
 
-		final Button clearLogButton = new Button("Clear Log");
-		clearLogButton.setPreferredSize(buttonSize);
-		setButtonColours(clearLogButton);
-		clearLogButton.addActionListener(e -> cTextArea.setText(""));
-
-		final Button depositButton = new Button("Deposit All");
+		final Button depositButton = new Button("Deposit all");
 		depositButton.setPreferredSize(buttonSize);
 		setButtonColours(depositButton);
 		depositButton.addActionListener(e -> {
@@ -193,7 +188,7 @@ public final class BotFrame extends Frame {
 					client.finishPacket();
 				}
 			} else {
-				System.out.println("Not In Bank");
+				System.out.println("Not in bank.");
 			}
 		});
 
@@ -207,12 +202,11 @@ public final class BotFrame extends Frame {
 		setButtonColours(exitButton);
 		exitButton.addActionListener(e -> quit());
 
-		sidePanel.add(worldChoice);
+		//sidePanel.add(worldChoice);
 		sidePanel.add(chooseButton);
 		sidePanel.add(startButton);
 		sidePanel.add(debugButton);
 		sidePanel.add(pwbutton);
-		sidePanel.add(clearLogButton);
 		sidePanel.add(depositButton);
 		sidePanel.add(scrButton);
 		sidePanel.add(exitButton);
@@ -266,12 +260,17 @@ public final class BotFrame extends Frame {
 			}
 		});
 
+		final Button clearLogButton = new Button("Clear log");
+		setButtonColours(clearLogButton);
+		clearLogButton.addActionListener(e -> cTextArea.setText(""));
+
 		checkPanel.add(loginCheck);
 		checkPanel.add(gfxCheck);
 		checkPanel.add(paintCheck);
 		checkPanel.add(r3d);
 		checkPanel.add(t3d);
 		checkPanel.add(i3d);
+		checkPanel.add(clearLogButton);
 
 		add((Component) client, BorderLayout.CENTER);
 		add(sidePanel, BorderLayout.EAST);
@@ -318,8 +317,6 @@ public final class BotFrame extends Frame {
 				}
 
 				if (!initialSizeSet) {
-					System.out.println("Setting window bounds");
-
 					initialSizeSet = true;
 					pack();
 					setMinimumSize(getSize());
