@@ -2,7 +2,7 @@ APOS for RSC#234
 ================
 [![pipeline status](https://gitlab.com/open-runescape-classic/APOS/badges/master/pipeline.svg)](https://gitlab.com/open-runescape-classic/APOS/-/commits/master)
 
-APOS was developed by RLN/nade/mofo (2009-2011).
+APOS was developed by RLN and yomama (2009-2011).
 
 APOS was then developed by Stormy from 2012 until 2016.
 
