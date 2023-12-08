@@ -5,8 +5,11 @@ import com.aposbot.gui.BotFrame;
 import com.aposbot.gui.EntryFrame;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -20,13 +23,59 @@ public final class BotLoader {
 	private String font;
 
 	private int defaultOCR;
+	private boolean showConsole = true;
+	private String cmdUsername = "";
+	private static int cmdWindowHeight = 0;
+	private static int cmdWindowWidth = 0;
+	private static int cmdLocationX = 0;
+	private static int cmdLocationY = 0;
 
 	public BotLoader(final String[] argv, final IClientInit clientInit) {
-		new EntryFrame(this, clientInit).setVisible(true);
+		System.out.println("------------------------------------------------");
+		System.out.println("Command-line args:");
+		System.out.println("--no-console		Launches the bot without console");
+		System.out.println("--username:username	Default account name for launcher. Must already be added as account.");
+		System.out.println("--height:558		Also: --h. Window height. Height and Width must both be set together.");
+		System.out.println("--width:670			Also: --w. Window width. Height and Width must both be set together.");
+		System.out.println("--x:200				X Location on screen. X and Y must both be set together.");
+		System.out.println("--y:200				Y Location on screen. X and Y must both be set together.");
+		System.out.println("------------------------------------------------");
 
-		if (argv.length == 0) {
-			System.out.println("To launch the bot without the built-in console, use at least one command-line argument.");
+		for (String s : argv) {
+			switch (s.toLowerCase().split(":")[0]) {
+				case "--no-console":
+					showConsole = false;
+					System.out.println("Disabling console.");
+					break;
+				case "--username":
+					cmdUsername = s.toLowerCase().split(":")[1];
+					System.out.println("Account: " + cmdUsername);
+					break;
+				case "--h":
+				case "--height":
+					cmdWindowHeight = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					System.out.println("Height: " + cmdWindowHeight);
+					break;
+				case "--w":
+				case "--width":
+					cmdWindowWidth = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					System.out.println("Width: " + cmdWindowWidth);
+					break;
+				case "--x":
+					cmdLocationX = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					System.out.println("X: " + cmdLocationX);
+					break;
+				case "--y":
+					cmdLocationY = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					System.out.println("Y: " + cmdLocationY);
+					break;
+				default:
+					System.out.println("Unknown command line arg: " + s);
+					break;
+			}
+		}
 
+		if (showConsole) {
 			final TextArea cTextArea = new TextArea(null, 0, 0, TextArea.SCROLLBARS_VERTICAL_ONLY);
 			BotFrame.setColours(cTextArea);
 			cTextArea.setEditable(false);
@@ -61,6 +110,38 @@ public final class BotLoader {
 			}
 		}
 
+		EntryFrame entryFrame = new EntryFrame(this, clientInit);
+
+		if (cmdUsername.isEmpty() || entryFrame.accountNames.length == 0) {
+			entryFrame.setVisible(true);
+		} else {
+			if (!cmdUsername.toLowerCase().equals(entryFrame.account.toLowerCase())) {
+				System.out.println("Auto load account isn't setup! You must add the account manually before setting up auto load account.");
+				System.exit(1);
+			}
+
+
+			ActionEvent triggerOk = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "OKButtonClicked");
+			for (ActionListener listener : entryFrame.okButton.getActionListeners()) {
+				listener.actionPerformed(triggerOk);
+			}
+			entryFrame.setVisible(false);
+			entryFrame.dispose();
+		}
+
+	}
+
+	public static Dimension getHeightWidth(){
+		if (cmdWindowHeight != 0 && cmdWindowWidth != 0)
+			return new Dimension(cmdWindowWidth, cmdWindowHeight);
+
+		return null;
+	}
+	public static Point getLocation(){
+		if (cmdLocationX != 0 && cmdLocationY != 0)
+			return new Point(cmdLocationX, cmdLocationY);
+
+		return null;
 	}
 
 	public static Properties getProperties() {
@@ -95,6 +176,7 @@ public final class BotLoader {
 	public String getFont() {
 		return font;
 	}
+	public String getCmdUsername() { return cmdUsername; }
 
 	public int getDefaultOCR() {
 		return defaultOCR;

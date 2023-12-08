@@ -1,5 +1,6 @@
 package com.aposbot.gui;
 
+import com.aposbot.BotLoader;
 import com.aposbot._default.*;
 import com.aposbot.applet.AVStub;
 import com.aposbot.Constants;
@@ -271,16 +272,6 @@ public final class BotFrame extends Frame {
 		checkPanel.add(t3d);
 		checkPanel.add(i3d);
 
-		((Component) client)
-			.addComponentListener(new ComponentAdapter() {
-				@Override
-				public void componentResized(final ComponentEvent e) {
-					final int w = ((Component) client).getWidth();
-					final int h = ((Component) client).getHeight();
-					clientInit.getPaintListener().doResize(w, h);
-				}
-			});
-
 		add((Component) client, BorderLayout.CENTER);
 		add(sidePanel, BorderLayout.EAST);
 
@@ -296,12 +287,85 @@ public final class BotFrame extends Frame {
 			add(checkPanel, BorderLayout.SOUTH);
 		}
 
-		pack();
-		setMinimumSize(getSize());
+		if (BotLoader.getHeightWidth() == null) {
+			pack();
+			setMinimumSize(getSize());
+		}
 
 		client.init();
 		stub.setActive(true);
 		client.start();
+
+		addComponentListener(new ComponentAdapter() {
+			private boolean initialSizeSet = false;
+
+			@Override
+			public void componentResized(final ComponentEvent e) {
+				final int w = ((Component) client).getWidth();
+				final int h = ((Component) client).getHeight();
+
+				if (isVisible() && isDisplayable()) {
+					final Point location = getLocationOnScreen();
+
+					if (location != null) {
+						final int windowWidth = getWidth();
+						final int windowHeight = getHeight();
+						final int x = location.x;
+						final int y = location.y;
+						setTitle(String.format("APOS (%s) - Window [H: %s, W: %s], Location [X: %s, Y: %s]", account, windowHeight, windowWidth, x, y));
+					}
+				}
+
+				if (!initialSizeSet) {
+					System.out.println("Setting window bounds");
+
+					initialSizeSet = true;
+					pack();
+					setMinimumSize(getSize());
+
+					if (BotLoader.getHeightWidth() != null) {
+						System.out.println("Setting window dimensions");
+						setSize(BotLoader.getHeightWidth().width, BotLoader.getHeightWidth().height);
+					}
+
+					if (BotLoader.getLocation() != null) {
+						System.out.println("Setting location");
+						setBounds(BotLoader.getLocation().x, BotLoader.getLocation().y, getWidth(), getHeight());
+					}
+
+				}
+			}
+
+			@Override
+			public void componentMoved(final ComponentEvent e) {
+				if (isVisible() && ((Component) client).isDisplayable() && ((Applet) client).isVisible()) {
+					final Point location = ((Component) client).getLocationOnScreen();
+
+					if (location != null) {
+						final int windowWidth = getWidth();
+						final int windowHeight = getHeight();
+						final int x = location.x;
+						final int y = location.y;
+						setTitle(String.format("APOS (%s) - Window [H: %s, W: %s], Location [X: %s, Y: %s]", account, windowHeight, windowWidth, x, y));
+					}
+				}
+			}
+		});
+
+		((Component) client)
+			.addComponentListener(new ComponentAdapter() {
+
+				private boolean initialSizeSet = false;
+
+				@Override
+				public void componentResized(final ComponentEvent e) {
+					final int w = ((Component) client).getWidth();
+					final int h = ((Component) client).getHeight();
+
+					clientInit.getPaintListener().doResize(w, h);
+				}
+			});
+
 	}
 
 	private void quit() {

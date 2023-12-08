@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -19,8 +20,10 @@ import java.util.Properties;
  */
 public final class EntryFrame extends Frame {
 	private AuthFrame authFrame;
-	private String[] accountNames;
-	private String account;
+	public String[] accountNames;
+	public String account;
+
+	public Button okButton;
 
 	public EntryFrame(final BotLoader botLoader, final IClientInit clientInit) {
 		super("APOS");
@@ -37,12 +40,23 @@ public final class EntryFrame extends Frame {
 
 		final Choice accountChoice = new Choice();
 		accountChoice.setPreferredSize(new Dimension(150, 15));
+
 		for (final String accountName : accountNames) {
-			accountChoice.add(accountName);
+			if (Objects.equals(botLoader.getCmdUsername().toLowerCase(), accountName.toLowerCase())) {
+				account = accountName;
+				accountChoice.add(accountName);
+			}
 		}
-		if (accountNames.length > 0) {
+
+		for (final String accountName : accountNames) {
+			if (!Objects.equals(botLoader.getCmdUsername(), accountName))
+				accountChoice.add(accountName);
+		}
+
+		if ((account == null || account.isEmpty()) && accountNames.length > 0) {
 			account = accountNames[0];
 		}
+
 		accountChoice.addItemListener(event -> account = String.valueOf(event.getItem()));
 
 		accountPanel.add(accountChoice);
@@ -86,7 +100,7 @@ public final class EntryFrame extends Frame {
 
 		final Panel buttonPanel = new Panel();
 
-		final Button okButton = new Button("OK");
+		okButton = new Button("OK");
 		okButton.addActionListener(e -> {
 			if (authFrame != null) {
 				authFrame.dispose();
@@ -125,6 +139,9 @@ public final class EntryFrame extends Frame {
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		pack();
+
+
+
 	}
 
 	private void loadAccounts() {
