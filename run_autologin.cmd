@@ -16,5 +16,5 @@ IF NOT EXIST bot.jar (
     call compile_all.cmd
 )
 
-start javaw -jar bot.jar --username:myuser
+start javaw -jar bot.jar --username=myuser
 exit

@@ -34,39 +34,39 @@ public final class BotLoader {
 		System.out.println("------------------------------------------------");
 		System.out.println("Command-line args:");
 		System.out.println("--no-console		Launches the bot without console");
-		System.out.println("--username:username	Default account name for launcher. Must already be added as account.");
-		System.out.println("--height:558		Also: --h. Window height. Height and Width must both be set together.");
-		System.out.println("--width:670			Also: --w. Window width. Height and Width must both be set together.");
-		System.out.println("--x:200				X Location on screen. X and Y must both be set together.");
-		System.out.println("--y:200				Y Location on screen. X and Y must both be set together.");
+		System.out.println("--username=username	Default account name for launcher. Must already be added as account.");
+		System.out.println("--height=558		Also: --h. Window height. Height and Width must both be set together.");
+		System.out.println("--width=670			Also: --w. Window width. Height and Width must both be set together.");
+		System.out.println("--x=200				X Location on screen. X and Y must both be set together.");
+		System.out.println("--y=200				Y Location on screen. X and Y must both be set together.");
 		System.out.println("------------------------------------------------");
 
 		for (String s : argv) {
-			switch (s.toLowerCase().split(":")[0]) {
+			switch (s.toLowerCase().split("=")[0]) {
 				case "--no-console":
 					showConsole = false;
 					System.out.println("Disabling console.");
 					break;
 				case "--username":
-					cmdUsername = s.toLowerCase().split(":")[1];
+					cmdUsername = s.toLowerCase().split("=")[1];
 					System.out.println("Account: " + cmdUsername);
 					break;
 				case "--h":
 				case "--height":
-					cmdWindowHeight = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					cmdWindowHeight = Integer.parseInt(s.toLowerCase().split("=")[1]);
 					System.out.println("Height: " + cmdWindowHeight);
 					break;
 				case "--w":
 				case "--width":
-					cmdWindowWidth = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					cmdWindowWidth = Integer.parseInt(s.toLowerCase().split("=")[1]);
 					System.out.println("Width: " + cmdWindowWidth);
 					break;
 				case "--x":
-					cmdLocationX = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					cmdLocationX = Integer.parseInt(s.toLowerCase().split("=")[1]);
 					System.out.println("X: " + cmdLocationX);
 					break;
 				case "--y":
-					cmdLocationY = Integer.parseInt(s.toLowerCase().split(":")[1]);
+					cmdLocationY = Integer.parseInt(s.toLowerCase().split("=")[1]);
 					System.out.println("Y: " + cmdLocationY);
 					break;
 				default:

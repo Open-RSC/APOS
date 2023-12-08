@@ -42,6 +42,7 @@ public final class BotFrame extends Frame {
 	private Choice worldChoice;
 
 	private AVStub stub;
+	public static boolean showWindowDebug = false;
 
 	BotFrame(final IClientInit clientInit, final TextArea cTextArea, final String account) {
 		super("APOS (" + account + ")");
@@ -301,8 +302,6 @@ public final class BotFrame extends Frame {
 
 			@Override
 			public void componentResized(final ComponentEvent e) {
-				final int w = ((Component) client).getWidth();
-				final int h = ((Component) client).getHeight();
 
 				if (isVisible() && isDisplayable()) {
 					final Point location = getLocationOnScreen();
@@ -312,7 +311,9 @@ public final class BotFrame extends Frame {
 						final int windowHeight = getHeight();
 						final int x = location.x;
 						final int y = location.y;
-						setTitle(String.format("APOS (%s) - Window [H: %s, W: %s], Location [X: %s, Y: %s]", account, windowHeight, windowWidth, x, y));
+						setTitle(showWindowDebug
+							? String.format("APOS (%s) - Window [H: %d, W: %d], Location [X: %d, Y: %d]", account, windowHeight, windowWidth, x, y)
+							: String.format("APOS (%s)", account));
 					}
 				}
 
@@ -346,7 +347,9 @@ public final class BotFrame extends Frame {
 						final int windowHeight = getHeight();
 						final int x = location.x;
 						final int y = location.y;
-						setTitle(String.format("APOS (%s) - Window [H: %s, W: %s], Location [X: %s, Y: %s]", account, windowHeight, windowWidth, x, y));
+						setTitle(showWindowDebug
+							? String.format("APOS (%s) - Window [H: %d, W: %d], Location [X: %d, Y: %d]", account, windowHeight, windowWidth, x, y)
+							: String.format("APOS (%s)", account));
 					}
 				}
 			}
@@ -354,9 +357,6 @@ public final class BotFrame extends Frame {
 
 		((Component) client)
 			.addComponentListener(new ComponentAdapter() {
-
-				private boolean initialSizeSet = false;
-
 				@Override
 				public void componentResized(final ComponentEvent e) {
 					final int w = ((Component) client).getWidth();

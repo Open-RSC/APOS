@@ -40,6 +40,7 @@ In-game Commands
 * `::roofs` Show/hide roofs
 * `::menu` Show/hide combat style menu
 * `::debug` Show/hide npc/object/wall/item ids
+* `::window` Show/hide window title debugging for window size and location
 
 Keyboard stuff
 --------------
@@ -71,9 +72,9 @@ before using the auto launch --username: parameter.
 
 ```
 --no-console		Launches the bot without console
---username:username	Default account name for launcher. Must already be added as account.
---height:558		Also: --h. Window height. Height and Width must both be set together.
---width:670			Also: --w. Window width. Height and Width must both be set together.
---x:200				X Location on screen. X and Y must both be set together.
---y:200				Y Location on screen. X and Y must both be set together.
+--username=username	Default account name for launcher. Must already be added as account.
+--height=558		Also: --h. Window height. Height and Width must both be set together.
+--width=670			Also: --w. Window width. Height and Width must both be set together.
+--x=200				X Location on screen. X and Y must both be set together.
+--y=200				Y Location on screen. X and Y must both be set together.
 ```
