@@ -1,3 +1,3 @@
 @echo off
 
-run.cmd _
+run.cmd --no-console
