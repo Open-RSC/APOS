@@ -139,9 +139,6 @@ public final class EntryFrame extends Frame {
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		pack();
-
-
-
 	}
 
 	private void loadAccounts() {

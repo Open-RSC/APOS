@@ -131,13 +131,14 @@ public final class BotLoader {
 
 	}
 
-	public static Dimension getHeightWidth(){
+	public static Dimension getHeightWidth() {
 		if (cmdWindowHeight != 0 && cmdWindowWidth != 0)
 			return new Dimension(cmdWindowWidth, cmdWindowHeight);
 
 		return null;
 	}
-	public static Point getLocation(){
+
+	public static Point getLocation() {
 		if (cmdLocationX != 0 && cmdLocationY != 0)
 			return new Point(cmdLocationX, cmdLocationY);
 
@@ -176,7 +177,10 @@ public final class BotLoader {
 	public String getFont() {
 		return font;
 	}
-	public String getCmdUsername() { return cmdUsername; }
+
+	public String getCmdUsername() {
+		return cmdUsername;
+	}
 
 	public int getDefaultOCR() {
 		return defaultOCR;
