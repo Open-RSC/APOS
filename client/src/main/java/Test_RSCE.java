@@ -14,14 +14,21 @@ public class Test_RSCE extends RSCFrame{
 	public e player;
 	public static void main(final String[] argv) {
 		JFrame var2 = new JFrame("RSCEmulation");
+
 		JButton testWalk = new JButton("Test Walk");
+
 		Test_RSCE var1;
 		(var1 = new Test_RSCE()).setPreferredSize(new Dimension(511, 342));
 		var2.getContentPane().setLayout(new BorderLayout());
 		var2.setDefaultCloseOperation(3);
 		var2.setIconImage(Toolkit.getDefaultToolkit().getImage(com.rsc.a.a + File.separator + "RuneScape.png"));
 		var2.getContentPane().add(var1, BorderLayout.CENTER);
-		var2.getContentPane().add(testWalk, BorderLayout.SOUTH);
+		var2.getContentPane().add(testWalk, BorderLayout.EAST);
+
+
+		var2.getContentPane().add(getConsoleWidget(var1), BorderLayout.SOUTH);
+		var2.getContentPane().add(getInputWidget(var1), BorderLayout.NORTH);
+
 		var2.setResizable(true);
 		var2.setVisible(true);
 		var2.setBackground(Color.black);
@@ -36,7 +43,7 @@ public class Test_RSCE extends RSCFrame{
 		//System.out.println(player_vars);
 		testWalk.addActionListener(e -> {
 			System.out.println("Testing walk, current x = " + var1.player.t);
-			walk_to_edgeville(var1.player);
+			walk_to_edgeville(var1.player, 215, 450);
 		});
 
         try {
@@ -50,10 +57,72 @@ public class Test_RSCE extends RSCFrame{
 
 	}
 
+	static JPanel getInputWidget(Test_RSCE frame){
+		JPanel setXYPanel = new JPanel();
+		JLabel x_label = new JLabel("X: ");
+		JTextField x = new JTextField("00000");
+
+		JLabel y_label = new JLabel("Y: ");
+		JTextField y = new JTextField("00000");
+		JButton goToXY = new JButton("Go to XY");
+		goToXY.addActionListener(e -> {
+			try {
+				int inputX = Integer.parseInt(x.getText());
+				int inputY = Integer.parseInt(y.getText());
+				walk_to_edgeville(frame.player, inputX, inputY);
+			} catch (NumberFormatException ex) {
+				throw new RuntimeException(ex);
+			}
+		});
+
+		setXYPanel.add(x_label);
+		setXYPanel.add(x);
+		setXYPanel.add(y_label);
+		setXYPanel.add(y);
+		setXYPanel.add(goToXY);
+
+		return setXYPanel;
+	}
+	 static JPanel getConsoleWidget(Test_RSCE frame){
+		 String baseOut = "Console: \n";
+		 JPanel console = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		 JButton getXY = new JButton("Get XY");
+		 JTextArea consoleOut = new JTextArea("" + baseOut);
+		 //  add xy button to panel
+		 console.add(getXY);
+		 console.add(consoleOut);
+
+		 getXY.addActionListener(e -> {
+			 int[] data = getPlayerCoords(frame.player);
+			 //String currentOut = consoleOut.getText();
+			 String newVal =baseOut + "Player Coords: \n";
+			 newVal = newVal + "X: " + data[0] + "\n";
+			 newVal = newVal + "Y: " + data[1] + "\n";
+			 consoleOut.setText(newVal);
+		 });
+
+		 return  console;
+	 }
+
+	 static int getPlayerX(e player){
+		return player.t;
+	 }
+
+	static int getPlayerY(e player){
+		return player.u;
+	}
+
+	synchronized static int[] getPlayerCoords(e player){
+		int[] coords = new int[2];
+		coords[0] = getPlayerX(player);
+		coords[1] = getPlayerY(player);
+		return coords;
+	}
+
 	// To walk, use this in player(com.rsc.e) class
 	// var10000.a(var10000.h, a.t, a.u);
 	// eg path = Location("Edgeville", 215, 450, true),
-	static synchronized void walk_to_edgeville(e player){
+	static synchronized void walk_to_edgeville(e player, int x, int y){
 		// actual source code
 		/*a((InputEvent)var1);
 		a.t = var1.getX() - a.v;
@@ -72,8 +141,8 @@ public class Test_RSCE extends RSCFrame{
 		try {
 			player.g = false;
 			player.w = false;
-			player.t = 215;
-			player.u = 450;
+			player.t = x;
+			player.u = y;
 			player.h = 1;
 			player.s = player.h;
 			player.r = 0;
