@@ -5,7 +5,6 @@ import java.awt.*;
 
 import com.rsc.e;
 
-import java.awt.event.InputEvent;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -43,7 +42,7 @@ public class Test_RSCE extends RSCFrame{
 		//System.out.println(player_vars);
 		testWalk.addActionListener(e -> {
 			System.out.println("Testing walk, current x = " + var1.player.t);
-			walk_to_edgeville(var1.player, 215, 450);
+			walk_to_coords(var1.player, 215, 450);
 		});
 
         try {
@@ -69,8 +68,9 @@ public class Test_RSCE extends RSCFrame{
 			try {
 				int inputX = Integer.parseInt(x.getText());
 				int inputY = Integer.parseInt(y.getText());
-				walk_to_edgeville(frame.player, inputX, inputY);
-			} catch (NumberFormatException ex) {
+				System.out.println("Going to dest, X and Y = " + inputX + ", " + inputY);
+				walk_to_coords(frame.player, inputX, inputY);
+			} catch (RuntimeException ex) {
 				throw new RuntimeException(ex);
 			}
 		});
@@ -122,7 +122,7 @@ public class Test_RSCE extends RSCFrame{
 	// To walk, use this in player(com.rsc.e) class
 	// var10000.a(var10000.h, a.t, a.u);
 	// eg path = Location("Edgeville", 215, 450, true),
-	static synchronized void walk_to_edgeville(e player, int x, int y){
+	static synchronized void walk_to_coords(e player, int x, int y){
 		// actual source code
 		/*a((InputEvent)var1);
 		a.t = var1.getX() - a.v;
@@ -147,7 +147,7 @@ public class Test_RSCE extends RSCFrame{
 			player.s = player.h;
 			player.r = 0;
 			player.a(player.h, player.t, player.u);
-			System.out.println("player_vars: " + player.t);
+			//System.out.println("player_vars: " + player.t);
 		} catch (Exception exp) {
 			throw new RuntimeException(exp);
 		}
