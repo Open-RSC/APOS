@@ -4,6 +4,7 @@ import com.aposbot.BotLoader;
 import com.aposbot._default.*;
 import com.aposbot.applet.AVStub;
 import com.aposbot.Constants;
+import com.rsc.client.RSCFrame;
 
 import javax.imageio.ImageIO;
 import java.applet.Applet;
@@ -83,16 +84,18 @@ public final class BotFrame extends Frame {
 		client = clientInit.getClient();
 		((Component) client).setBackground(Color.BLACK);
 
+		RSCFrame rscFrame = new RSCFrame();
+		rscFrame.setPreferredSize(new Dimension(511, 342));
 		try {
 			final URL url = new URL("http://game.openrsc.com/");
-			stub = new AVStub((Applet) client, url, url, getBaseParameters());
+			stub = new AVStub((Applet) rscFrame, url, url, getBaseParameters());
 		} catch (final MalformedURLException e) {
 			e.printStackTrace();
 			dispose();
 			return;
 		}
 
-		client.setStub(stub);
+		rscFrame.setStub(stub);
 
 		BufferedImage image = null;
 		try {
@@ -272,7 +275,7 @@ public final class BotFrame extends Frame {
 		checkPanel.add(i3d);
 		checkPanel.add(clearLogButton);
 
-		add((Component) client, BorderLayout.CENTER);
+		add((Component) rscFrame, BorderLayout.CENTER);
 		add(sidePanel, BorderLayout.EAST);
 
 		if (cTextArea != null) {
@@ -292,9 +295,11 @@ public final class BotFrame extends Frame {
 			setMinimumSize(getSize());
 		}
 
-		client.init();
+		//client.init();
+		rscFrame.init();
 		stub.setActive(true);
-		client.start();
+		//client.start();
+		rscFrame.start();
 
 		addComponentListener(new ComponentAdapter() {
 			private boolean initialSizeSet = false;
