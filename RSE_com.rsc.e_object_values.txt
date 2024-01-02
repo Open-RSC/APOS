@@ -38,8 +38,8 @@
  y = false
  z = false
  aF = {Test_RSCE@1786} "Test_RSCE[panel0,0,0,511x342,layout=java.awt.FlowLayout]"
- aH = 0 // get width of current applet window
- aI = 0 // get height of current applet window
+ aH = 0 // get width of current applet window *
+ aI = 0 // get height of current applet window *
  aJ = 0
  aK = 0
  aL = 0
