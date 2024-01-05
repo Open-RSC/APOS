@@ -6,9 +6,12 @@ import java.awt.*;
 import com.rsc.e;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.Script;
 import org.codehaus.groovy.control.CompilationFailedException;
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Scanner;
@@ -65,11 +68,18 @@ public class Test_RSCE extends RSCFrame{
 		Scanner scan = new Scanner(System.in);
 		while (true) {
 			try {
-				System.out.println("$grooovy-code: ");
+				System.out.print("$groovy-shell: ");
 				String java_code_as_string = scan.nextLine();
-				Object result = shell.evaluate(java_code_as_string);
-			} catch (CompilationFailedException e) {
-				throw new RuntimeException(e);
+				//Object result = shell.evaluate(java_code_as_string);
+				try {
+					Script script = shell.parse(new File("client/src/main/java/gvy_test_rsce.groovy"));
+					System.out.print("Loading Script...");
+					script.run();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
 		}

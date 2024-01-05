@@ -1,5 +1,3 @@
-//player = ((Test_RSCE)var1).player
-//println(player.t)
 import static Util.*;
 
 static void Main(Object arg) {
@@ -12,9 +10,8 @@ static void Main(Object arg) {
 }
 
 void test() {
-    Demo demo = (Demo) var1;
-    demo.s = "success-java-r-f";
-    Gprint(demo.s);
+    def player = ((Test_RSCE)var1).player
+    Gprint(player.t);
 }
 
 Main(test())
