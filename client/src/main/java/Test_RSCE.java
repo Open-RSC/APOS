@@ -4,10 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 
 import com.rsc.e;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Scanner;
 
 public class Test_RSCE extends RSCFrame{
 	public e player;
@@ -45,14 +49,30 @@ public class Test_RSCE extends RSCFrame{
 			walk_to_coords(var1.player, 215, 450);
 		});
 
-        try {
+        /*try {
             Thread.sleep(30000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("player x = " + var1.player.t);
+        System.out.println("player x = " + var1.player.t);*/
 
+		Binding sharedInstance = new Binding();
+		GroovyShell shell = new GroovyShell(sharedInstance);
+		sharedInstance.setProperty("var1", var1);
+		String script_line = "3*5";
+		int mul = (int) shell.evaluate(script_line);
+		System.out.println(mul);
+		Scanner scan = new Scanner(System.in);
+		while (true) {
+			try {
+				System.out.println("$grooovy-code: ");
+				String java_code_as_string = scan.nextLine();
+				Object result = shell.evaluate(java_code_as_string);
+			} catch (CompilationFailedException e) {
+				throw new RuntimeException(e);
+			}
 
+		}
 
 	}
 
