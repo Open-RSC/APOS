@@ -19,7 +19,11 @@ Main(test())
 void test() {
     def player = ((Test_RSCE)var1).player
     //println(player.u);
-    Test_RSCE.walk_to_coords(player, 300, 400)
+    def vars = Test_RSCE.get_class_a_e_variables_as_string(player)
+    def myFile = new File('player_vars.txt')
+    myFile.write(vars)
 }
+
+
 
 
