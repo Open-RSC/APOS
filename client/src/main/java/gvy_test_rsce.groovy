@@ -27,23 +27,8 @@ void test() {
 //    def myFile = new File('player_vars.txt')
 //    myFile.write(vars)
     //testDiff(player)
-    println Test_RSCE.player_last_version.t
     println player.t
 
-}
-
-void testDiff(com.rsc.e player) {
-// Use DiffBuilder to compare the two objects
-    def diff = DiffBuilder.compare(Test_RSCE.player_last_version).with(player).build()
-
-// Get the differences
-    DiffResult differences = diff.getResult()
-
-// Print the differences
-    println("Differences:")
-    differences.differences.forEach { d ->
-        println("${d.getFieldName()} - expected: ${d.getLeft()}, actual: ${d.getRight()}")
-    }
 }
 
 

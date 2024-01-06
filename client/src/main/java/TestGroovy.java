@@ -13,18 +13,9 @@ import java.util.Scanner;
 public class TestGroovy {
 
 	public static void main(final String[] argv) {
-		//runMe();
-		testLib();
+		runMe();
 	}
 
-	static void testLib(){
-		Demo x = new Demo();
-		x.s = "cloned";
-		Demo y = (Demo) Test_RSCE.cloneMe(x);
-		x.s = "original";
-		System.out.println("I am " + y.s);
-		System.out.println("I am " + x.s);
-	}
 
 	private static void runMe() {
 		Binding sharedInstance = new Binding();
