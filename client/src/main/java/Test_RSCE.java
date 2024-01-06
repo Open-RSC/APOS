@@ -4,13 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 import com.rsc.e;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.security.AnyTypePermission;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
-import org.codehaus.groovy.control.CompilationFailedException;
-import org.codehaus.groovy.runtime.typehandling.GroovyCastException;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -19,14 +15,6 @@ import java.util.Scanner;
 
 public class Test_RSCE extends RSCFrame{
 	public e player;
-	public static e player_last_version;
-
-	static XStream xstream = new XStream();
-	static Object cloneMe(Object object) {
-		Test_RSCE.xstream.addPermission(AnyTypePermission.ANY);
-		String xml = xstream.toXML(object);
-        return xstream.fromXML(xml);
-	}
 
 	public static void main(final String[] argv) {
 		JFrame var2 = new JFrame("RSCEmulation");
@@ -72,14 +60,12 @@ public class Test_RSCE extends RSCFrame{
 		Binding sharedInstance = new Binding();
 		GroovyShell shell = new GroovyShell(sharedInstance);
 		sharedInstance.setProperty("var1", var1);
-		sharedInstance.setProperty("player_last_version", player_last_version);
 		String script_line = "3*5";
 		int mul = (int) shell.evaluate(script_line);
 		System.out.println(mul);
 		Scanner scan = new Scanner(System.in);
 		while (true) {
 			try {
-				player_last_version = (com.rsc.e) cloneMe(var1.player);
 				System.out.print("$groovy-shell: ");
 				String java_code_as_string = scan.nextLine();
 				//Object result = shell.evaluate(java_code_as_string);
