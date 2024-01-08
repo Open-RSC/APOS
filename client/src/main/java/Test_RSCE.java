@@ -16,6 +16,7 @@ import java.util.Scanner;
 public class Test_RSCE extends RSCFrame{
 	public e player;
 
+
 	public static void main(final String[] argv) {
 		JFrame var2 = new JFrame("RSCEmulation");
 
