@@ -273,68 +273,6 @@ public class PathWalker extends Script {
 				atObject(111, 142);
 				System.out.println("Opening Wilderness gate, going south");
 				c_time = wait_time;
-			} else if (isAtApproxCoords(102, 649, 10) && (n.x < 92)) { // enter alkharid
-				// node.x represents value on the other side of the gate
-				//  radius puts the circle zone so the furthest left tile on the inside of the gate
-				if (getInventoryCount(10) < 10) { // need 10 coins to pass
-					System.out.println("Not enough coins, going around");
-					walkTo(101, 636); //refactor this eventually, functional for now
-					walkTo(107, 625);
-					walkTo(113, 611);
-					walkTo(113, 599);
-					walkTo(104, 583);
-					walkTo(91, 574);
-					walkTo(77, 574); // at crossroads
-					walkTo(77, 579);
-					walkTo(85, 590);
-					walkTo(87, 615);
-					walkTo(87, 634);
-					walkTo(88, 644);
-					walkTo(88, 650);//bot needs to go back to the goal node, or you get pathing failure
-				}
-				int npc_id = 161;
-				int[] npc = getNpcById(npc_id);
-				//if prince ali resQ is completed, no response is required, this is negative
-				if (isQuestMenu() && getInventoryCount(10) >= 10) {
-					answer(2);
-					wait_time = c_time + 4000; // wait to open gate
-				}
-				if (npc[0] != -1 && getInventoryCount(10) >= 10) {
-					System.out.println("Entering Al-Kharid Gate");
-					talkToNpc(npc[0]);
-					wait_time = c_time + 9000; // wait to talk
-				}
-			} else if ((isAtApproxCoords(79, 655, 13) || isAtApproxCoords(86, 669, 10)) && (n.x >= 92)) {
-				// node.x represents value on the other side of the gate
-				//  radius puts the circle zone so the furthest left tile on the inside of the gate
-				if (getInventoryCount(10) < 10) { // need 10 coins to pass
-					System.out.println("Not enough coins, going around");
-					walkTo(88, 650); //refactor this eventually, functional for now
-					walkTo(88, 644);
-					walkTo(87, 634);
-					walkTo(87, 615);
-					walkTo(85, 590);
-					walkTo(77, 579);
-					walkTo(77, 574); // at crossroads
-					walkTo(91, 574);
-					walkTo(104, 583);
-					walkTo(113, 599);
-					walkTo(113, 611);
-					walkTo(107, 625);
-					walkTo(101, 636);//bot needs to go back to the goal node, or you get pathing failure
-				}
-				int npc_id = 162;
-				int[] npc = getNpcById(npc_id);
-				//if prince ali resQ is completed, no response is required, this is negative
-				if (isQuestMenu() && getInventoryCount(10) >= 10) {
-					answer(2);
-					wait_time = c_time + 4000; // wait to open gate
-				}
-				if (npc[0] != -1 && getInventoryCount(10) >= 10) {
-					System.out.println("Exiting Al-Kharid Gate");
-					talkToNpc(npc[0]);
-					wait_time = c_time + 9000; // wait to talk
-				}
 			} else {
 				walkTo(x, y);
 			}
