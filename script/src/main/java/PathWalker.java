@@ -111,7 +111,7 @@ public class PathWalker extends Script {
 		new Location("WILD - Mage Bank", 222, 107, false),
 		new Location("WILD - Agility Course", 296, 138, false)
 	};
-	private static final boolean DEBUG = true; // TODO: change back to false.
+	private static final boolean DEBUG = false;
 	private static final int WORLD_W = 900;
 	private static final int WORLD_H = 4050;
 	private static final int[] objects_1 = new int[]{
