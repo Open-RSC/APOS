@@ -54,7 +54,7 @@ Keyboard stuff
 Bot Properties
 ------------------
 
-These settings relate to the `bot.properties` file within the APOS folder.
+These settings relate to the `bot.properties` file within the APOS folder. Create, or edit the file to use the below values.
 
 For custom fonts (replacing Comic Neue with your chosen font. RSC by default tries to use Helvetica/Arial, but can't if you don't have it installed.):
 
