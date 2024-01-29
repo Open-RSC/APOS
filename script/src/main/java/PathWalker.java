@@ -10,6 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
@@ -110,7 +111,7 @@ public class PathWalker extends Script {
 		new Location("WILD - Mage Bank", 222, 107, false),
 		new Location("WILD - Agility Course", 296, 138, false)
 	};
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true; // TODO: change back to false.
 	private static final int WORLD_W = 900;
 	private static final int WORLD_H = 4050;
 	private static final int[] objects_1 = new int[]{
@@ -156,7 +157,7 @@ public class PathWalker extends Script {
 			System.out.printf("[%s] Reading map... %n", this);
 
 			final byte[][] walkable = new byte[WORLD_W][WORLD_H];
-			try (final GZIPInputStream in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			try (final GZIPInputStream in = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(file.toPath())))) {
 				for (int i = 0; i < WORLD_W; ++i) {
 					int read = 0;
 					do {
@@ -174,13 +175,20 @@ public class PathWalker extends Script {
 
 			nodes = new Node[WORLD_W][WORLD_H];
 
+			boolean completedQuest = isQuestComplete(9);
+
+			if (!completedQuest)
+				System.out.printf("[%s] Setting Al Kharid Gate to Impassible (Prince Ali Rescue quest is not complete)%n", this);
+
 			for (int x = 0; x < WORLD_W; ++x) {
 				for (int y = 0; y < WORLD_H; ++y) {
 					final byte i = walkable[x][y];
 					if (i != 0) {
-						final Node n = new Node(x, y);
-						n.walkable = i;
-						nodes[x][y] = n;
+						if (completedQuest || (x != 92 || (y != 649 && y != 650))) { // Coords for al kharid gate, so we dont try to walk through if haven't done quest.
+							final Node n = new Node(x, y);
+							n.walkable = i;
+							nodes[x][y] = n;
+						}
 					}
 				}
 			}
@@ -273,6 +281,22 @@ public class PathWalker extends Script {
 				atObject(111, 142);
 				System.out.println("Opening Wilderness gate, going south");
 				c_time = wait_time;
+			} else if (isQuestComplete(9) && !isInAlKharid() && isAtApproxCoords(96, 650, 15) && (n.x < 92)) { // enter alkharid
+				// Coordinate X >= 92 means we're on the west side. n.x < 92 means the next node we're moving to is on the east side.
+				int[] npc = getNpcById(161); // Border Guard (West)
+				if (npc[0] != -1) {
+					System.out.println("Entering Al-Kharid Gate");
+					talkToNpc(npc[0]);
+					wait_time = c_time + 9000; // wait to talk
+				}
+			} else if (isQuestComplete(9) && isInAlKharid() && isAtApproxCoords(89, 650, 15) && (n.x >= 92)) {
+				// Coordinate X < 92 means we're on the east side. n.x >= 92 means the next node we're moving to is on the west side.
+				int[] npc = getNpcById(162); // Border Guard (East)
+				if (npc[0] != -1) {
+					System.out.println("Exiting Al-Kharid Gate");
+					talkToNpc(npc[0]);
+					wait_time = c_time + 9000; // wait to talk
+				}
 			} else {
 				walkTo(x, y);
 			}
@@ -284,6 +308,19 @@ public class PathWalker extends Script {
 			}
 		}
 		return true;
+	}
+
+	private boolean isInAlKharid() {
+		int x = getX();
+		int y = getY();
+
+		// Horrendous code but stupid fence isn't straight.
+		if (x <= 91) return true;
+		if (x == 92 && y == 655) return true;
+		if (x <= 93 && y >= 656) return true;
+		if (x == 92 && y <= 644) return true;
+
+		return false;
 	}
 
 	private Node getCurrentDest() {
@@ -373,7 +410,7 @@ public class PathWalker extends Script {
 		int y = 46;
 		drawString("Storm's Path Walker", x - 1, y, 4, 0x1E90FF);
 		y += 15;
-		drawString("Gate Support by kRiStOf", x - 1, y, 4, 0x1E90FF);
+		drawString("Gate Support by kRiStOf", x - 1, y, 2, 0x1E90FF);
 		y += 15;
 		drawString("Runtime: " + get_time_since(start_time), x, y, 1, 0xFFFFFF);
 		drawVLine(x - 7, 36, y - 32, 0x1E90FF);
@@ -406,7 +443,7 @@ public class PathWalker extends Script {
 		if (frame == null) {
 			final Button okButton = new Button("OK");
 			okButton.addActionListener(e -> {
-				final String[] split = textField.getText().split(",");
+				final String[] split = textField.getText().replace(" ", "").split(",");
 				final int x = Integer.parseInt(split[0]);
 				final int y = Integer.parseInt(split[1]);
 
@@ -417,7 +454,7 @@ public class PathWalker extends Script {
 					return;
 				}
 
-				if (DEBUG) {
+				if (DEBUG && this.path != null) {
 					final Node start = this.path[0];
 					final Node end = this.path[this.path.length - 1];
 					generatePathImage(start.x, start.y, end.x, end.y);
@@ -485,6 +522,15 @@ public class PathWalker extends Script {
 		frame.setVisible(true);
 	}
 
+	/**
+	 * Calculates a path from current location (or a point within the defined radius) to the fixed target location.
+	 * @param x1 Starting X coord
+	 * @param y1 Starting Y coord
+	 * @param x2 Target X coord
+	 * @param y2 Target Y coord
+	 * @param radius Radius around us to set as starting point
+	 * @return Path of nodes from current location to target destination.
+	 */
 	public Path calcPath(int x1, int y1, final int x2, final int y2, final int radius) {
 		Path path = null;
 
@@ -496,7 +542,7 @@ public class PathWalker extends Script {
 		int i = 0;
 
 		do {
-			if (isReachable(x1, y1) && !isObjectAt(x1, y1) && (path = calcPath(x1, y1, x2, y2)) != null) {
+			if (isReachable(x1, y1) && !isObjectAt(x1, y1) && (path = calculatePath(x1, y1, x2, y2)) != null) {
 				break;
 			}
 
@@ -565,7 +611,27 @@ public class PathWalker extends Script {
 		client.displayMessage("@cya@Pathwalker: Cancelled.");
 	}
 
+	/**
+	 * Calculate a path fromm current location to target destination.
+	 * @param x1 Current X coord
+	 * @param y1 Current Y coord
+	 * @param x2 Target X coord
+	 * @param y2 Target Y coord
+	 * @return Path from current to target location.
+	 */
 	public Path calcPath(final int x1, final int y1, final int x2, final int y2) {
+		return calcPath(x1, y1, x2, y2, 5);
+	}
+
+	/**
+	 * Calculate a path fromm current location to target destination. Returns the previously generated path if requesting the same coordinates.
+	 * @param x1 Current X coord
+	 * @param y1 Current Y coord
+	 * @param x2 Target X coord
+	 * @param y2 Target Y coord
+	 * @return Path from current to target location.
+	 */
+	private Path calculatePath(final int x1, final int y1, final int x2, final int y2) {
 		final Node start = getNode(nodes, x1, y1);
 		if (start == null) return null;
 		final Node end = getNode(nodes, x2, y2);
@@ -701,7 +767,7 @@ public class PathWalker extends Script {
 	}
 
 	public final Path calcPath(final int x, final int y) {
-		return calcPath(getX(), getY(), x, y);
+		return calcPath(getX(), getY(), x, y, 5); // Default to use varying starting points to assist in successful path generations.
 	}
 
 	public final Location getNearestBank(final int x, final int y) {

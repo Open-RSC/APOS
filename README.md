@@ -51,18 +51,22 @@ Keyboard stuff
 * F12 - Takes a screenshot, saves it to the screenshots directory.
 * Ctrl+V - Paste text into the chat.
 
-Using custom fonts
+Bot Properties
 ------------------
 
-Edit bot.properties and add the following line:
+These settings relate to the `bot.properties` file within the APOS folder.
 
-```
+For custom fonts (replacing Comic Neue with your chosen font. RSC by default tries to use Helvetica/Arial, but can't if you don't have it installed.):
+
+```text
 font=Comic Neue
 ```
 
-with "Comic Neue" replaced with the font you want to use. Unless you want to use Comic Neue.
+To disable the "Sent CAPTCHA: <word>" logging, enter:
 
-RSC by default tries to use Helvetica/Arial, but can't if you don't have it installed.
+```text
+captcha_logging=false
+```
 
 Using command line arguments
 ------------------

@@ -21,6 +21,7 @@ public final class BotLoader {
 	private TextArea cTextArea;
 	private Frame cFrame;
 	private String font;
+	private static boolean log_captcha = true;
 
 	private int defaultOCR;
 	private boolean showConsole = true;
@@ -102,6 +103,9 @@ public final class BotLoader {
 				if (font != null && font.trim().isEmpty()) {
 					font = null;
 				}
+
+				log_captcha = Boolean.parseBoolean(p.getProperty("captcha_logging", "true"));
+
 				final String str = p.getProperty("default_ocr");
 				defaultOCR = str == null ? 0 : Integer.parseInt(str);
 			} catch (final Throwable t) {
@@ -152,6 +156,9 @@ public final class BotLoader {
 			if (!p.containsKey("font")) {
 				p.put("font", "");
 			}
+			if (!p.containsKey("captcha_logging")) {
+				p.put("captcha_logging", "true");
+			}
 			return p;
 		} catch (final Throwable ignored) {
 		}
@@ -176,6 +183,10 @@ public final class BotLoader {
 
 	public String getFont() {
 		return font;
+	}
+
+	public static boolean getCaptchaLogging() {
+		return log_captcha;
 	}
 
 	public String getCmdUsername() {
