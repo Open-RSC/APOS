@@ -268,7 +268,7 @@ final class SleepListener implements ISleepListener {
 	private void sendSleepWord() {
 		client.sendCAPTCHA(sleepWord);
 
-		if (BotLoader.getCaptchaLogging())
+		if (BotLoader.isCaptchaLogging())
 			System.out.println("Sent CAPTCHA: " + sleepWord);
 
 		sleepWord = null;

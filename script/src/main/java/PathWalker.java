@@ -177,7 +177,7 @@ public class PathWalker extends Script {
 
 			boolean completedQuest = isQuestComplete(9);
 
-			if (!completedQuest)
+			if (!completedQuest && DEBUG)
 				System.out.printf("[%s] Setting Al Kharid Gate to Impassible (Prince Ali Rescue quest is not complete)%n", this);
 
 			for (int x = 0; x < WORLD_W; ++x) {
@@ -281,7 +281,7 @@ public class PathWalker extends Script {
 				atObject(111, 142);
 				System.out.println("Opening Wilderness gate, going south");
 				c_time = wait_time;
-			} else if (isQuestComplete(9) && !isInAlKharid() && isAtApproxCoords(96, 650, 15) && (n.x < 92)) { // enter alkharid
+			} else if (isQuestComplete(9) && !isInAlKharid() && isAtApproxCoords(96, 650, 20) && (n.x < 92)) { // enter alkharid
 				// Coordinate X >= 92 means we're on the west side. n.x < 92 means the next node we're moving to is on the east side.
 				int[] npc = getNpcById(161); // Border Guard (West)
 				if (npc[0] != -1) {
@@ -289,7 +289,7 @@ public class PathWalker extends Script {
 					talkToNpc(npc[0]);
 					wait_time = c_time + 9000; // wait to talk
 				}
-			} else if (isQuestComplete(9) && isInAlKharid() && isAtApproxCoords(89, 650, 15) && (n.x >= 92)) {
+			} else if (isQuestComplete(9) && isInAlKharid() && (n.x >= 92)) {
 				// Coordinate X < 92 means we're on the east side. n.x >= 92 means the next node we're moving to is on the west side.
 				int[] npc = getNpcById(162); // Border Guard (East)
 				if (npc[0] != -1) {
@@ -310,17 +310,32 @@ public class PathWalker extends Script {
 		return true;
 	}
 
+	/**
+	 * Check to see if we're within Al Kharid near the gate.
+	 * @return true if we're near the east side of the al kharid gate. false if we aren't near the gate.
+	 */
 	private boolean isInAlKharid() {
 		int x = getX();
 		int y = getY();
 
-		// Horrendous code but stupid fence isn't straight.
-		if (x <= 91) return true;
-		if (x == 92 && y == 655) return true;
-		if (x <= 93 && y >= 656) return true;
-		if (x == 92 && y <= 644) return true;
+		final Point myLocation = new Point(x, y);
 
-		return false;
+		// Points relate to vertex's running along the line of the fence on the al-kharid side to
+		// create a polygon that we can check to see if we're within.
+		final Point[] alkharidPoints = new Point[] {
+			new Point(93, 669),
+			new Point(93, 656),
+			new Point(92, 655),
+			new Point(91, 654),
+			new Point(91, 645),
+			new Point(92, 644),
+			new Point(92, 638),
+			new Point(80, 638),
+			new Point(80, 669),
+			new Point(93, 669), // first and last points match to create the shape
+		};
+
+		return isWithinArea(myLocation, alkharidPoints);
 	}
 
 	private Node getCurrentDest() {
@@ -532,7 +547,10 @@ public class PathWalker extends Script {
 	 * @return Path of nodes from current location to target destination.
 	 */
 	public Path calcPath(int x1, int y1, final int x2, final int y2, final int radius) {
-		Path path = null;
+		Path path = calculatePath(x1, y1, x2, y2);
+
+		if (path != null)
+			return path;
 
 		// https://stackoverflow.com/a/398302
 		int dx = 0;
@@ -612,7 +630,7 @@ public class PathWalker extends Script {
 	}
 
 	/**
-	 * Calculate a path fromm current location to target destination.
+	 * Calculate a path from current location to target destination.
 	 * @param x1 Current X coord
 	 * @param y1 Current Y coord
 	 * @param x2 Target X coord

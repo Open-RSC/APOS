@@ -185,7 +185,7 @@ public final class BotLoader {
 		return font;
 	}
 
-	public static boolean getCaptchaLogging() {
+	public static boolean isCaptchaLogging() {
 		return log_captcha;
 	}
 
