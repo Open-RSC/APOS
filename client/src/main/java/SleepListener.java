@@ -1,3 +1,4 @@
+import com.aposbot.BotLoader;
 import com.aposbot._default.IClient;
 import com.aposbot._default.ISleepListener;
 import com.aposbot.Constants;
@@ -8,6 +9,7 @@ import com.stormy.ocrlib.SimpleImageIO;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 /**
  * Listens for sleepwords and solves the sleep CAPTCHA.
@@ -33,6 +35,7 @@ final class SleepListener implements ISleepListener {
 
 	private long lastModified;
 	private boolean checkLastModified;
+
 
 	private int incorrectSleepTries;
 
@@ -264,7 +267,10 @@ final class SleepListener implements ISleepListener {
 	 */
 	private void sendSleepWord() {
 		client.sendCAPTCHA(sleepWord);
-		System.out.println("Sent CAPTCHA: " + sleepWord);
+
+		if (BotLoader.isCaptchaLogging())
+			System.out.println("Sent CAPTCHA: " + sleepWord);
+
 		sleepWord = null;
 	}
 	/**
