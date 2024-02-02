@@ -9,7 +9,9 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 /**
@@ -61,6 +63,8 @@ public abstract class Script implements IScript {
 	private final IClient client;
 	private LocalRouteCalc locRouteCalc;
 	private String toType = "";
+
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private int typeOffset;
 
@@ -240,7 +244,8 @@ public abstract class Script implements IScript {
 	@Override
 	public void onChatMessage(final String msg, final String name, final boolean mod,
 							  final boolean admin) {
-		System.out.println(name + ": " + msg);
+		String timeStamp = dateFormat.format(Calendar.getInstance().getTime());
+		System.out.printf("[%s] %s: %s %n", timeStamp, name, msg);
 	}
 
 	/**
@@ -254,7 +259,8 @@ public abstract class Script implements IScript {
 	@Override
 	public void onPrivateMessage(final String msg, final String name, final boolean mod,
 								 final boolean admin) {
-		System.out.println("(PRIV) " + name + ": " + msg);
+		String timeStamp = dateFormat.format(Calendar.getInstance().getTime());
+		System.out.printf("[%s] (PRIV) %s: %s %n", timeStamp, name, msg);
 	}
 
 	/**
@@ -2163,7 +2169,7 @@ public abstract class Script implements IScript {
 	public boolean isWithinArea(final Point coord, final Point[] points) {
 
 		if (points.length < 3) {
-			System.out.println("isWithinArea() requires a minimum of 3 points to triangulate an area.");
+			System.out.println("isWithinArea() requires a minimum of 3 points to create an area. A start and end coordinate which match, plus 1 other which makes a line.");
 			throw new UnsupportedOperationException();
 		}
 
