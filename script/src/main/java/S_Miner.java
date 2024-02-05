@@ -923,9 +923,10 @@ public final class S_Miner extends Script
 				System.currentTimeMillis() < dont_remine) {
 				continue;
 			}
-			if (is_player_beside(rock_x, rock_y)) {
+			// disabled for Uranium
+			/*if (is_player_beside(rock_x, rock_y)) {
 				continue;
-			}
+			}*/
 			int dist = Math.abs(rock_x - my_x) +
 				Math.abs(rock_y - my_y);
 			if (dist < 30 && dist < best_dist) {
