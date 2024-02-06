@@ -21,10 +21,16 @@ final class SleepListener implements ISleepListener {
 	private static final String SLWORD_TXT = Paths.get("slword.txt").toString();
 	private static final String DICT_TXT = Constants.PATH_SLEEP.resolve("dictionary.txt").toString();
 	private static final String MODEL_TXT = Constants.PATH_SLEEP.resolve("model.txt").toString();
+	private static final String HASHES = Constants.PATH_SLEEP.resolve("hashes.properties").toString();
+
+	private static final int FNV1_32_INIT = 0x811c9dc5;
+	private static final int FNV1_PRIME_32 = 16777619;
 
 	private static final int MAXIMUM_INCORRECT_SLEEP_TRIES = 3;
 
 	private final IClient client;
+
+	private Properties hashes;
 
 	private OCR ocr;
 	private OCRType ocrType;
@@ -82,6 +88,16 @@ final class SleepListener implements ISleepListener {
 					ex.printStackTrace();
 					sleepWord = null;
 				}
+				break;
+			case HASH:
+				byte[] image = convertImage(data);
+				int hash = hash32(image);
+				sleepWord = hashes.getProperty(Integer.toString(hash));
+				if (sleepWord == null)
+					sleepWord = "unknown";
+
+				if (client.getSleepFatigue() == 0)
+					onSleepFatigueUpdate(0);
 				break;
 			case JOKER:
 				try (final FileOutputStream out = new FileOutputStream(hc)) {
@@ -236,6 +252,34 @@ final class SleepListener implements ISleepListener {
 		}
 		return var4;
 	}
+
+	/**
+	 * FNV1a 32 bit variant.
+	 *
+	 * @param data - input byte array
+	 * @return - hashcode
+	 */
+	private static int hash32(byte[] data) {
+		return hash32(data, data.length);
+	}
+
+	/**
+	 * FNV1a 32 bit variant.
+	 *
+	 * @param data   - input byte array
+	 * @param length - length of array
+	 * @return - hashcode
+	 */
+	private static int hash32(byte[] data, int length) {
+		int hash = FNV1_32_INIT;
+		for (int i = 0; i < length; i++) {
+			hash ^= (data[i] & 0xff);
+			hash *= FNV1_PRIME_32;
+		}
+
+		return hash;
+	}
+
 	/**
 	 * Updates the sleep fatigue and takes appropriate actions based on the fatigue level.
 	 *
@@ -331,6 +375,15 @@ final class SleepListener implements ISleepListener {
 					 final BufferedReader dr = new BufferedReader(new FileReader(DICT_TXT))) {
 					ocr = new OCR(new DictSearch(dr), mr);
 				} catch (final IOException | OCRException e) {
+					e.printStackTrace();
+					this.ocrType = OCRType.MANUAL;
+				}
+				break;
+			case HASH:
+				try (FileInputStream fs = new FileInputStream(HASHES)) {
+					hashes = new Properties();
+					hashes.load(fs);
+				} catch (final IOException e) {
 					e.printStackTrace();
 					this.ocrType = OCRType.MANUAL;
 				}
