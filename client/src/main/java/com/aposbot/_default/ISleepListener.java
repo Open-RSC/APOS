@@ -6,10 +6,11 @@ public interface ISleepListener {
 	void setOCRType(OCRType ocrType);
 
 	enum OCRType {
-		NUM3(0, "Num3l (Internal)"),
-		JOKER(1, "Joker (Internal/Win32/JNI)"),
-		EXTERNAL(2, "External (HC.BMP/slword.txt)"),
-		MANUAL(3, "Manual");
+		HASH(0, "Image Hashes (OpenRSC)"),
+		NUM3(1, "Num3l (cross-platform)"),
+		JOKER(2, "Joker (Windows only)"),
+		EXTERNAL(3, "External (HC.BMP + slword.txt)"),
+		MANUAL(4, "Manual");
 
 		public static final OCRType[] VALUES = OCRType.values();
 
