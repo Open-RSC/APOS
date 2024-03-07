@@ -8,8 +8,6 @@ APOS was then developed by Stormy from 2012 until 2016.
 
 This source code was originally released by Stormy in 2016.
 
-See also the APOS-Scripts repository, which includes some essential components like PathWalker.
-
 ![client](/assets/img/client.png)
 
 Requirements
