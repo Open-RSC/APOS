@@ -4,16 +4,20 @@ import com.aposbot._default.IClient;
 
 /**
  * @author see <https://github.com/RSCPlus/rscplus>
+ * @author Stormy heavily modified to make more vanilla
  */
 public final class CameraHandler {
-	private static final int VIEW_DISTANCE = 20000; // Fog distance
-	private static final int CAMERA_ROTATION_SPEED = 5;
-	private static final int CAMERA_ZOOM_SPEED = 16;
+	private static final int CLIP_DEFAULT = 2400;
+	private static final int CLIP_INTERLACE = 2200;
+	private static final int CLIP_ENDLESS = 20000;
+	private static final int ZOOM_OUTDOORS_DEFAULT = 750;
+	private static final int VANILLA_HEIGHT = 346;
+	private static final int CAMERA_ROTATION_SPEED = 2;
+	private static final int CAMERA_ZOOM_SPEED = 8;
 	private static final float CAMERA_MOVE_SPEED = 48.0f;
 
 	// Injected
-	public static boolean fieldOfView = true; // Camera overrides field of view
-	public static boolean movableRelative = true; // Camera moves relative to player
+	public static boolean fieldOfView = false; // Camera overrides field of view
 	public static boolean viewDistance = true; // Camera overrides fog distance
 	public static boolean auto;
 
@@ -30,12 +34,7 @@ public final class CameraHandler {
 	public static int distance3;
 	public static int distance4;
 
-	private static float lookAtXAdd;
-	private static float lookAtYAdd;
-	private static int lookAtXNew;
-	private static int lookAtYNew;
-	private static float lookAtXDelta;
-	private static float lookAtYDelta;
+	private static boolean fow = true;
 	private static float zoomDelta;
 	private static float rotationDelta;
 	private static long lastUpdate;
@@ -51,143 +50,109 @@ public final class CameraHandler {
 	}
 
 	public static void initHook() {
-		zoom = 750;
+		zoom = ZOOM_OUTDOORS_DEFAULT;
 		zoomDelta = (float) zoom;
 
-		setDistance(VIEW_DISTANCE);
-		setFieldOfView(9);
+		client.setCameraEWOffset(0);
+		client.setCameraNSOffset(0);
+		viewDistance = false;
+		fow = true;
+
+		rotation = (client.getCameraRotation() + (int) rotationDelta) & 0xFF;
+		rotationY = client.getCameraEWOffset();
+		lookAtX = client.getCameraPosX();
+		lookAtY = client.getCameraPosY();
 	}
 
-	private static void setDistance(final int distance) {
-		viewDistance = (distance != 2300);
-		distance1 = distance + 100;
-		distance2 = distance + 100;
-		distance3 = 1;
-		distance4 = distance;
+	public static void setFogOfWar(boolean on) {
+		fow = on;
 	}
 
-	private static void setFieldOfView(int fov) {
-		fieldOfView = (fov != 9);
-
-		if (fov < 7) {
-			fov = 7;
-		} else if (fov > 16) {
-			fov = 16;
+	private static void setDistance(final double distance) {
+		int clip_far = (int) ((distance / (double)ZOOM_OUTDOORS_DEFAULT) * zoom);
+		if (client.getGameHeight() > VANILLA_HEIGHT) {
+			double n = VANILLA_HEIGHT / (double)client.getGameHeight();
+			if (n > 0) {
+				clip_far = (int)(clip_far / n);
+			}
 		}
-
-		CameraHandler.fov = fov;
+		distance1 = clip_far;
+		distance2 = clip_far;
+		distance3 = 1;
+		distance4 = clip_far - 100;
 	}
 
 	public static void refocusHook(final boolean loading) {
 		if (!loading) return;
-
-		lookAtX = client.getPlayerWaypointX();
-		lookAtY = client.getPlayerWaypointY();
-
-		lookAtXNew = lookAtX;
-		lookAtYNew = lookAtY;
-
-		lookAtXDelta = (float) lookAtXNew;
-		lookAtYDelta = (float) lookAtYNew;
-
-		lookAtXAdd = 0.0f;
-		lookAtYAdd = 0.0f;
 	}
 
 	public static void updateHook() {
-		lookAtXNew = client.getPlayerWaypointX();
-		lookAtYNew = client.getPlayerWaypointY();
-
 		final long update = System.nanoTime();
 		final float delta = (float) (update - lastUpdate) / 1000000000.0f;
 		lastUpdate = update;
 
+		if (client.isLoggedIn()) {
+			viewDistance = true;
+		}
+
+		rotation = (client.getCameraRotation() + (int) rotationDelta) & 0xFF;
+		rotationY = client.getCameraEWOffset();
+		lookAtX = client.getCameraPosX();
+		lookAtY = client.getCameraPosY();
+
+		/*
+		 * silly hack, shouldn't be necessary - client already does this
+		 * but prevents the camera snapping with the current injection
+		 * situation
+		 */
+		if (Math.hypot(Math.abs(lookAtX - client.getPlayerWaypointX()),
+			Math.abs(lookAtY - client.getPlayerWaypointY())) >= 500) {
+			client.setCameraPosX(client.getPlayerWaypointX());
+			client.setCameraPosY(client.getPlayerWaypointY());
+
+			lookAtX = client.getPlayerWaypointX();
+			lookAtY = client.getPlayerWaypointY();
+		}
+
 		if (KeyboardHandler.keyLeft) {
 			if (KeyboardHandler.keyShift) {
-				move(-CAMERA_MOVE_SPEED * delta);
+				client.setCameraEWOffset(client.getCameraEWOffset() + 15);
 			} else {
 				addRotation(CAMERA_ROTATION_SPEED * 50 * delta);
 			}
 		}
 		if (KeyboardHandler.keyRight) {
 			if (KeyboardHandler.keyShift) {
-				move(CAMERA_MOVE_SPEED * delta);
+				client.setCameraEWOffset(client.getCameraEWOffset() - 15);
 			} else {
 				addRotation(-CAMERA_ROTATION_SPEED * 50 * delta);
 			}
 		}
 		if (KeyboardHandler.keyUp) {
 			if (KeyboardHandler.keyShift) {
-				strafe(-CAMERA_MOVE_SPEED * delta);
+				client.setCameraNSOffset(client.getCameraNSOffset() - 15);
 			} else {
 				addZoom(-CAMERA_ZOOM_SPEED * 100 * delta);
 			}
 		}
 		if (KeyboardHandler.keyDown) {
 			if (KeyboardHandler.keyShift) {
-				strafe(CAMERA_MOVE_SPEED * delta);
+				client.setCameraNSOffset(client.getCameraNSOffset() + 15);
 			} else {
 				addZoom(CAMERA_ZOOM_SPEED * 100 * delta);
 			}
 		}
-
-		if (!KeyboardHandler.keyShift) {
-			final int tileX = ((int) lookAtXAdd / 128) * 128;
-			final int tileY = ((int) lookAtYAdd / 128) * 128;
-
-			lookAtXAdd = lerp(lookAtXAdd, tileX, 8.0f * delta);
-			lookAtYAdd = lerp(lookAtYAdd, tileY, 8.0f * delta);
-
-			if (!movableRelative) {
-				if ((lookAtXAdd != 0.0f && lookAtYAdd != 0.0f)
-					&& (lookAtXAdd < lookAtXNew + 128 && lookAtXAdd > lookAtXNew - 128)
-					&& (lookAtYAdd < lookAtYNew + 128 && lookAtYAdd > lookAtYNew - 128)) {
-					lookAtXAdd = 0.0f;
-					lookAtYAdd = 0.0f;
-				}
-			}
-		}
-
-		lookAtXDelta = lookAtXNew;
-		lookAtYDelta = lookAtYNew;
-
-		if (!movableRelative) {
-			if (lookAtXAdd == 0.0f) {
-				lookAtX = (int) lookAtXDelta;
-			} else {
-				lookAtX = (int) lookAtXAdd;
-			}
-
-			if (lookAtYAdd == 0.0f) {
-				lookAtY = (int) lookAtYDelta;
-			} else {
-				lookAtY = (int) lookAtYAdd;
-			}
+		if (!fow) {
+			setDistance(CLIP_ENDLESS);
+		} else if (client.isSkipLines()) {
+			setDistance(CLIP_INTERLACE);
 		} else {
-			lookAtX = (int) lookAtXDelta + (int) lookAtXAdd;
-			lookAtY = (int) lookAtYDelta + (int) lookAtYAdd;
+			setDistance(CLIP_DEFAULT);
 		}
-	}
-
-	private static void move(final float speed) {
-		final float rotation_degrees = ((float) rotation / 255.0f) * 360;
-		final float xDiff = dirXLength(64, rotation_degrees);
-		final float yDiff = dirYLength(64, rotation_degrees);
-
-		addMovement(xDiff * speed, yDiff * speed);
 	}
 
 	static void addRotation(final float amount) {
 		rotationDelta += amount;
-		rotation = (int) rotationDelta & 0xFF;
-	}
-
-	private static void strafe(final float speed) {
-		final float rotation_degrees = ((float) rotation / 255.0f) * 360 + 90;
-		final float xDiff = dirXLength(64, rotation_degrees);
-		final float yDiff = dirYLength(64, rotation_degrees);
-
-		addMovement(xDiff * speed, yDiff * speed);
 	}
 
 	static void addZoom(final float amount) {
@@ -206,34 +171,10 @@ public final class CameraHandler {
 		zoom = (int) zoomDelta;
 	}
 
-	private static float lerp(final float a, final float b, final float c) {
-		return a + c * (b - a);
-	}
-
-	private static float dirXLength(final float dist, final float angle) {
-		return dist * (float) Math.cos(Math.toRadians(angle));
-	}
-
-	private static float dirYLength(final float dist, final float angle) {
-		return dist * (float) -Math.sin(Math.toRadians(angle));
-	}
-
-	private static void addMovement(final float x, final float y) {
-		if (!movableRelative && ((lookAtXAdd == 0.0f && x != 0) || (lookAtYAdd == 0.0f && y != 0))) {
-			lookAtXAdd = lookAtX;
-			lookAtYAdd = lookAtY;
-		}
-
-		lookAtXAdd += x;
-		lookAtYAdd += y;
-	}
-
 	static void reset() {
-		lookAtXAdd = 0.0f;
-		lookAtYAdd = 0.0f;
-		zoom = 750;
+		client.setCameraEWOffset(0);
+		client.setCameraNSOffset(0);
+		zoom = ZOOM_OUTDOORS_DEFAULT;
 		zoomDelta = (float) zoom;
-		rotation = 126;
-		rotationDelta = (float) rotation;
 	}
 }
