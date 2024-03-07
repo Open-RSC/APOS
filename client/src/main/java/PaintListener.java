@@ -47,6 +47,15 @@ final class PaintListener implements IPaintListener {
 	 */
 	@Override
 	public void onPaint() {
+
+		/*
+		 * renderbug workaround - prevent the texture cache index
+		 * from overflowing
+		 */
+		if (k.e > (1 << 29)) {
+			k.e = 0;
+		}
+
 		drawGradient();
 		synchronized (dimension) {
 			if (!resized) {
