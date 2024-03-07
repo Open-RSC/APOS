@@ -3,6 +3,7 @@ package com.aposbot.gui;
 import com.aposbot.BotLoader;
 import com.aposbot._default.*;
 import com.aposbot.applet.AVStub;
+import com.aposbot.handler.CameraHandler;
 import com.aposbot.Constants;
 
 import javax.imageio.ImageIO;
@@ -248,16 +249,10 @@ public final class BotFrame extends Frame {
 			paint.setRenderTextures(t3d.getState());
 		});
 
-		final Checkbox i3d = new Checkbox("Interlace", false);
-		setColours(i3d);
-		i3d.addItemListener(e -> {
-			final IPaintListener paint = clientInit.getPaintListener();
-			paint.setInterlaceMode(i3d.getState());
-			if (!i3d.getState()) {
-				client.setSkipLines(false);
-			} else if (i3d.getState()) {
-				client.setSkipLines(true);
-			}
+		final Checkbox fowCheck = new Checkbox("Fog of War", true);
+		setColours(fowCheck);
+		fowCheck.addItemListener(e -> {
+			CameraHandler.setFogOfWar(fowCheck.getState());
 		});
 
 		final Button clearLogButton = new Button("Clear log");
@@ -269,7 +264,7 @@ public final class BotFrame extends Frame {
 		checkPanel.add(paintCheck);
 		checkPanel.add(r3d);
 		checkPanel.add(t3d);
-		checkPanel.add(i3d);
+		checkPanel.add(fowCheck);
 		checkPanel.add(clearLogButton);
 
 		add((Component) client, BorderLayout.CENTER);
