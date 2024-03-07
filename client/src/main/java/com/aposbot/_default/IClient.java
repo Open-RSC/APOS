@@ -22,6 +22,16 @@ public interface IClient {
 
 	void takeScreenshot(String fileName);
 
+        int getCameraRotation();
+
+        void setCameraPosX(int i);
+
+        int getCameraPosX();
+
+        void setCameraPosY(int i);
+
+        int getCameraPosY();
+
 	int getCameraNSOffset();
 
 	void setCameraNSOffset(int i);

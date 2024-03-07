@@ -91,6 +91,31 @@ public class Extension extends client implements IClient {
 	}
 
 	@Override
+	public int getCameraRotation() {
+		return ug;
+	}
+
+	@Override
+	public int getCameraPosX() {
+		return kg;
+	}
+
+	@Override
+	public void setCameraPosX(int i) {
+		kg = i;
+	}
+
+	@Override
+	public int getCameraPosY() {
+		return Si;
+	}
+
+	@Override
+	public void setCameraPosY(int i) {
+		Si = i;
+	}
+
+	@Override
 	public int getCameraNSOffset() {
 		return oc;
 	}
