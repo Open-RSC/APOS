@@ -29,6 +29,16 @@ public class Extension extends client implements IClient {
 	private boolean fatigueTraining;
 
 	private Extension() {
+		super();
+		// Increase the size of buffers to prevent overflowing on
+		// the incredibly crowded worlds of RSC Uranium.
+		// XXX this should be fixed on the server too...
+		super.mg = new ja(70000);
+		// overhead icons...
+		super.je = new int[512];
+		super.pe = new int[512];
+		super.jd = new int[512];
+		super.ak = new int[512];
 	}
 
 	public static void initHook() {
