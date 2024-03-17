@@ -496,7 +496,7 @@ public class PathWalker extends Script {
 			textPanel.add(new Label("Target location"));
 			textPanel.add(textField = new TextField("0,0"));
 
-			choice = new List(LOCATIONS.length / 2);
+			choice = new List(LOCATIONS.length / 8);
 
 			for (final Location l : LOCATIONS) {
 				choice.add(l.name);
