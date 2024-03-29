@@ -105,7 +105,6 @@ public final class S_Fatigue extends Script
 	@Override
 	public int main() {
 		if (start_time == -1L) {
-			System.out.println("line 101");
 			ingame_init();
 			init = true;
 		}
@@ -655,7 +654,6 @@ public final class S_Fatigue extends Script
 	}
 
 	private void ingame_init() {
-		System.out.println("ingame_init");
 		start_time = System.currentTimeMillis();
 		Arrays.fill(has_banked, false);
 		start_x = getX();
@@ -677,7 +675,6 @@ public final class S_Fatigue extends Script
 		if (cb_bank.getState()) {
 			pw.init(null);
 			pw_init = true;
-			System.out.println("cb_bank");
 			nearest_bank = pw.getNearestBank(getX(), getY());
 			System.out.println("Nearest bank: " +
 				nearest_bank.name);
