@@ -597,6 +597,19 @@ public abstract class Script implements IScript {
 	}
 
 	/**
+	 * @deprecated For old scripts. Legacy.
+	 * @return not what you think it returns!
+	 */
+	@Deprecated
+	public boolean isTricking() {
+		if (client.isFatigueTraining() && client.getSleepFatigue() < 708) {
+			useSleepingBag();
+			return false;
+		}
+		return client.isFatigueTraining() && client.getSleepFatigue() < 750;
+	}
+
+	/**
 	 * Enables or disables fatigue tricking, which is disabled by default. If
 	 * the player kills certain NPCs with 99% fatigue in melee combat, they can
 	 * gain combat XP without hitpoints XP. If the bot is instructed to use the
