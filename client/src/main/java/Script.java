@@ -597,7 +597,7 @@ public abstract class Script implements IScript {
 	}
 
 	/**
-	 * @deprecated For old scripts. Legacy.
+	 * @deprecated Originally for internal use, now for old scripts misusing it. Legacy.
 	 * @return not what you think it returns!
 	 */
 	@Deprecated
