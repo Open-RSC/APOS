@@ -707,7 +707,7 @@ public class Extension extends client implements IClient {
 
 	@Override
 	public boolean isFatigueTraining() {
-		return fatigueTraining && vg == MAX_FATIGUE;
+		return fatigueTraining;
 	}
 
 	@Override

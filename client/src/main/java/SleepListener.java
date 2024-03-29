@@ -59,6 +59,7 @@ final class SleepListener implements ISleepListener {
 
 	private void onSleepStart() {
 	}
+
 	/**
 	 * Hook to call an instance of the onSleepWord(data) method
 	 *
@@ -67,13 +68,16 @@ final class SleepListener implements ISleepListener {
 	static void sleepWordHook(final byte[] data) {
 		instance.onSleepWord(data);
 	}
+
 	/**
 	 * Processes the given byte array data to handle sleep words.
 	 *
 	 * @param  data  the byte array data to process
 	 */
 	private void onSleepWord(final byte[] data) {
-		if (client.isFatigueTraining() && client.getSleepFatigue() == 0) {
+		if (client.isFatigueTraining() &&
+				client.getFatigue() == 750 &&
+				client.getSleepFatigue() == 0) {
 			client.setSleeping(false);
 			return;
 		}
@@ -291,7 +295,7 @@ final class SleepListener implements ISleepListener {
 			return;
 		}
 
-		if (client.isFatigueTraining()) {
+		if (client.isFatigueTraining() && client.getFatigue() == 750) {
 			if (fatigue == 750) return;
 
 			if (fatigue == 708) {
@@ -306,6 +310,7 @@ final class SleepListener implements ISleepListener {
 
 		if (fatigue == 0) sendSleepWord();
 	}
+
 	/**
 	 * Sends the sleep word using the client's CAPTCHA service.
 	 */
@@ -317,17 +322,22 @@ final class SleepListener implements ISleepListener {
 
 		sleepWord = null;
 	}
+
 	/**
 	 * Hook that is called when sleep word is entered incorrectly
 	 */
 	static void sleepWordIncorrectHook() {
 		instance.onSleepWordIncorrect();
 	}
+
 	/**
 	 * Called when sleep word is entered incorrectly, if greater than maximum tries, it will log out.
 	 */
 	private void onSleepWordIncorrect() {
-		if (client.isFatigueTraining() && ++incorrectSleepTries > MAXIMUM_INCORRECT_SLEEP_TRIES) {
+		if (!client.isFatigueTraining() || client.getFatigue() < 750) {
+			return;
+		}
+		if (++incorrectSleepTries > MAXIMUM_INCORRECT_SLEEP_TRIES) {
 			onSleepStop();
 			client.logout();
 		}
