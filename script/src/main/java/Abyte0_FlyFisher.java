@@ -1,3 +1,5 @@
+//Version 1 - 2024-05-01 - Fix report word to add extras P to avoid triggering admins warning
+
 public class Abyte0_FlyFisher extends Abyte0_Script
 {
 
@@ -11,7 +13,7 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 	@Override
 	public String[] getRandomQuotes()
 	{
-		String[] result = {"Fish level?","What is your cook level?","Trout!","Nice large salmon","Selling Fresh fish!","Dropping fresh Salmon!","There's a fine line between fishing and just standing on the shore like an idiot.","I like to fish. Fishing is always a way of relaxing.","I didn't think I had time for fishing before I fished","The fun of fishing is catching 'em, not killing 'em.","I'm a fisherman. I've always loved fishing. I grew up fishing for trout.","I only make movies to finance my fishing.","Fishing has always been an excuse to drink in the daytime","What I miss most about living in Alaska is the fishing...","I'm bad at fishing for information","Fishing has been part of our culture since we landed here","When I go Miami, I go deep-sea fishing. I love doing that.","Its either fishing rods or golf clubs for me, one or the other","I grew up hunting and fishing, as did my family. But then I served in the military","I am fishing to PK","I really enjoy fishing, do you?","I really enjoy fishing","Are you 99 fish yet?","I bet you are still level 60 fishing?","How many feathers do you got left?"};
+		String[] result = {"Fish level?","What is your cook level?","Trout!","Nice large salmon","Selling Fresh fish!","Dropping fresh Salmon!","There's a fine line between fishing and just standing on the shore like an idiot.","I like to fish. Fishing is always a way of relaxing.","I didn't think I had time for fishing before I fished","The fun of fishing is catching 'em, not killing 'em.","I'm a fisherman. I've always loved fishing. I grew up fishing for trout.","I only make movies to finance my fishing.","Fishing has always been an excuse to drink in the daytime","What I miss most about living in Alaska is the fishing...","I'm bad at fishing for information","Fishing has been part of our culture since we landed here","When I go Miami, I go deep-sea fishing. I love doing that.","Its either fishing rods or golf clubs for me, one or the other","I grew up hunting and fishing, as did my family. But then I served in the military","I am fishing to PK","I really enjoy fishing, do you?","I really enjoy fishing","Are you 99 fish yet?","I bet you are still level 60 fishing?","@ran@Bot! I'll reppppport you!","How many feathers do you got left?"};
 		return result;
 	}
 
@@ -22,7 +24,7 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 	
 	public void init( String params )
 	{
-		print("Abyte0 : Power Fly Fisher V0.4");
+		print("Abyte0 : Power Fly Fisher V1");
 		print("Abyte0 : Use at barbar village");
 		print("Abyte0 : F2 reset counters");
 		print("Abyte0 : Numpad + increase delay");

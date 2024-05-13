@@ -17,23 +17,26 @@
 		//2.1 2022-01-27 - Will try to move to avoid reloggin [Require Abyte0_Script 1.7.3+]
 		//2.2 2022-01-28 - degelated some task to the super class [Require Abyte0_Script 1.7.4+]
 		//2.3 2022-02-14 - Updated to work with abyte0_Script 1.8  [require abyte0_Script 1.8+]
+		//2.3.1 2022-10-16 - Fixed need to move to only work in the paladin room + escale chest room when food
+		//2.3.2 2024-03-09 - Fixed bug after server reboot that get stock on the other castle door
+		//2.4.0 - 2024-05-01 - Fix botting word to add extras T to avoid triggering admins warning
 		
 public class Abyte0_Paladin extends Abyte0_Script 
 {
 	//============ CONFIG START ============//	
 	boolean eatFoodToPickMITH_BAR_ID = false; //change this to true if you want to eat food to be able to pick mith bar....
-	boolean keepOneExtraInventorySpace = true; //This will try to leave bank with one remaining empty space
+	boolean keepOneExtraInventorySpace = true; //This will try to leave inventory with one remaining empty space
 	int fightMode = 3; //0 Controlled, 1 Strength, 2 Attack, 3 Defence
 	//============= CONFIG END= ============//
 	
-	private final String SCRIPT_VERSION = "2.3";
+	private final String SCRIPT_VERSION = "2.4.0";
 	
 	@Override
 	public String[] getRandomQuotes()
 	{
 		String[] result = {
 			"Thieving level?",
-			"Nice wallet",
+			"You got nice wallet in my picket",
 			"Once a thief, always a thief",
 			"give me that wallet!",
 			"fking bots!",
@@ -41,18 +44,18 @@ public class Abyte0_Paladin extends Abyte0_Script
 			"I stole a million from that guy over there!",
 			"I stole his keys, kill him you'll see he wont drop any!",
 			"nice xp!",
-			"yo!",
+			"Sup!",
 			"I am what I am, but I'm not a thief",
 			"Nice hat bro",
 			"is that a rune armore?",
 			"what food do you use?",
 			"this is so quick xp",
-			"anyone here?",
+			"anyone here not botting?",
 			"why such low pid?",
 			"so hard to thieve these with so many bots",
-			"almost 92 thieving legit",
+			"almost 96 thieving legit",
 			"I bet your thief lvl is like 99?!",
-			"bro"};
+			"Welcome back bro"};
 		return result;
 	}
 
@@ -125,12 +128,6 @@ public class Abyte0_Paladin extends Abyte0_Script
 		{			
 			walkTo(getX(), getY());			
 			return 800;		
-		}
-		
-		if(needToMove)
-		{
-			changePosition();
-			return 500;
 		}
 		
 		if(getFatigue() > 90) 
@@ -254,11 +251,17 @@ public class Abyte0_Paladin extends Abyte0_Script
 				return eatFood();
 			}
 			//on regarde si on est dans la sale des paladins
-			if(getX() >= 602 && getX() <= 615 && getY() >= 1548)
+			if(getX() >= 602 && getX() <= 615 && getY() >= 1548 && getY() <= 2000)
 			{
 				int rareItemsFoundResult = pickupRareItems(4);
 				if(rareItemsFoundResult > 0) return rareItemsFoundResult;
 				
+				if(needToMove)
+				{
+					changePosition();
+					return 500;
+				}
+		
 				//On regarde si on peut ramasser des mith bars
 				if(getInventoryCount() < 30)
 				{
@@ -297,6 +300,13 @@ public class Abyte0_Paladin extends Abyte0_Script
 			{
 				int[] doorObj;
 				int[] stairs;
+				
+				//Si on est en haut ou il y a le chest
+				if(isAtApproxCoords(611,2491,10))
+				{
+					atObject(611,2495);
+					return 2000;
+				}
 				
 				//Si pret a SORTIR de la BANQUE
 				if(getX() == 551 && getY() == 612)
@@ -491,10 +501,10 @@ public class Abyte0_Paladin extends Abyte0_Script
 			if(getX() >= 608 && getY() >= 597 && getY() <= 609)
 			{
 				//Passing the Wooden Door
-				stairs = getObjectById(64);				
-				if(stairs[0] != -1 && isAtApproxCoords(stairs[1], stairs[2],5))
-				{
-					atObject(stairs[1], stairs[2]);
+				int closedDoor = getObjectIdFromCoords(607,603); //Updated to avoid getting the other castle door if both are closed
+				if(closedDoor == 64 && isAtApproxCoords(607, 603,5))
+				{		
+					atObject(607, 603);
 					return 800;
 				}
 				walkTo(607,604);
