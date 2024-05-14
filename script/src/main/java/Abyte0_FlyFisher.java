@@ -95,11 +95,6 @@ public class Abyte0_FlyFisher extends Abyte0_Script
 		print("fish time = " + (defaultTime + extraDelay));
 	}
 	
-	private int getFishingXp()
-	{
-		return getXpForLevel(10);
-	}
-
     @Override
     public void onServerMessage(String s) {
 
